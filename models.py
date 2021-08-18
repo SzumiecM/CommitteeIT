@@ -18,7 +18,7 @@ class CommitteeMember(Person):
         self.online_slot_single = None
         self.online_slot_multiple = None
         self.stationary_slot_single = None
-        self.stationary_slot_double = None
+        self.stationary_slot_multiple = None
         self.availability = None
 
         self.assign_slots(online_slots, stationary_slots)
@@ -26,7 +26,7 @@ class CommitteeMember(Person):
 
     def assign_slots(self, online_slots, stationary_slots):
         self.online_slot_single, self.online_slot_multiple = online_slots
-        self.stationary_slot_single, self.stationary_slot_double = stationary_slots
+        self.stationary_slot_single, self.stationary_slot_multiple = stationary_slots
 
     def assign_availability(self, availability):
         self.availability = availability
