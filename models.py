@@ -45,6 +45,3 @@ class Student(Person):
 
     def assign_thesis(self, thesis: Thesis):
         self.thesis = thesis
-
-    def assign_supervisor(self, supervisor: CommitteeMember):
-        self.supervisor = supervisor
