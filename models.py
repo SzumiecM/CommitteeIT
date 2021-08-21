@@ -4,12 +4,6 @@ class Person:
         self.surname = surname
 
 
-class Thesis:
-    def __init__(self, topic: str, individual: bool):
-        self.topic = topic
-        self.individual = individual
-
-
 class CommitteeMember(Person):
     def __init__(self, name: str, surname: str, tenure: bool,
                  online_slots: tuple = None, stationary_slots: tuple = None, availability: dict = None):
@@ -32,13 +26,21 @@ class CommitteeMember(Person):
         self.availability = availability
 
 
-class Student(Person):
-    def __init__(self, name: str, surname: str, index: int,
-                 supervisor: CommitteeMember = None, reviewer: CommitteeMember = None, thesis: Thesis = None):
-        super().__init__(name, surname)
-        self.index = index
+class Thesis:
+    def __init__(self, topic: str, individual: bool,
+                 supervisor: CommitteeMember = None, reviewer: CommitteeMember = None, ):
+        self.topic = topic
+        self.individual = individual
+
         self.supervisor = supervisor
         self.reviewer = reviewer
+
+
+class Student(Person):
+    def __init__(self, name: str, surname: str, index: int,
+                 thesis: Thesis = None):
+        super().__init__(name, surname)
+        self.index = index
         self.thesis = thesis
 
     def assign_thesis(self, thesis: Thesis):
