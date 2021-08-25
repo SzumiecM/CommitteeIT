@@ -19,10 +19,12 @@ class ThesisReader(XlsxReader):
     def read_thesis(self):
         row = 2
         while True:
-            topic, supervisor, reviewer, individual = self.worksheet[f'O{row}'].value, \
-                                                      self.worksheet[f'D{row}'].value, \
-                                                      self.worksheet[f'E{row}'].value, \
-                                                      True if self.worksheet[f'F{row}'].value == 'Pojedyncza' else False
+            topic, supervisor, reviewer, faculty, individual = self.worksheet[f'O{row}'].value, \
+                                                               self.worksheet[f'D{row}'].value, \
+                                                               self.worksheet[f'E{row}'].value, \
+                                                               self.worksheet[f'C{row}'].value, \
+                                                               True if self.worksheet[f'F{row}'].value == 'Pojedyncza' else False
+
 
             if topic and supervisor and reviewer:
                 self.thesis.append(Thesis(

@@ -28,12 +28,14 @@ class CommitteeMember(Person):
 
 class Thesis:
     def __init__(self, topic: str, individual: bool,
-                 supervisor: CommitteeMember = None, reviewer: CommitteeMember = None, ):
+                 supervisor: CommitteeMember = None, reviewer: CommitteeMember = None, faculty: str = None):
         self.topic = topic
         self.individual = individual
 
         self.supervisor = supervisor
         self.reviewer = reviewer
+
+        self.faculty = faculty
 
 
 class Student(Person):
