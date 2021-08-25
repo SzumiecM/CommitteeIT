@@ -31,11 +31,26 @@ class Thesis:
                  supervisor: CommitteeMember = None, reviewer: CommitteeMember = None, faculty: str = None):
         self.topic = topic
         self.individual = individual
+        self.faculty = faculty
 
         self.supervisor = supervisor
         self.reviewer = reviewer
 
-        self.faculty = faculty
+        # to define after
+        self.date = None
+        self.start = None
+        self.end = None
+        self.leader = None
+        self.committee_members = []
+
+    def specify_date(self, date, start, end):
+        self.date = date
+        self.start = start
+        self.end = end
+
+    def specify_squad(self, leader, committee_members):
+        self.leader = leader
+        self.committee_members = committee_members
 
 
 class Student(Person):
