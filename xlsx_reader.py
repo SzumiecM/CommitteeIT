@@ -1,6 +1,6 @@
 from openpyxl import load_workbook
 
-from models import Student, Thesis
+from models import Student, Thesis, CommitteeMember
 
 
 class XlsxReader:
@@ -57,3 +57,60 @@ class ThesisReader(XlsxReader):
     def assign_thesis(self):
         for student, thesis in zip(self.students, self.thesis):
             student.thesis = thesis
+
+
+class EmployeesReader(XlsxReader):
+    def __init__(self, file):
+        super().__init__(file)
+
+        self.employees = []
+
+    def read_employees(self):
+        row = 6
+        while True:
+            surname_and_name, tenure = self.worksheet[f'B{row}'].value, \
+                                       True if self.worksheet[f'C{row}'].value == 'tak' else False
+
+            surname_and_name = [x.capitalize() for x in surname_and_name.split(' ')]
+
+            if len(surname_and_name) == 2:
+                self.employees.append(CommitteeMember(
+                    name=surname_and_name[1],
+                    surname=surname_and_name[0],
+                    tenure=tenure
+                ))
+                row += 1
+            else:
+                break
+
+    def read_slots(self, row):
+        online_slots, offline_slots = self.worksheet[f'D{row}'].value, \
+                                      self.worksheet[f'E{row}'].value
+
+        online_slots = online_slots.split('; ')
+        offline_slots = offline_slots.split('; ')
+
+        return online_slots, offline_slots
+
+    def read_availability(self, row):
+        pass
+
+    def debug_employees(self):
+        for employee in self.employees:
+            print(employee.name + employee.surname + str(employee.tenure))
+
+#     def debug_students(self):
+#         for student in self.students:
+#             print(student.thesis.topic)
+#             print(student.thesis.individual)
+#
+#
+# x = ThesisReader('prace złożone 15.01.2021_egz dypl_21-26.01.2021.xlsx')
+x = EmployeesReader('IT lista-pracownicy_dostępność.xlsx')
+# x.read_students()
+# x.read_thesis()
+# x.assign_thesis()
+#
+# x.debug_students()
+x.read_employees()
+x.debug_employees()
