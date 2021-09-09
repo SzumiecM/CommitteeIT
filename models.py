@@ -4,7 +4,7 @@ class Person:
         self.surname = surname
 
 
-class CommitteeMember(Person):
+class Employee(Person):
     def __init__(self, name: str, surname: str, tenure: bool,
                  online_slots: tuple = None, stationary_slots: tuple = None, availability: dict = None):
         super().__init__(name, surname)
@@ -15,7 +15,9 @@ class CommitteeMember(Person):
         self.stationary_slot_multiple = None
         self.availability = None
 
-        self.assign_slots(online_slots, stationary_slots)
+        if tenure:
+            self.assign_slots(online_slots, stationary_slots)
+
         self.assign_availability(availability)
 
     def assign_slots(self, online_slots, stationary_slots):
@@ -28,7 +30,7 @@ class CommitteeMember(Person):
 
 class Thesis:
     def __init__(self, topic: str, individual: bool,
-                 supervisor: CommitteeMember = None, reviewer: CommitteeMember = None, faculty: str = None):
+                 supervisor: Employee = None, reviewer: Employee = None, faculty: str = None):
         self.topic = topic
         self.individual = individual
         self.faculty = faculty

@@ -1,6 +1,6 @@
 from openpyxl import load_workbook
 
-from models import Student, Thesis, CommitteeMember
+from models import Student, Thesis, Employee
 
 
 # todo ulepszyć ewentualnie, bo nie podoba mi się to całkowicie
@@ -83,7 +83,6 @@ class ThesisReader(XlsxReader):
 class EmployeesReader(XlsxReader):
     def __init__(self, file):
         super().__init__(file)
-
         self.employees = []
         self.read_employees()
         # self.read_slots()
@@ -91,51 +90,42 @@ class EmployeesReader(XlsxReader):
 
     def read_employees(self):
         row = 6
-
         while True:
             surname_and_name, tenure = self.worksheet[f'B{row}'].value, \
                                        True if self.worksheet[f'C{row}'].value == 'tak' else False
 
             surname_and_name = [x.capitalize() for x in surname_and_name.split(' ')]
 
+            online_slots, stationary_slots = self.read_slots(row)
+
+            availabilty = {
+                'day1': self.worksheet[f'F{row}'].value,
+                'day2': self.worksheet[f'G{row}'].value,
+                'day3': self.worksheet[f'H{row}'].value,
+                'day4': self.worksheet[f'I{row}'].value,
+            }
+
             if len(surname_and_name) == 2:
-                self.employees.append(CommitteeMember(
+                self.employees.append(Employee(
                     name=surname_and_name[1],
                     surname=surname_and_name[0],
-                    tenure=tenure
+                    tenure=tenure,
+                    online_slots=online_slots,
+                    stationary_slots=stationary_slots,
+                    availability=availabilty
                 ))
                 row += 1
             else:
                 break
 
     def read_slots(self, row):
-        online_slots, offline_slots = self.worksheet[f'D{row}'].value, \
+        online_slots, stationary_slots = self.worksheet[f'D{row}'].value, \
                                       self.worksheet[f'E{row}'].value
 
-        online_slots = online_slots.split('; ')
-        offline_slots = offline_slots.split('; ')
+        online_slots = online_slots.split('; ') if online_slots else None
+        stationary_slots = stationary_slots.split('; ') if stationary_slots else None
 
-        return online_slots, offline_slots
+        return online_slots, stationary_slots
 
     def read_availability(self, row):
         pass
-
-    def debug_employees(self):
-        for employee in self.employees:
-            print(employee.name + employee.surname + str(employee.tenure))
-
-#     def debug_students(self):
-#         for student in self.students:
-#             print(student.thesis.topic)
-#             print(student.thesis.individual)
-#
-#
-# x = ThesisReader('prace.xlsx')
-x = EmployeesReader('pracownicy.xlsx')
-# x.read_students()
-# x.read_thesis()
-# x.assign_thesis()
-#
-# x.debug_students()
-x.read_employees()
-x.debug_employees()
