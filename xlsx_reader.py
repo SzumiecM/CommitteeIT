@@ -3,10 +3,28 @@ from openpyxl import load_workbook
 from models import Student, Thesis, CommitteeMember
 
 
+# todo ulepszyć ewentualnie, bo nie podoba mi się to całkowicie
+def read_objects(worksheet, row, collection, model, **kwargs):
+    while True:
+        parameters = {}
+        for object, column in kwargs.items():
+            parameters[object] = worksheet[''.join([column, row])].value
+
+        if None not in kwargs.values():
+            collection.append(model(parameters))
+            row += 1
+        else:
+            break
+
+    return collection
+
+
 class XlsxReader:
     def __init__(self, file):
         self.workbook = load_workbook(filename=f'files/{file}')
         self.worksheet = self.workbook.active
+
+        # todo zrobić taki ogólny reader po którym będzie reszta dziedziczyła
 
 
 class ThesisReader(XlsxReader):
@@ -15,6 +33,10 @@ class ThesisReader(XlsxReader):
 
         self.thesis = []
         self.students = []
+
+        self.read_thesis()
+        self.read_students()
+        self.assign_thesis()
 
     def read_thesis(self):
         row = 2
@@ -25,8 +47,7 @@ class ThesisReader(XlsxReader):
                                                                self.worksheet[f'C{row}'].value, \
                                                                True if self.worksheet[f'F{row}'].value == 'Pojedyncza' else False
 
-
-            if topic and supervisor and reviewer:
+            if topic and supervisor and reviewer and individual:
                 self.thesis.append(Thesis(
                     topic=topic,
                     supervisor=supervisor,
@@ -64,9 +85,13 @@ class EmployeesReader(XlsxReader):
         super().__init__(file)
 
         self.employees = []
+        self.read_employees()
+        # self.read_slots()
+        # self.rea
 
     def read_employees(self):
         row = 6
+
         while True:
             surname_and_name, tenure = self.worksheet[f'B{row}'].value, \
                                        True if self.worksheet[f'C{row}'].value == 'tak' else False
@@ -105,8 +130,8 @@ class EmployeesReader(XlsxReader):
 #             print(student.thesis.individual)
 #
 #
-# x = ThesisReader('prace złożone 15.01.2021_egz dypl_21-26.01.2021.xlsx')
-x = EmployeesReader('IT lista-pracownicy_dostępność.xlsx')
+# x = ThesisReader('prace.xlsx')
+x = EmployeesReader('pracownicy.xlsx')
 # x.read_students()
 # x.read_thesis()
 # x.assign_thesis()
