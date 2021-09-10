@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Person:
     def __init__(self, name: str, surname: str):
         self.name = name
@@ -28,6 +31,13 @@ class Employee(Person):
         self.availability = availability
 
 
+class Slot:
+    def __init__(self, date, start, end):
+        self.date = date
+        self.start = start
+        self.end = end
+
+
 class Thesis:
     def __init__(self, topic: str, individual: bool,
                  supervisor: Employee = None, reviewer: Employee = None, faculty: str = None):
@@ -38,20 +48,15 @@ class Thesis:
         self.supervisor = supervisor
         self.reviewer = reviewer
 
-        # to define after
-        self.date = None
-        self.start = None
-        self.end = None
-        self.leader = None
+        self.slot = None
+        self.head_of_committee = None
         self.committee_members = []
 
-    def specify_date(self, date, start, end):
-        self.date = date
-        self.start = start
-        self.end = end
+    def assign_slot(self, slot: Slot):
+        self.slot = slot
 
-    def specify_squad(self, leader, committee_members):
-        self.leader = leader
+    def specify_squad(self, leader: Employee, committee_members: List[Employee]):
+        self.head_of_committee = leader
         self.committee_members = committee_members
 
 
