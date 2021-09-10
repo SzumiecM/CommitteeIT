@@ -39,14 +39,13 @@ class Slot:
 
 
 class Thesis:
-    def __init__(self, topic: str, individual: bool,
-                 supervisor: Employee = None, reviewer: Employee = None, faculty: str = None):
-        self.topic = topic
-        self.individual = individual
-        self.faculty = faculty
+    def __init__(self, kwargs):
+        self.topic = kwargs['topic']
+        self.individual = kwargs['individual']
+        self.faculty = kwargs['faculty']
 
-        self.supervisor = supervisor
-        self.reviewer = reviewer
+        self.supervisor = kwargs['supervisor']
+        self.reviewer = kwargs['reviewer']
 
         self.slot = None
         self.head_of_committee = None
@@ -61,11 +60,10 @@ class Thesis:
 
 
 class Student(Person):
-    def __init__(self, name: str, surname: str, index: int,
-                 thesis: Thesis = None):
-        super().__init__(name, surname)
-        self.index = index
-        self.thesis = thesis
+    def __init__(self, kwargs):
+        super().__init__(kwargs['name'], kwargs['surname'])
+        self.index = kwargs['index']
+        self.thesis = None
 
     def assign_thesis(self, thesis: Thesis):
         self.thesis = thesis
