@@ -14,7 +14,16 @@ class XlsxReader:
         for row in self.worksheet.iter_rows(max_row=10):
             for cell in row:
                 if cell.value == title:
-                    return cell.row, cell.column
+                    if self.worksheet.cell(row=cell.row + 1, column=cell.column).value is not None:
+                        return cell.row + 1, cell.column
+                    else:
+                        row = cell.row
+                        while True:
+                            row += 1
+                            if self.worksheet.cell(row=row + 1, column=cell.column).value is not None:
+                                return row + 1, cell.column
+                            else:
+                                pass
         raise Exception
 
     def read_objects(self):
@@ -25,19 +34,14 @@ class XlsxReader:
                 starting_row, kwargs[attribute] = self.find_starting_row_and_column(title)
                 rows.append(starting_row)
 
-            if len(set(rows)) != 1:
-                raise Exception
-
-            row = rows[0] + 1
+            row = sorted(set(rows))[0]
 
             while True:
                 parameters = {}
 
                 for attribute, column in kwargs.items():
                     parameters[attribute] = self.worksheet.cell(row=row, column=column).value
-
                 if not all(value is None for value in parameters.values()):
-                    print(parameters)
                     collection.append(
                         object_class(
                             parameters
@@ -84,47 +88,46 @@ class ThesisReader(XlsxReader):
 class EmployeesReader(XlsxReader):
     def __init__(self, file):
         super().__init__(file)
-        self.employees = []
-        self.read_employees()
-
-    def read_employees(self):
-        row = 6
-        while True:
-            surname_and_name, tenure = self.worksheet[f'B{row}'].value, \
-                                       True if self.worksheet[f'C{row}'].value == 'tak' else False
-
-            surname_and_name = [x.capitalize() for x in surname_and_name.split(' ')]
-
-            online_slots, stationary_slots = self.read_slots(row)
-
-            availabilty = {
-                'day1': self.worksheet[f'F{row}'].value,
-                'day2': self.worksheet[f'G{row}'].value,
-                'day3': self.worksheet[f'H{row}'].value,
-                'day4': self.worksheet[f'I{row}'].value,
+        self.objects_to_read = {
+            Employee: {
+                'name': 'imię i nazwisko',
+                'surname': 'imię i nazwisko',
+                'tenure': 'przewodniczący-habilitacja',
+                'online_slots': 'ONLINE slot czasowy na pracę pojedynczą;podwójną',
+                'stationary_slots': 'STACJONARNIE slot czasowy na pracę pojedynczą;podwójną',
+                'notes': 'uwagi'
             }
+        }
 
-            if len(surname_and_name) == 2:
-                self.employees.append(Employee(
-                    name=surname_and_name[1],
-                    surname=surname_and_name[0],
-                    tenure=tenure,
-                    online_slots=online_slots,
-                    stationary_slots=stationary_slots,
-                    availability=availabilty
-                ))
+        self.employees = []
+
+        self.read_objects()
+        self.read_assign_availabilities()
+
+    def read_assign_availabilities(self):
+        availabilities = []
+        starting_row, starting_column = self.find_starting_row_and_column('dostępność')
+        days = [self.worksheet.cell(row=starting_row, column=starting_column).value]
+        column = starting_column + 1
+        while True:
+            day = self.worksheet.cell(row=starting_row, column=column).value
+            if day:
+                days.append(day)
+                column += 1
+            else:
+                break
+
+        row = starting_row + 1
+        while True:
+            single_availability = {}
+            for count, day in enumerate(days):
+                single_availability[day] = self.worksheet.cell(row=row, column=starting_column + count).value
+
+            if not all(x is None for x in single_availability.values()):
+                availabilities.append(single_availability)
                 row += 1
             else:
                 break
 
-    def read_slots(self, row):
-        online_slots, stationary_slots = self.worksheet[f'D{row}'].value, \
-                                         self.worksheet[f'E{row}'].value
-
-        online_slots = online_slots.split('; ') if online_slots else None
-        stationary_slots = stationary_slots.split('; ') if stationary_slots else None
-
-        return online_slots, stationary_slots
-
-    def read_availability(self, row):
-        pass
+        for employee, availability in zip(self.employees, availabilities):
+            employee.availability = availability

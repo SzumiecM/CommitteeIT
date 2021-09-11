@@ -8,27 +8,35 @@ class Person:
 
 
 class Employee(Person):
-    def __init__(self, name: str, surname: str, tenure: bool,
-                 online_slots: tuple = None, stationary_slots: tuple = None, availability: dict = None):
-        super().__init__(name, surname)
-        self.tenure = tenure
+    def __init__(self, kwargs):
+        super().__init__(kwargs['name'], kwargs['surname'])
+        self.tenure = kwargs['tenure']
+        self.online_slots = kwargs['online_slots']
+        self.stationary_slots = kwargs['stationary_slots']
+        self.notes = kwargs.get('notes')
+
+        self.availability = None
         self.online_slot_single = None
         self.online_slot_multiple = None
         self.stationary_slot_single = None
         self.stationary_slot_multiple = None
-        self.availability = None
 
-        if tenure:
-            self.assign_slots(online_slots, stationary_slots)
+        if self.online_slots and self.stationary_slots:
+            self.check_slots(self.online_slots, self.stationary_slots)
 
-        self.assign_availability(availability)
+        self.check_fix_names()
+        self.check_tenure()
 
-    def assign_slots(self, online_slots, stationary_slots):
-        self.online_slot_single, self.online_slot_multiple = online_slots
-        self.stationary_slot_single, self.stationary_slot_multiple = stationary_slots
+    def check_slots(self, online_slots, stationary_slots):
+        self.online_slot_single, self.online_slot_multiple = online_slots.split('; ')
+        self.stationary_slot_single, self.stationary_slot_multiple = stationary_slots.split('; ')
 
-    def assign_availability(self, availability):
-        self.availability = availability
+    def check_fix_names(self):
+        if len(self.name.split(' ')) > 1 and len(self.surname.split(' ')) > 1:
+            self.surname, self.name = [x.capitalize() for x in self.name.split(' ') if x != '']
+
+    def check_tenure(self):
+        self.tenure = True if self.tenure else False
 
 
 class Slot:
