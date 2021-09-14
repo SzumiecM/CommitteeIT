@@ -100,9 +100,11 @@ class EmployeesReader(XlsxReader):
         }
 
         self.employees = []
+        self.calendar = {}
 
         self.read_objects()
         self.read_assign_availabilities()
+        self.find_day_start_end()
 
     def read_assign_availabilities(self):
         availabilities = []
@@ -131,3 +133,12 @@ class EmployeesReader(XlsxReader):
 
         for employee, availability in zip(self.employees, availabilities):
             employee.availability = availability
+
+    def find_day_start_end(self):
+        for key in self.employees.pop().availability.keys():
+            hours = [
+                hour for hours in [
+                    employee.availability[key].split('-') for employee in self.employees if employee.availability[key].strip() != 'nie'
+                ] for hour in hours
+            ]
+            self.calendar[key] = '{}-{}'.format(min(hours), max(hours))
