@@ -76,13 +76,22 @@ class ThesisReader(XlsxReader):
 
         self.thesis = []
         self.students = []
+        self.needed_slots = {'single': 0, 'double': 0}
 
         self.read_objects()
         self.assign_thesis()
+        self.check_needed_slots()
 
     def assign_thesis(self):
         for student, thesis in zip(self.students, self.thesis):
             student.thesis = thesis
+
+    def check_needed_slots(self):
+        for thesis in self.thesis:
+            if thesis.individual:
+                self.needed_slots['single'] += 1
+            else:
+                self.needed_slots['double'] += 1
 
 
 class EmployeesReader(XlsxReader):
@@ -138,7 +147,8 @@ class EmployeesReader(XlsxReader):
         for key in self.employees.pop().availability.keys():
             hours = [
                 hour for hours in [
-                    employee.availability[key].split('-') for employee in self.employees if employee.availability[key].strip() != 'nie'
+                    employee.availability[key].split('-') for employee in self.employees if
+                    employee.availability[key].strip() != 'nie'
                 ] for hour in hours
             ]
             self.calendar[key] = '{}-{}'.format(min(hours), max(hours))

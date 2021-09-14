@@ -49,7 +49,7 @@ class Slot:
 class Thesis:
     def __init__(self, kwargs):
         self.topic = kwargs['topic']
-        self.individual = kwargs['individual']
+        self.individual = True if kwargs['individual'] == 'Pojedyncza' else False
         self.faculty = kwargs['faculty']
 
         self.supervisor = kwargs['supervisor']
