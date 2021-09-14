@@ -93,6 +93,8 @@ class ThesisReader(XlsxReader):
             else:
                 self.needed_slots['double'] += 1
 
+        self.needed_slots['double'] = int(self.needed_slots['double']/2)
+
 
 class EmployeesReader(XlsxReader):
     def __init__(self, file):
