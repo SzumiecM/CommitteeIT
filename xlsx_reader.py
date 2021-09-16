@@ -1,6 +1,7 @@
 from openpyxl import load_workbook
+from datetime import datetime, timedelta
 
-from models import Student, Thesis, Employee
+from models import Student, Thesis, Employee, Slot
 
 
 class XlsxReader:
@@ -93,7 +94,7 @@ class ThesisReader(XlsxReader):
             else:
                 self.needed_slots['double'] += 1
 
-        self.needed_slots['double'] = int(self.needed_slots['double']/2)
+        self.needed_slots['double'] = int(self.needed_slots['double'] / 2)
 
 
 class EmployeesReader(XlsxReader):
@@ -112,10 +113,12 @@ class EmployeesReader(XlsxReader):
 
         self.employees = []
         self.calendar = {}
+        self.slots = {}
 
         self.read_objects()
         self.read_assign_availabilities()
         self.find_day_start_end()
+        self.create_slots(break_=15, slot_block=5)
 
     def read_assign_availabilities(self):
         availabilities = []
@@ -154,3 +157,25 @@ class EmployeesReader(XlsxReader):
                 ] for hour in hours
             ]
             self.calendar[key] = '{}-{}'.format(min(hours), max(hours))
+
+    def create_slots(self, break_, slot_block):
+        for day, start_end_hours in self.calendar.items():
+            start, end = (datetime.strptime(x, '%H:%M') for x in start_end_hours.split('-'))
+            slots = []
+            current_slot_in_block = 1
+            current_end = start + timedelta(minutes=30)
+            while True:
+                # todo simplify
+                slots.append(Slot(day=day, start=start, end=current_end))
+                start = current_end + timedelta(minutes=break_ if current_slot_in_block == slot_block else 0)
+                current_end += timedelta(minutes=30 + break_ if current_slot_in_block == slot_block else 30)
+
+                if current_end > end:
+                    break
+                elif current_slot_in_block != slot_block:
+                    current_slot_in_block += 1
+                else:
+                    current_slot_in_block = 1
+
+            print(slots)
+            self.slots[day] = slots

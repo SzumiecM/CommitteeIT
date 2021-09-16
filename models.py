@@ -40,10 +40,13 @@ class Employee(Person):
 
 
 class Slot:
-    def __init__(self, date, start, end):
-        self.date = date
+    def __init__(self, day, start, end):
+        self.day = day
         self.start = start
         self.end = end
+
+    def __repr__(self):
+        return f'{self.day}: {self.start.hour}:{self.start.minute}-{self.end.hour}:{self.end.minute}'
 
 
 class Thesis:
