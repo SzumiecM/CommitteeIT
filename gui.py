@@ -15,7 +15,6 @@ class Window:
         self.thesis_file = None
         self.employees_file = None
 
-        frame_element_kwargs = {'side': 'bottom', 'fill': 'x'}
 
         self.employees_frame = tk.Frame(self.master, bg='yellow')
         self.employees_frame.pack(fill='y', anchor='w', side='left')
@@ -29,7 +28,7 @@ class Window:
 
         self.employees_read_button = tk.Button(self.employees_frame, text='READ', bg='grey')
         self.employees_read_button.pack(side='bottom', fill='x')
-        self.thesis_read_button = tk.Button(self.thesis_frame, text='READ', bg='orange', fontsize=5)
+        self.thesis_read_button = tk.Button(self.thesis_frame, text='READ', bg='orange')
         self.thesis_read_button.pack(side='bottom', fill='x')
 
         self.employees_file_input = tk.Entry(self.employees_frame, bg='purple')
