@@ -5,7 +5,7 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('600x400')
+        self.master.geometry('800x400')
         self.master.option_add('*Font', 'HoboStd 20')
 
         # self.font_size = 20
@@ -15,11 +15,13 @@ class Window:
         self.thesis_file = None
         self.employees_file = None
 
-
         self.employees_frame = tk.Frame(self.master, bg='yellow')
         self.employees_frame.pack(fill='y', anchor='w', side='left')
         self.thesis_frame = tk.Frame(self.master, bg='lime')
         self.thesis_frame.pack(fill='y', anchor='e', side='right')
+
+        self.calendar_frame = tk.Frame(self.master, bg='black')
+        self.calendar_frame.pack(fill='both', anchor='w', expand=1)
 
         self.label_employees = tk.Label(self.employees_frame, text='Employees', bg='cyan')
         self.label_employees.pack(side='top', fill='x')
