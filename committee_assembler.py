@@ -76,7 +76,8 @@ class CommitteeAssembler:
             #         f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}')
 
     def calculate_fitness(self):
-        pass
+        for population in self.population:
+            population.sort()
 
     def select_parents(self):
         pass

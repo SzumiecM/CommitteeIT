@@ -66,6 +66,12 @@ class Thesis:
         self.head_of_committee = None
         self.committee_members = []
 
+    def __repr__(self):
+        return f'{self.topic} | {self.slot}'
+
+    def __lt__(self, other):
+        return self.slot.__repr__() < other.slot.__repr__()
+
     def assign_slot(self, slot: Slot):
         self.slot = slot
 
