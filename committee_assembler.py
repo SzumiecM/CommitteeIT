@@ -6,7 +6,7 @@ from models import Thesis, Employee, Slot
 
 
 class CommitteeAssembler:
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: List[Slot],
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict,
                  max_thesis_per_slot: int, population_count: int):
 
         self.thesis = thesis
@@ -21,6 +21,7 @@ class CommitteeAssembler:
                 self.committee_member_list.append(employee)
 
         self.slots = slots
+        self.slot_list = [item for sublist in self.slots.values() for item in sublist]
         self.max_thesis_per_slot = max_thesis_per_slot
 
         self.population_count = population_count
@@ -53,6 +54,11 @@ class CommitteeAssembler:
                         continue
 
                     single_thesis.committee_members = random.sample(compatible_committee_members, 2)
+
+                    if single_thesis.slot.assigned_thesis == self.max_thesis_per_slot:
+                        continue
+
+                    single_thesis.slot.assigned_thesis += 1
 
                     head_of_committee.slots.remove(single_thesis.slot)
                     for member in single_thesis.committee_members:
