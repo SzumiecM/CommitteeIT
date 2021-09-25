@@ -88,8 +88,16 @@ class ThesisReader(XlsxReader):
         # print(self.needed_slots)
 
     def assign_thesis(self):
-        for student, thesis in zip(self.students, self.thesis):
-            student.thesis = thesis
+        # for student, thesis in zip(self.students, self.thesis):
+        #     student.thesis = thesis
+
+        for student in self.students:
+            for i, thesis in enumerate(self.thesis):
+                if thesis.topic.strip() == self.thesis[i-1].topic.strip():
+                    student.thesis = self.thesis[i-1]
+                    self.thesis.remove(thesis)
+                else:
+                    student.thesis = thesis
 
     def check_needed_slots(self):
         for thesis in self.thesis:
