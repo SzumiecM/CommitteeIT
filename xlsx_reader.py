@@ -83,6 +83,10 @@ class ThesisReader(XlsxReader):
         self.assign_thesis()
         self.check_needed_slots()
 
+        # print(f'number of thesis: {len(self.thesis)}')
+        # print(f'number of students: {len(self.students)}')
+        # print(self.needed_slots)
+
     def assign_thesis(self):
         for student, thesis in zip(self.students, self.thesis):
             student.thesis = thesis
@@ -120,6 +124,24 @@ class EmployeesReader(XlsxReader):
         self.find_day_start_end()
         self.create_slots(break_=15, slot_block=5)
 
+        for employee in self.employees:
+            self.assign_slots(employee)
+
+        # print(f'number of slots: {sum(len(day) for day in self.calendar.values())}')
+
+    def assign_slots(self, employee):
+        for day, slots in self.slots.items():
+            for slot in slots:
+                slot_start, slot_end = slot.start, slot.end
+                availabilities = employee.availability[day].split(';')
+                for availability in availabilities:
+                    if availability.strip() == 'nie':
+                        continue
+                    avail_start, avail_end = (datetime.strptime(x.strip(), '%H:%M') for x in availability.split('-'))
+                    if avail_start <= slot_start and avail_end >= slot_end:
+                        employee.slots.append(slot)
+                        break
+
     def read_assign_availabilities(self):
         availabilities = []
         starting_row, starting_column = self.find_starting_row_and_column('dostępność')
@@ -149,7 +171,7 @@ class EmployeesReader(XlsxReader):
             employee.availability = availability
 
     def find_day_start_end(self):
-        for key in self.employees.pop().availability.keys():
+        for key in self.employees[0].availability.keys():
             hours = [
                 hour for hours in [
                     employee.availability[key].split('-') for employee in self.employees if
@@ -177,5 +199,4 @@ class EmployeesReader(XlsxReader):
                 else:
                     current_slot_in_block = 1
 
-            print(slots)
             self.slots[day] = slots

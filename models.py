@@ -21,6 +21,8 @@ class Employee(Person):
         self.stationary_slot_single = None
         self.stationary_slot_multiple = None
 
+        self.slots = []
+
         if self.online_slots and self.stationary_slots:
             self.check_slots(self.online_slots, self.stationary_slots)
 
