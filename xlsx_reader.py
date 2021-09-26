@@ -147,7 +147,7 @@ class EmployeesReader(XlsxReader):
                         continue
                     avail_start, avail_end = (datetime.strptime(x.strip(), '%H:%M') for x in availability.split('-'))
                     if avail_start <= slot_start and avail_end >= slot_end:
-                        employee.slots.append(slot)
+                        employee.available_slots.append(slot)
                         break
 
     def read_assign_availabilities(self):

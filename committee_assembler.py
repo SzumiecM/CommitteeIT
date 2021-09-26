@@ -39,16 +39,17 @@ class CommitteeAssembler:
                 while True:
                     head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
-                    if len(head_of_committee.slots) < 1:
+                    if len(head_of_committee.available_slots) < 1:
                         head_of_committee_list.remove(head_of_committee)
                         continue
 
                     single_thesis.head_of_committee = head_of_committee
 
-                    single_thesis.slot = head_of_committee.slots[random.randrange(len(head_of_committee.slots))]
+                    single_thesis.slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
 
                     compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                                    if single_thesis.slot.__repr__() in committee_member.slots.__repr__()]
+                                                    if
+                                                    single_thesis.slot.__repr__() in committee_member.available_slots.__repr__()]
 
                     if len(compatible_committee_members) < 2:
                         continue
@@ -60,10 +61,10 @@ class CommitteeAssembler:
 
                     single_thesis.slot.assigned_thesis += 1
 
-                    head_of_committee.slots.remove(single_thesis.slot)
+                    head_of_committee.available_slots.remove(single_thesis.slot)
                     for member in single_thesis.committee_members:
-                        committee_member_list[committee_member_list.index(member)].slots.remove(
-                            [slot for slot in member.slots if slot.__repr__() == single_thesis.slot.__repr__()].pop())
+                        committee_member_list[committee_member_list.index(member)].available_slots.remove(
+                            [slot for slot in member.available_slots if slot.__repr__() == single_thesis.slot.__repr__()].pop())
                     break
 
             self.population.append(thesis)
@@ -76,8 +77,15 @@ class CommitteeAssembler:
             #         f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}')
 
     def calculate_fitness(self):
+        fitness_list = {}
         for population in self.population:
+            fitness = 0
             population.sort()
+            # print(population)
+
+            for i, thesis in enumerate(population):
+                # todo check if employees have slots next to each other
+                pass
 
     def select_parents(self):
         pass
