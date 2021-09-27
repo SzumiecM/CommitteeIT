@@ -145,7 +145,7 @@ class EmployeesReader(XlsxReader):
                 for availability in availabilities:
                     if availability.strip() == 'nie':
                         continue
-                    avail_start, avail_end = (datetime.strptime(x.strip(), '%H:%M') for x in availability.split('-'))
+                    avail_start, avail_end = (datetime.strptime(f'{day[0]} {x.strip()}', '%d %H:%M') for x in availability.split('-'))
                     if avail_start <= slot_start and avail_end >= slot_end:
                         employee.available_slots.append(slot)
                         break
@@ -190,7 +190,8 @@ class EmployeesReader(XlsxReader):
 
     def create_slots(self, break_, slot_block):
         for day, start_end_hours in self.calendar.items():
-            start, end = (datetime.strptime(x, '%H:%M') for x in start_end_hours.split('-'))
+            start, end = (datetime.strptime(f'{day[0]} {x}', '%d %H:%M') for x in start_end_hours.split('-'))
+
             slots = []
             current_slot_in_block = 1
             current_end = start + timedelta(minutes=30)

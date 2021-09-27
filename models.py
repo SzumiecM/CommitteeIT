@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 
@@ -22,6 +23,7 @@ class Employee(Person):
         self.stationary_slot_multiple = None
 
         self.available_slots = []
+        self.assigned_slots = []
 
         if self.online_slots and self.stationary_slots:
             self.check_slots(self.online_slots, self.stationary_slots)
@@ -51,6 +53,13 @@ class Slot:
 
     def __repr__(self):
         return f'{self.day}: {self.start.hour}:{self.start.minute}-{self.end.hour}:{self.end.minute}'
+
+    def __lt__(self, other):
+        return self.start < other.end
+
+    def __sub__(self, other):
+        delta = self.start - other.end
+        return int(delta.seconds / 60)
 
 
 class Thesis:

@@ -11,14 +11,7 @@ class CommitteeAssembler:
 
         self.thesis = thesis
 
-        self.head_of_committee_list = []
-        self.committee_member_list = []
-
-        for employee in employees:
-            if employee.tenure:
-                self.head_of_committee_list.append(employee)
-            else:
-                self.committee_member_list.append(employee)
+        self.employees = employees
 
         self.slots = slots
         self.slot_list = [item for sublist in self.slots.values() for item in sublist]
@@ -30,10 +23,19 @@ class CommitteeAssembler:
 
     def create_initial_population(self):
         for i in range(self.population_count):
+            employees = copy.deepcopy(self.employees)
+            head_of_committee_list = []
+            committee_member_list = []
+
+            for employee in employees:
+                if employee.tenure:
+                    head_of_committee_list.append(employee)
+                else:
+                    committee_member_list.append(employee)
 
             thesis = copy.deepcopy(self.thesis)
-            head_of_committee_list = copy.deepcopy(self.head_of_committee_list)
-            committee_member_list = copy.deepcopy(self.committee_member_list)
+            # head_of_committee_list = copy.deepcopy(self.head_of_committee_list)
+            # committee_member_list = copy.deepcopy(self.committee_member_list)
 
             for single_thesis in thesis:
                 while True:
@@ -45,47 +47,53 @@ class CommitteeAssembler:
 
                     single_thesis.head_of_committee = head_of_committee
 
-                    single_thesis.slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
+                    slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
+
+                    single_thesis.slot = slot
 
                     compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                                    if
-                                                    single_thesis.slot.__repr__() in committee_member.available_slots.__repr__()]
+                                                    if slot.__repr__() in committee_member.available_slots.__repr__()]
 
                     if len(compatible_committee_members) < 2:
                         continue
 
                     single_thesis.committee_members = random.sample(compatible_committee_members, 2)
 
-                    if single_thesis.slot.assigned_thesis == self.max_thesis_per_slot:
+                    if slot.assigned_thesis == self.max_thesis_per_slot:
                         continue
 
-                    single_thesis.slot.assigned_thesis += 1
+                    slot.assigned_thesis += 1
 
-                    head_of_committee.available_slots.remove(single_thesis.slot)
+                    head_of_committee.assigned_slots.append(slot)
+                    head_of_committee.available_slots.remove(slot)
                     for member in single_thesis.committee_members:
+                        member.assigned_slots.append(slot)
                         committee_member_list[committee_member_list.index(member)].available_slots.remove(
-                            [slot for slot in member.available_slots if slot.__repr__() == single_thesis.slot.__repr__()].pop())
+                            [slot for slot in member.available_slots if slot.__repr__() == slot.__repr__()].pop())
                     break
 
-            self.population.append(thesis)
+            self.population.append((thesis, employees))
             # print([
             #           f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}'
             #           for x in thesis])
 
             # for x in thesis:
+            #     print(x.head_of_committee.assigned_slots)
             #     print(
             #         f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}')
 
     def calculate_fitness(self):
         fitness_list = {}
         for population in self.population:
+            thesis, employees = population
             fitness = 0
-            population.sort()
             # print(population)
+            for employee in employees:
+                employee.assigned_slots.sort()
 
-            for i, thesis in enumerate(population):
-                # todo check if employees have slots next to each other
-                pass
+                breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
+                print(employee.assigned_slots)
+                print(breaks)
 
     def select_parents(self):
         pass
