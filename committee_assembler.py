@@ -84,18 +84,31 @@ class CommitteeAssembler:
             #         f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}')
 
     def calculate_fitness(self):
-        fitness_list = {}
+        fitness_list = []
         for population in self.population:
             thesis, employees = population
             fitness = 0
             # print(population)
             for employee in employees:
+                if len(employee.assigned_slots) == 0:
+                    fitness = -999
+                    break
+
                 employee.assigned_slots.sort()
 
                 breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
+
+                fitness += breaks.count(0) * 50
+                fitness += breaks.count(15) * 10
+
+                fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
+
                 # print([x.start for x in employee.assigned_slots])
-                print(employee.assigned_slots)
-                print(breaks)
+                # print(employee.assigned_slots)
+                # print(breaks)
+
+            fitness_list.append((population, fitness))
+            print(fitness)
 
     def select_parents(self):
         pass
