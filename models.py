@@ -59,7 +59,7 @@ class Slot:
 
     def __sub__(self, other):
         delta = self.start - other.end
-        return int(delta.seconds / 60)
+        return int(delta.seconds / 60) + 24 * 60 * delta.days
 
 
 class Thesis:

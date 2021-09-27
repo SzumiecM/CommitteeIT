@@ -52,7 +52,8 @@ class CommitteeAssembler:
                     single_thesis.slot = slot
 
                     compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                                    if slot.__repr__() in committee_member.available_slots.__repr__()]
+                                                    if slot.__repr__() in committee_member.available_slots.__repr__()
+                                                    and slot.__repr__() not in committee_member.assigned_slots.__repr__()]
 
                     if len(compatible_committee_members) < 2:
                         continue
@@ -63,13 +64,13 @@ class CommitteeAssembler:
                         continue
 
                     slot.assigned_thesis += 1
-
                     head_of_committee.assigned_slots.append(slot)
                     head_of_committee.available_slots.remove(slot)
                     for member in single_thesis.committee_members:
                         member.assigned_slots.append(slot)
-                        committee_member_list[committee_member_list.index(member)].available_slots.remove(
-                            [slot for slot in member.available_slots if slot.__repr__() == slot.__repr__()].pop())
+                        member.available_slots.remove(
+                            [slot for slot in member.available_slots if slot.__repr__() == slot.__repr__()].pop()
+                        )
                     break
 
             self.population.append((thesis, employees))
@@ -92,6 +93,7 @@ class CommitteeAssembler:
                 employee.assigned_slots.sort()
 
                 breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
+                # print([x.start for x in employee.assigned_slots])
                 print(employee.assigned_slots)
                 print(breaks)
 
