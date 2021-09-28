@@ -97,3 +97,13 @@ class Student(Person):
 
     def assign_thesis(self, thesis: Thesis):
         self.thesis = thesis
+
+
+class Population:
+    def __init__(self, thesis: List[Thesis], employees: List[Employee]):
+        self.thesis = thesis
+        self.employees = employees
+        self.fitness = 0
+
+    def __lt__(self, other):
+        return self.fitness < other.fitness

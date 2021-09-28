@@ -2,7 +2,7 @@ import copy
 import random
 from typing import List
 
-from models import Thesis, Employee, Slot
+from models import Thesis, Employee, Population
 
 
 class CommitteeAssembler:
@@ -19,7 +19,7 @@ class CommitteeAssembler:
 
         self.population_count = population_count
 
-        self.population = []  # list of Thesis setups
+        self.population = []
 
     def create_initial_population(self):
         for i in range(self.population_count):
@@ -34,8 +34,6 @@ class CommitteeAssembler:
                     committee_member_list.append(employee)
 
             thesis = copy.deepcopy(self.thesis)
-            # head_of_committee_list = copy.deepcopy(self.head_of_committee_list)
-            # committee_member_list = copy.deepcopy(self.committee_member_list)
 
             for single_thesis in thesis:
                 while True:
@@ -73,22 +71,12 @@ class CommitteeAssembler:
                         )
                     break
 
-            self.population.append((thesis, employees))
-            # print([
-            #           f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}'
-            #           for x in thesis])
+            self.population.append(Population(thesis, employees))
 
-            # for x in thesis:
-            #     print(x.head_of_committee.assigned_slots)
-            #     print(
-            #         f'{x.topic} | {x.slot} | {x.head_of_committee.surname} | {x.committee_members[0].surname} | {x.committee_members[1].surname}')
-
-    def calculate_fitness(self):
-        fitness_list = []
         for population in self.population:
-            thesis, employees = population
+            thesis, employees = population.thesis, population.employees
             fitness = 0
-            # print(population)
+
             for employee in employees:
                 if len(employee.assigned_slots) == 0:
                     fitness = -999
@@ -103,15 +91,12 @@ class CommitteeAssembler:
 
                 fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
 
-                # print([x.start for x in employee.assigned_slots])
-                # print(employee.assigned_slots)
-                # print(breaks)
-
-            fitness_list.append((population, fitness))
-            print(fitness)
+            population.fitness = fitness
 
     def select_parents(self):
-        pass
+        self.population.sort()
+        print([x.fitness for x in self.population])
+        # todo start here
 
     def crossover(self):
         pass
