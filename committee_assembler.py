@@ -73,6 +73,7 @@ class CommitteeAssembler:
 
             self.population.append(Population(thesis, employees))
 
+    def calculate_fitness(self):
         for population in self.population:
             thesis, employees = population.thesis, population.employees
             fitness = 0
@@ -94,7 +95,7 @@ class CommitteeAssembler:
             population.fitness = fitness
 
     def select_parents(self):
-        self.population.sort()
+        self.population.sort(reverse=True)
         print([x.fitness for x in self.population])
         # todo start here
 
