@@ -93,8 +93,8 @@ class ThesisReader(XlsxReader):
 
         for student in self.students:
             for i, thesis in enumerate(self.thesis):
-                if thesis.topic.strip() == self.thesis[i-1].topic.strip():
-                    student.thesis = self.thesis[i-1]
+                if thesis.topic.strip() == self.thesis[i - 1].topic.strip():
+                    student.thesis = self.thesis[i - 1]
                     self.thesis.remove(thesis)
                 else:
                     student.thesis = thesis
@@ -107,6 +107,16 @@ class ThesisReader(XlsxReader):
                 self.needed_slots['double'] += 1
 
         self.needed_slots['double'] = int(self.needed_slots['double'] / 2)
+
+    def map_employees(self, employees):
+        for thesis in self.thesis:
+            supervisor = thesis.supervisor.split(' ')
+            reviewer = thesis.reviewer.split(' ')
+            for employee in employees:
+                if f'{supervisor[-2]} {supervisor[-1]}' == f'{employee.name} {employee.surname}':
+                    thesis.supervisor = employee
+                elif f'{reviewer[-2]} {reviewer[-1]}' == f'{employee.name} {employee.surname}':
+                    thesis.reviewer = employee
 
 
 class EmployeesReader(XlsxReader):
@@ -145,7 +155,8 @@ class EmployeesReader(XlsxReader):
                 for availability in availabilities:
                     if availability.strip() == 'nie':
                         continue
-                    avail_start, avail_end = (datetime.strptime(f'{day[0]} {x.strip()}', '%d %H:%M') for x in availability.split('-'))
+                    avail_start, avail_end = (datetime.strptime(f'{day[0]} {x.strip()}', '%d %H:%M') for x in
+                                              availability.split('-'))
                     if avail_start <= slot_start and avail_end >= slot_end:
                         employee.available_slots.append(slot)
                         break

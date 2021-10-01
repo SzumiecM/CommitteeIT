@@ -31,6 +31,9 @@ class Employee(Person):
         self.check_fix_names()
         self.check_tenure()
 
+    def __repr__(self):
+        return f'{self.name}|{self.surname}|{self.tenure}'
+
     def check_slots(self, online_slots, stationary_slots):
         self.online_slot_single, self.online_slot_multiple = online_slots.split('; ')
         self.stationary_slot_single, self.stationary_slot_multiple = stationary_slots.split('; ')

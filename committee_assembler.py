@@ -19,7 +19,8 @@ class CommitteeAssembler:
 
         self.population_count = population_count
 
-        self.population = []
+        self.populations = []
+        self.parents = []
 
     def create_initial_population(self):
         for i in range(self.population_count):
@@ -71,10 +72,10 @@ class CommitteeAssembler:
                         )
                     break
 
-            self.population.append(Population(thesis, employees))
+            self.populations.append(Population(thesis, employees))
 
     def calculate_fitness(self):
-        for population in self.population:
+        for population in self.populations:
             thesis, employees = population.thesis, population.employees
             fitness = 0
 
@@ -92,15 +93,46 @@ class CommitteeAssembler:
 
                 fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
 
+            for thesis in thesis:
+                if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
+                        or thesis.supervisor.__repr__() is thesis.head_of_committee.__repr__():
+                    fitness += 100
+                if thesis.reviewer.__repr__() in thesis.committee_members.__repr__() \
+                        or thesis.reviewer.__repr__() is thesis.head_of_committee.__repr__():
+                    fitness += 70
+
             population.fitness = fitness
 
     def select_parents(self):
-        self.population.sort(reverse=True)
-        print([x.fitness for x in self.population])
-        # todo start here
+        self.populations.sort(reverse=True)
+
+        best_population_count = int(self.population_count / 3)
+        self.parents = self.populations[
+                       :best_population_count if best_population_count % 2 == 0 else best_population_count + 1]
+        print([x.fitness for x in self.parents])
 
     def crossover(self):
-        pass
+        crossover_count = int(len(self.thesis) * 0.1)
+        random.shuffle(self.parents)
+
+        for i in range(0, len(self.parents), 2):
+            available_thesis_indexes = list(range(len(self.parents)))
+            for _ in range(crossover_count):
+                while True:
+                    random_place = random.choice(available_thesis_indexes)
+                    thesis_1 = self.parents[i][random_place]
+                    thesis_2 = self.parents[i + 1][random_place]
+
+                    self.parents[i][random_place] = thesis_2
+                    self.parents[i + 1][random_place] = thesis_1
+
+                    if self.check_for_collision(self.parents[i]) and self.check_for_collision(self.parents[i + 1]):
+                        available_thesis_indexes.remove(random_place)
+                        break
 
     def mutate(self):
         pass
+
+    def check_for_collision(self, population):
+        for thesis in population.employees:
+            pass
