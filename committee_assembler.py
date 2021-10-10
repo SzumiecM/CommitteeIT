@@ -34,37 +34,19 @@ def check_for_collision(thesis_1, thesis_2):
     return False
 
 
-def swap_slots(thesis_1, thesis_2):
-    # TODO OR PROBLEM HERE
-    thesis_1.head_of_committee.available_slots.append(thesis_1.slot)
-    thesis_1.head_of_committee.available_slots.remove([slot for slot in thesis_1.head_of_committee.available_slots if
-                                                       slot.__repr__() == thesis_2.slot.__repr__()].pop())
-    thesis_1.head_of_committee.assigned_slots.append(thesis_2.slot)
-    thesis_1.head_of_committee.assigned_slots.remove([slot for slot in thesis_1.head_of_committee.available_slots if
-                                                       slot.__repr__() == thesis_1.slot.__repr__()].pop())
+def get_by_repr(list_, y):
+    return [x for x in list_ if x.__repr__() == y.__repr__()].pop()
 
-    thesis_2.head_of_committee.available_slots.append(thesis_2.slot)
-    thesis_2.head_of_committee.available_slots.remove([slot for slot in thesis_2.head_of_committee.available_slots if
-                                                       slot.__repr__() == thesis_1.slot.__repr__()].pop())
-    thesis_2.head_of_committee.assigned_slots.append(thesis_1.slot)
-    thesis_2.head_of_committee.assigned_slots.remove([slot for slot in thesis_2.head_of_committee.available_slots if
-                                                       slot.__repr__() == thesis_2.slot.__repr__()].pop())
 
-    for committee_member in thesis_1.committee_members:
-        committee_member.available_slots.append(thesis_1.slot)
-        committee_member.available_slots.remove([slot for slot in committee_member.available_slots if
-                                                       slot.__repr__() == thesis_2.slot.__repr__()].pop())
-        committee_member.assigned_slots.append(thesis_2.slot)
-        committee_member.assigned_slots.remove([slot for slot in committee_member.available_slots if
-                                                       slot.__repr__() == thesis_1.slot.__repr__()].pop())
-
-    for committee_member in thesis_2.committee_members:
-        committee_member.available_slots.append(thesis_2.slot)
-        committee_member.available_slots.remove([slot for slot in committee_member.available_slots if
-                                                       slot.__repr__() == thesis_1.slot.__repr__()].pop())
-        committee_member.assigned_slots.append(thesis_1.slot)
-        committee_member.assigned_slots.remove([slot for slot in committee_member.available_slots if
-                                                       slot.__repr__() == thesis_2.slot.__repr__()].pop())
+def assign_employees(thesis, employees):
+    thesis.head_of_committee = get_by_repr(employees, thesis.head_of_committee)
+    thesis.head_of_committee.available_slots.remove(
+        get_by_repr(thesis.head_of_committee.available_slots, thesis.slot))
+    thesis.head_of_committee.assigned_slots.append(thesis.slot)
+    for member in thesis.committee_members:
+        member = get_by_repr(employees, member)
+        member.available_slots.remove(get_by_repr(member.available_slots, thesis.slot))
+        member.assigned_slots.append(thesis.slot)
 
 
 class CommitteeAssembler:
@@ -129,9 +111,7 @@ class CommitteeAssembler:
                     head_of_committee.available_slots.remove(slot)
                     for member in single_thesis.committee_members:
                         member.assigned_slots.append(slot)
-                        member.available_slots.remove(
-                            [slot for slot in member.available_slots if slot.__repr__() == slot.__repr__()].pop()
-                        )
+                        member.available_slots.remove(get_by_repr(member.available_slots, slot))
                     break
 
             self.populations.append(Population(thesis, employees))
@@ -176,30 +156,27 @@ class CommitteeAssembler:
     def crossover(self):
         crossover_count = int(len(self.thesis) * 0.1)
         random.shuffle(self.parents)
-        # todo left best parents intact, crossover only half (?)
         # todo REMEMBER to store all parents, in case crossovers are not successful
-        # print(int(len(self.parents)/2))
-        for i in range(int(len(self.parents)/2), len(self.parents), 2):
-            available_thesis_indexes = list(range(len(self.parents)))
-            for _ in range(crossover_count):
-                while True:
-                    random_place = random.choice(available_thesis_indexes)
-                    # print(random_place)
-                    thesis_1 = self.parents[i].thesis[random_place]
-                    thesis_2 = self.parents[i + 1].thesis[random_place]
-                    # print(thesis_1)
-                    # print(thesis_2)
+        for i in range(0, len(self.parents), 2):
+            parents = copy.deepcopy(self.parents[i]), copy.deepcopy(self.parents[i + 1])
+            child_thesis = []
+            child_employees = copy.deepcopy(self.employees)
+            for j in range(len(self.thesis)):
+                parent = random.choice(parents)
+                try:
+                    thesis = parent.thesis[j]
+                    assign_employees(thesis, child_employees)
+                except:
+                    # todo on second fail try different approach, maybe select something random
+                    try:
+                        parent = parents[0 if parents.index(get_by_repr(parents, parent)) == 1 else 1]
+                        thesis = parent.thesis[j]
+                        assign_employees(thesis, child_employees)
+                    except:
+                        # todo select random stuff
+                        pass
 
-                    if not check_for_collision(thesis_1, thesis_2):
-                        print('noice')
-                        available_thesis_indexes.remove(random_place)
-
-                        swap_slots(thesis_1, thesis_2)
-                        self.parents[i].thesis[random_place] = thesis_2
-                        self.parents[i + 1].thesis[random_place] = thesis_1
-                        print('noice')
-                        break
-
+                child_thesis.append(thesis)
 
     def mutate(self):
         pass
