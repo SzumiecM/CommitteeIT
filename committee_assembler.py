@@ -30,7 +30,6 @@ def check_for_collision(thesis_1, thesis_2):
         if slot_2.__repr__() not in committee_member.available_slots.__repr__():
             return True
 
-    print('paaaaaassed')
     return False
 
 
@@ -39,6 +38,8 @@ def get_by_repr(list_, y):
 
 
 def assign_employees(thesis, employees):
+    thesis, employees = copy.deepcopy(thesis), copy.deepcopy(employees)
+
     thesis.head_of_committee = get_by_repr(employees, thesis.head_of_committee)
     thesis.head_of_committee.available_slots.remove(
         get_by_repr(thesis.head_of_committee.available_slots, thesis.slot))
@@ -47,6 +48,8 @@ def assign_employees(thesis, employees):
         member = get_by_repr(employees, member)
         member.available_slots.remove(get_by_repr(member.available_slots, thesis.slot))
         member.assigned_slots.append(thesis.slot)
+
+    return thesis, employees
 
 
 class CommitteeAssembler:
@@ -165,16 +168,15 @@ class CommitteeAssembler:
                 parent = random.choice(parents)
                 try:
                     thesis = parent.thesis[j]
-                    assign_employees(thesis, child_employees)
+                    thesis, child_employees = assign_employees(thesis, child_employees)
                 except:
                     # todo on second fail try different approach, maybe select something random
                     try:
                         parent = parents[0 if parents.index(get_by_repr(parents, parent)) == 1 else 1]
                         thesis = parent.thesis[j]
-                        assign_employees(thesis, child_employees)
+                        thesis, child_employees = assign_employees(thesis, child_employees)
                     except:
-                        # todo select random stuff
-                        pass
+                        raise Exception
 
                 child_thesis.append(thesis)
 
