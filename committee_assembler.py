@@ -35,6 +35,7 @@ def check_for_collision(thesis_1, thesis_2):
 
 
 def create_thesis(thesis, head_of_committee_list, committee_member_list, max_thesis_per_slot):
+    # todo assign two slots for double thesis
     while True:
         head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
@@ -177,7 +178,6 @@ class CommitteeAssembler:
             parents = copy.deepcopy(self.parents[i]), copy.deepcopy(self.parents[i + 1])
             child_thesis = []
             child_employees = copy.deepcopy(self.employees)
-            # todo check if correct behaviour
             child_head_of_committee_list = []
             child_committee_member_list = []
 
@@ -219,3 +219,4 @@ class CommitteeAssembler:
             self.select_parents()
             self.crossover()
             print(f'{i+1}/{self.iteration_count} : {time.time() - start} - {len(self.populations)}')
+        # todo save best results
