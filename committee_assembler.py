@@ -1,5 +1,6 @@
 import copy
 import random
+import time
 from typing import List
 
 from models import Thesis, Employee, Population
@@ -33,6 +34,41 @@ def check_for_collision(thesis_1, thesis_2):
     return False
 
 
+def create_thesis(thesis, head_of_committee_list, committee_member_list, max_thesis_per_slot):
+    while True:
+        head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
+
+        if len(head_of_committee.available_slots) < 1:
+            head_of_committee_list.remove(head_of_committee)
+            continue
+
+        thesis.head_of_committee = head_of_committee
+
+        slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
+
+        thesis.slot = slot
+
+        compatible_committee_members = [committee_member for committee_member in committee_member_list
+                                        if slot.__repr__() in committee_member.available_slots.__repr__()
+                                        and slot.__repr__() not in committee_member.assigned_slots.__repr__()]
+
+        if len(compatible_committee_members) < 2:
+            continue
+
+        thesis.committee_members = random.sample(compatible_committee_members, 2)
+
+        if slot.assigned_thesis == max_thesis_per_slot:
+            continue
+
+        slot.assigned_thesis += 1
+        head_of_committee.assigned_slots.append(slot)
+        head_of_committee.available_slots.remove(slot)
+        for member in thesis.committee_members:
+            member.assigned_slots.append(slot)
+            member.available_slots.remove(get_by_repr(member.available_slots, slot))
+        break
+
+
 def get_by_repr(list_, y):
     return [x for x in list_ if x.__repr__() == y.__repr__()].pop()
 
@@ -54,7 +90,7 @@ def assign_employees(thesis, employees):
 
 class CommitteeAssembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict,
-                 max_thesis_per_slot: int, population_count: int):
+                 max_thesis_per_slot: int, population_count: int, iteration_count: int):
 
         self.thesis = thesis
 
@@ -65,6 +101,7 @@ class CommitteeAssembler:
         self.max_thesis_per_slot = max_thesis_per_slot
 
         self.population_count = population_count
+        self.iteration_count = iteration_count
 
         self.populations = []
         self.parents = []
@@ -84,38 +121,12 @@ class CommitteeAssembler:
             thesis = copy.deepcopy(self.thesis)
 
             for single_thesis in thesis:
-                while True:
-                    head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
-
-                    if len(head_of_committee.available_slots) < 1:
-                        head_of_committee_list.remove(head_of_committee)
-                        continue
-
-                    single_thesis.head_of_committee = head_of_committee
-
-                    slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
-
-                    single_thesis.slot = slot
-
-                    compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                                    if slot.__repr__() in committee_member.available_slots.__repr__()
-                                                    and slot.__repr__() not in committee_member.assigned_slots.__repr__()]
-
-                    if len(compatible_committee_members) < 2:
-                        continue
-
-                    single_thesis.committee_members = random.sample(compatible_committee_members, 2)
-
-                    if slot.assigned_thesis == self.max_thesis_per_slot:
-                        continue
-
-                    slot.assigned_thesis += 1
-                    head_of_committee.assigned_slots.append(slot)
-                    head_of_committee.available_slots.remove(slot)
-                    for member in single_thesis.committee_members:
-                        member.assigned_slots.append(slot)
-                        member.available_slots.remove(get_by_repr(member.available_slots, slot))
-                    break
+                create_thesis(
+                    thesis=single_thesis,
+                    head_of_committee_list=head_of_committee_list,
+                    committee_member_list=committee_member_list,
+                    max_thesis_per_slot=self.max_thesis_per_slot
+                )
 
             self.populations.append(Population(thesis, employees))
 
@@ -148,9 +159,9 @@ class CommitteeAssembler:
 
             population.fitness = fitness
 
-    def select_parents(self):
         self.populations.sort(reverse=True)
 
+    def select_parents(self):
         best_population_count = int(self.population_count / 3)
         self.parents = self.populations[
                        :best_population_count if best_population_count % 2 == 0 else best_population_count + 1]
@@ -160,25 +171,51 @@ class CommitteeAssembler:
         crossover_count = int(len(self.thesis) * 0.1)
         random.shuffle(self.parents)
         # todo REMEMBER to store all parents, in case crossovers are not successful
+        self.populations = self.populations[:-int(len(self.parents)/2)]
+
         for i in range(0, len(self.parents), 2):
             parents = copy.deepcopy(self.parents[i]), copy.deepcopy(self.parents[i + 1])
             child_thesis = []
             child_employees = copy.deepcopy(self.employees)
+            # todo check if correct behaviour
+            child_head_of_committee_list = []
+            child_committee_member_list = []
+
+            for employee in child_employees:
+                if employee.tenure:
+                    child_head_of_committee_list.append(employee)
+                else:
+                    child_committee_member_list.append(employee)
+
             for j in range(len(self.thesis)):
                 parent = random.choice(parents)
+                thesis = parent.thesis[j]
                 try:
-                    thesis = parent.thesis[j]
                     thesis, child_employees = assign_employees(thesis, child_employees)
                 except:
-                    # todo on second fail try different approach, maybe select something random
                     try:
                         parent = parents[0 if parents.index(get_by_repr(parents, parent)) == 1 else 1]
                         thesis = parent.thesis[j]
                         thesis, child_employees = assign_employees(thesis, child_employees)
                     except:
-                        raise Exception
+                        create_thesis(
+                            thesis=thesis,
+                            head_of_committee_list=child_head_of_committee_list,
+                            committee_member_list=child_committee_member_list,
+                            max_thesis_per_slot=self.max_thesis_per_slot
+                        )
 
                 child_thesis.append(thesis)
+            self.populations.append(Population(child_thesis, child_employees))
 
     def mutate(self):
         pass
+
+    def assemble(self):
+        self.create_initial_population()
+        for i in range(self.iteration_count):
+            start = time.time()
+            self.calculate_fitness()
+            self.select_parents()
+            self.crossover()
+            print(f'{i+1}/{self.iteration_count} : {time.time() - start} - {len(self.populations)}')

@@ -11,10 +11,8 @@ assembler = CommitteeAssembler(
     employees=employee_reader.employees,
     slots=employee_reader.slots,
     max_thesis_per_slot=5,
-    population_count=100
+    population_count=100,
+    iteration_count=10
 )
 
-assembler.create_initial_population()
-assembler.calculate_fitness()
-assembler.select_parents()
-assembler.crossover()
+assembler.assemble()
