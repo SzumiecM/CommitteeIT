@@ -106,6 +106,7 @@ class CommitteeAssembler:
 
         self.populations = []
         self.parents = []
+        self.best_populations = []
 
     def create_initial_population(self):
         for i in range(self.population_count):
@@ -218,5 +219,17 @@ class CommitteeAssembler:
             self.calculate_fitness()
             self.select_parents()
             self.crossover()
-            print(f'{i+1}/{self.iteration_count} : {time.time() - start} - {len(self.populations)}')
-        # todo save best results
+            print(f'{i+1}/{self.iteration_count} : {time.time() - start} s')
+        self.save_results()
+
+    def save_results(self):
+        self.populations.sort(reverse=True)
+
+        self.best_populations = self.populations[:3]
+
+        for i, population in enumerate(self.best_populations):
+            with open(f'results/{i+1} population.txt', 'w') as f:
+                lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
+                f.writelines(lines)
+                f.close()
+
