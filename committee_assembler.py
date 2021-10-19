@@ -1,37 +1,38 @@
 import copy
 import random
+import statistics
 import time
 from typing import List
 
 from models import Thesis, Employee, Population
 
 
-def check_for_collision(thesis_1, thesis_2):
-    # todo check if correct behaviour
-    thesis_1 = copy.deepcopy(thesis_1)
-    thesis_2 = copy.deepcopy(thesis_2)
-    slot_1 = thesis_1.slot
-    slot_2 = thesis_2.slot
-    # TODO SOME PROBLEM HERE
-    thesis_1.head_of_committee.available_slots.append(slot_1)
-    thesis_2.head_of_committee.available_slots.append(slot_2)
-    # print(f'{slot_1.__repr__()} // {thesis_2.head_of_committee.available_slots.__repr__()}')
-    # print(f'{slot_2.__repr__()} // {thesis_1.head_of_committee.available_slots.__repr__()}')
-
-    if slot_1.__repr__() not in thesis_2.head_of_committee.available_slots.__repr__() \
-            or slot_2.__repr__() not in thesis_1.head_of_committee.available_slots.__repr__():
-        return True
-    # else:
-    for committee_member in thesis_2.committee_members:
-        committee_member.available_slots.append(slot_2)
-        if slot_1.__repr__() not in committee_member.available_slots.__repr__():
-            return True
-    for committee_member in thesis_1.committee_members:
-        committee_member.available_slots.append(slot_1)
-        if slot_2.__repr__() not in committee_member.available_slots.__repr__():
-            return True
-
-    return False
+# def check_for_collision(thesis_1, thesis_2):
+#     # todo check if correct behaviour
+#     thesis_1 = copy.deepcopy(thesis_1)
+#     thesis_2 = copy.deepcopy(thesis_2)
+#     slot_1 = thesis_1.slot
+#     slot_2 = thesis_2.slot
+#     # TODO SOME PROBLEM HERE
+#     thesis_1.head_of_committee.available_slots.append(slot_1)
+#     thesis_2.head_of_committee.available_slots.append(slot_2)
+#     # print(f'{slot_1.__repr__()} // {thesis_2.head_of_committee.available_slots.__repr__()}')
+#     # print(f'{slot_2.__repr__()} // {thesis_1.head_of_committee.available_slots.__repr__()}')
+#
+#     if slot_1.__repr__() not in thesis_2.head_of_committee.available_slots.__repr__() \
+#             or slot_2.__repr__() not in thesis_1.head_of_committee.available_slots.__repr__():
+#         return True
+#     # else:
+#     for committee_member in thesis_2.committee_members:
+#         committee_member.available_slots.append(slot_2)
+#         if slot_1.__repr__() not in committee_member.available_slots.__repr__():
+#             return True
+#     for committee_member in thesis_1.committee_members:
+#         committee_member.available_slots.append(slot_1)
+#         if slot_2.__repr__() not in committee_member.available_slots.__repr__():
+#             return True
+#
+#     return False
 
 
 def create_thesis(thesis, head_of_committee_list, committee_member_list, max_thesis_per_slot):
@@ -219,7 +220,7 @@ class CommitteeAssembler:
             self.calculate_fitness()
             self.select_parents()
             self.crossover()
-            print(f'{i+1}/{self.iteration_count} : {time.time() - start} s')
+            print(f'{i+1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
         self.save_results()
 
     def save_results(self):
