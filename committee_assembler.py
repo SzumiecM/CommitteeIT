@@ -185,10 +185,11 @@ class CommitteeAssembler:
                 committee_member_list.append(employee)
 
         # todo assign two slots for double thesis
+        # todo consider approach with merge_slots function like merge_slots(slot1, slot2) -> slot3
         while True:
             head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
-            if len(head_of_committee.available_slots) < 1:  # or len(head_of_committee.assigned_slots) == self.max_slots_per_employee:
+            if len(head_of_committee.available_slots) < 1:
                 head_of_committee_list.remove(head_of_committee)
                 continue
 
@@ -201,9 +202,7 @@ class CommitteeAssembler:
             compatible_committee_members = [committee_member for committee_member in committee_member_list
                                             if slot.__repr__() in committee_member.available_slots.__repr__()]
 
-            if len(compatible_committee_members) < 2:  # or any(
-                # [True if len(member.assigned_slots) == self.max_slots_per_employee else False for member in
-                #  compatible_committee_members]):
+            if len(compatible_committee_members) < 2:
                 continue
 
             thesis.committee_members = random.sample(compatible_committee_members, 2)
