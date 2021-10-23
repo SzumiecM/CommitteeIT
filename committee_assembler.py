@@ -7,49 +7,6 @@ from typing import List
 from models import Thesis, Employee, Population
 
 
-def create_thesis(thesis, employees, max_thesis_per_slot):
-    head_of_committee_list = []
-    committee_member_list = []
-    for employee in employees:
-        if employee.tenure:
-            head_of_committee_list.append(employee)
-        else:
-            committee_member_list.append(employee)
-    # todo assign two slots for double thesis
-    # todo add limit of thesis per employee
-    while True:
-        head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
-
-        if len(head_of_committee.available_slots) < 1:
-            head_of_committee_list.remove(head_of_committee)
-            continue
-
-        thesis.head_of_committee = head_of_committee
-
-        slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
-
-        thesis.slot = slot
-
-        compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                        if slot.__repr__() in committee_member.available_slots.__repr__()]
-
-        if len(compatible_committee_members) < 2:
-            continue
-
-        thesis.committee_members = random.sample(compatible_committee_members, 2)
-
-        if slot.assigned_thesis == max_thesis_per_slot:
-            continue
-
-        slot.assigned_thesis += 1
-        head_of_committee.assigned_slots.append(slot)
-        head_of_committee.available_slots.remove(slot)
-        for member in thesis.committee_members:
-            member.assigned_slots.append(slot)
-            member.available_slots.remove(get_by_repr(member.available_slots, slot))
-        break
-
-
 def get_by_repr(list_, y):
     return [x for x in list_ if x.__repr__() == y.__repr__()].pop()
 
@@ -71,7 +28,8 @@ def assign_employees(thesis, employees):
 
 class CommitteeAssembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict,
-                 max_thesis_per_slot: int, population_count: int, iteration_count: int):
+                 max_thesis_per_slot: int, population_count: int, iteration_count: int,
+                 max_slots_per_employee: bool):
 
         self.thesis = thesis
 
@@ -80,6 +38,8 @@ class CommitteeAssembler:
         self.slots = slots
         self.slot_list = [item for sublist in self.slots.values() for item in sublist]
         self.max_thesis_per_slot = max_thesis_per_slot
+        self.max_slots_per_employee = int(
+            len(self.thesis) * 3 / len(self.employees)) + 2 if max_slots_per_employee else 9999
 
         self.population_count = population_count
         self.iteration_count = iteration_count
@@ -95,10 +55,9 @@ class CommitteeAssembler:
             thesis = copy.deepcopy(self.thesis)
 
             for single_thesis in thesis:
-                create_thesis(
+                self.create_thesis(
                     thesis=single_thesis,
                     employees=employees,
-                    max_thesis_per_slot=self.max_thesis_per_slot
                 )
             self.populations.append(Population(thesis, employees))
 
@@ -120,6 +79,7 @@ class CommitteeAssembler:
                 fitness += breaks.count(15) * 10
 
                 fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
+                fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee)*20 if len(employee.assigned_slots) > self.max_slots_per_employee else 0
 
             for thesis in thesis:
                 if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
@@ -168,10 +128,9 @@ class CommitteeAssembler:
                         thesis = parent.thesis[j]
                         thesis, child_employees = assign_employees(thesis, child_employees)
                     except:
-                        create_thesis(
+                        self.create_thesis(
                             thesis=thesis,
-                            employees=child_employees,
-                            max_thesis_per_slot=self.max_thesis_per_slot
+                            employees=child_employees
                         )
 
                 child_thesis.append(thesis)
@@ -205,10 +164,9 @@ class CommitteeAssembler:
                     member.assigned_slots.remove(get_by_repr(member.assigned_slots, thesis.slot))
                     member.available_slots.append(thesis.slot)
 
-                create_thesis(
+                self.create_thesis(
                     thesis=thesis,
-                    employees=mutant.employees,
-                    max_thesis_per_slot=self.max_thesis_per_slot
+                    employees=mutant.employees
                 )
                 # todo save only better ones
 
@@ -220,7 +178,7 @@ class CommitteeAssembler:
             self.select_parents()
             self.crossover()
             self.mutate()
-            print(sum([len(e.available_slots) for e in self.populations[0].employees]))
+            # print(sum([len(e.available_slots) for e in self.populations[0].employees]))
             print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             print(
                 f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
@@ -231,7 +189,7 @@ class CommitteeAssembler:
 
         self.best_populations = self.populations[:3]
         print([f'{e.surname} | {len(e.assigned_slots)}' for e in self.best_populations[0].employees])
-        print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / 3)  # 5-123/10-166
+        print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / 3)
         print(len(self.best_populations[0].thesis))
 
         for i, population in enumerate(self.best_populations):
@@ -239,3 +197,47 @@ class CommitteeAssembler:
                 lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
                 f.writelines(lines)
                 f.close()
+
+    def create_thesis(self, thesis, employees):
+        head_of_committee_list = []
+        committee_member_list = []
+        for employee in employees:
+            if employee.tenure:
+                head_of_committee_list.append(employee)
+            else:
+                committee_member_list.append(employee)
+
+        # todo assign two slots for double thesis
+        while True:
+            head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
+
+            if len(head_of_committee.available_slots) < 1:# or len(head_of_committee.assigned_slots) == self.max_slots_per_employee:
+                head_of_committee_list.remove(head_of_committee)
+                continue
+
+            thesis.head_of_committee = head_of_committee
+
+            slot = head_of_committee.available_slots[random.randrange(len(head_of_committee.available_slots))]
+
+            thesis.slot = slot
+
+            compatible_committee_members = [committee_member for committee_member in committee_member_list
+                                            if slot.__repr__() in committee_member.available_slots.__repr__()]
+
+            if len(compatible_committee_members) < 2:# or any(
+                    # [True if len(member.assigned_slots) == self.max_slots_per_employee else False for member in
+                    #  compatible_committee_members]):
+                continue
+
+            thesis.committee_members = random.sample(compatible_committee_members, 2)
+
+            if slot.assigned_thesis == self.max_thesis_per_slot:
+                continue
+
+            slot.assigned_thesis += 1
+            head_of_committee.assigned_slots.append(slot)
+            head_of_committee.available_slots.remove(slot)
+            for member in thesis.committee_members:
+                member.assigned_slots.append(slot)
+                member.available_slots.remove(get_by_repr(member.available_slots, slot))
+            break
