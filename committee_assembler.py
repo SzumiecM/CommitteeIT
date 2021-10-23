@@ -195,6 +195,7 @@ class CommitteeAssembler:
             mutated_thesis = random.sample(mutant.thesis, mutate_thesis_count)
 
             for thesis in mutated_thesis:
+                # todo split employees to global heads and members
                 head = get_by_repr(mutant_head_of_committee_list, thesis.head_of_committee)
                 thesis.head_of_committee = head
                 thesis.head_of_committee.assigned_slots.remove(get_by_repr(head.assigned_slots, thesis.slot))
