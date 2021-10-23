@@ -11,8 +11,8 @@ assembler = CommitteeAssembler(
     employees=employee_reader.employees,
     slots=employee_reader.slots,
     max_thesis_per_slot=5,
-    population_count=100,
-    iteration_count=5,
+    population_count=20,
+    iteration_count=10,
     max_slots_per_employee=True
 )
 

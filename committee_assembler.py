@@ -165,7 +165,7 @@ class CommitteeAssembler:
         self.populations.sort(reverse=True)
 
         self.best_populations = self.populations[:3]
-        print([f'{e.surname} | {len(e.assigned_slots)}' for e in self.best_populations[0].employees])
+        print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in self.best_populations[0].employees])
         print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / 3)
         print(len(self.best_populations[0].thesis))
 
