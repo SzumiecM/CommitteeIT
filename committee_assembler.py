@@ -63,33 +63,7 @@ class CommitteeAssembler:
 
     def calculate_fitness(self):
         for population in self.populations:
-            thesis, employees = population.thesis, population.employees
-            fitness = 0
-
-            for employee in employees:
-                if len(employee.assigned_slots) == 0:
-                    fitness = -999
-                    break
-
-                employee.assigned_slots.sort()
-
-                breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
-
-                fitness += breaks.count(0) * 50
-                fitness += breaks.count(15) * 10
-
-                fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
-                fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee)*20 if len(employee.assigned_slots) > self.max_slots_per_employee else 0
-
-            for thesis in thesis:
-                if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
-                        or thesis.supervisor.__repr__() is thesis.head_of_committee.__repr__():
-                    fitness += 100
-                if thesis.reviewer.__repr__() in thesis.committee_members.__repr__() \
-                        or thesis.reviewer.__repr__() is thesis.head_of_committee.__repr__():
-                    fitness += 70
-
-            population.fitness = fitness
+            population.fitness = self.calculate_population_fitness(population)
 
         self.populations.sort(reverse=True)
 
@@ -140,8 +114,9 @@ class CommitteeAssembler:
         mutate_population_count = int(self.population_count / 4)
         mutate_thesis_count = int(len(self.thesis) / 4)
 
-        mutants = random.sample(self.parents, mutate_population_count)
-        for mutant in mutants:
+        origins = random.sample(self.parents, mutate_population_count)
+        for origin in origins:
+            mutant = copy.deepcopy(origin)
             mutant_head_of_committee_list = []
             mutant_committee_member_list = []
 
@@ -168,7 +143,10 @@ class CommitteeAssembler:
                     thesis=thesis,
                     employees=mutant.employees
                 )
-                # todo save only better ones
+
+            mutant.fitness = self.calculate_population_fitness(mutant)
+            if mutant.fitness > origin.fitness:
+                origin = mutant
 
     def assemble(self):
         self.create_initial_population()
@@ -178,7 +156,6 @@ class CommitteeAssembler:
             self.select_parents()
             self.crossover()
             self.mutate()
-            # print(sum([len(e.available_slots) for e in self.populations[0].employees]))
             print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             print(
                 f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
@@ -211,7 +188,7 @@ class CommitteeAssembler:
         while True:
             head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
-            if len(head_of_committee.available_slots) < 1:# or len(head_of_committee.assigned_slots) == self.max_slots_per_employee:
+            if len(head_of_committee.available_slots) < 1:  # or len(head_of_committee.assigned_slots) == self.max_slots_per_employee:
                 head_of_committee_list.remove(head_of_committee)
                 continue
 
@@ -224,9 +201,9 @@ class CommitteeAssembler:
             compatible_committee_members = [committee_member for committee_member in committee_member_list
                                             if slot.__repr__() in committee_member.available_slots.__repr__()]
 
-            if len(compatible_committee_members) < 2:# or any(
-                    # [True if len(member.assigned_slots) == self.max_slots_per_employee else False for member in
-                    #  compatible_committee_members]):
+            if len(compatible_committee_members) < 2:  # or any(
+                # [True if len(member.assigned_slots) == self.max_slots_per_employee else False for member in
+                #  compatible_committee_members]):
                 continue
 
             thesis.committee_members = random.sample(compatible_committee_members, 2)
@@ -241,3 +218,33 @@ class CommitteeAssembler:
                 member.assigned_slots.append(slot)
                 member.available_slots.remove(get_by_repr(member.available_slots, slot))
             break
+
+    def calculate_population_fitness(self, population):
+        thesis, employees = population.thesis, population.employees
+        fitness = 0
+
+        for employee in employees:
+            if len(employee.assigned_slots) == 0:
+                fitness = -999
+                break
+
+            employee.assigned_slots.sort()
+
+            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
+
+            fitness += breaks.count(0) * 50
+            fitness += breaks.count(15) * 10
+
+            fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
+            fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee) * 20 if len(
+                employee.assigned_slots) > self.max_slots_per_employee else 0
+
+        for thesis in thesis:
+            if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
+                    or thesis.supervisor.__repr__() is thesis.head_of_committee.__repr__():
+                fitness += 100
+            if thesis.reviewer.__repr__() in thesis.committee_members.__repr__() \
+                    or thesis.reviewer.__repr__() is thesis.head_of_committee.__repr__():
+                fitness += 70
+
+        return fitness
