@@ -2,15 +2,21 @@ from datetime import datetime
 from typing import List
 
 
-class Person:
-    def __init__(self, name: str, surname: str):
+class IDModel:
+    def __init__(self, id_: int):
+        self.id = id_
+
+
+class Person(IDModel):
+    def __init__(self, name: str, surname: str, id_: int):
+        super().__init__(id_)
         self.name = name
         self.surname = surname
 
 
 class Employee(Person):
     def __init__(self, kwargs):
-        super().__init__(kwargs['name'], kwargs['surname'])
+        super().__init__(kwargs['name'], kwargs['surname'], kwargs['id'])
         self.tenure = kwargs['tenure']
         self.online_slots = kwargs['online_slots']
         self.stationary_slots = kwargs['stationary_slots']
@@ -46,8 +52,9 @@ class Employee(Person):
         self.tenure = True if self.tenure else False
 
 
-class Slot:
-    def __init__(self, day, start, end):
+class Slot(IDModel):
+    def __init__(self, day, start, end, id_):
+        super().__init__(id_)
         self.day = day
         self.start = start
         self.end = end
@@ -94,7 +101,7 @@ class Thesis:
 
 class Student(Person):
     def __init__(self, kwargs):
-        super().__init__(kwargs['name'], kwargs['surname'])
+        super().__init__(kwargs['name'], kwargs['surname'], kwargs['id'])
         self.index = kwargs['index']
         self.thesis = None
 

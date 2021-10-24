@@ -36,13 +36,18 @@ class XlsxReader:
                 rows.append(starting_row)
 
             row = sorted(set(rows))[0]
+            id_counter = 1
 
             while True:
                 parameters = {}
 
                 for attribute, column in kwargs.items():
                     parameters[attribute] = self.worksheet.cell(row=row, column=column).value
+
                 if not all(value is None for value in parameters.values()):
+                    parameters['id'] = id_counter
+                    id_counter += 1
+
                     collection.append(
                         object_class(
                             parameters
@@ -67,6 +72,9 @@ class ThesisReader(XlsxReader):
                 'faculty': 'Katedra - promotor',
                 'supervisor': 'Dyplom, promotor',
                 'reviewer': 'Dyplom, recenzent'
+                # todo operate on list of slots' ids instead of whole objects
+                # todo maybe simplify every object on assembler level
+                # todo and write some translator functions
             },
             Student: {
                 'name': 'Imię',
@@ -200,6 +208,7 @@ class EmployeesReader(XlsxReader):
             self.calendar[key] = '{}-{}'.format(min(hours), max(hours))
 
     def create_slots(self, break_, slot_block):
+        id_counter = 1
         for day, start_end_hours in self.calendar.items():
             start, end = (datetime.strptime(f'{day[0]} {x}', '%d %H:%M') for x in start_end_hours.split('-'))
 
@@ -208,10 +217,10 @@ class EmployeesReader(XlsxReader):
             current_end = start + timedelta(minutes=30)
             while True:
                 # todo simplify
-                slots.append(Slot(day=day, start=start, end=current_end))
+                slots.append(Slot(day=day, start=start, end=current_end, id_=id_counter))
                 start = current_end + timedelta(minutes=break_ if current_slot_in_block == slot_block else 0)
                 current_end += timedelta(minutes=30 + break_ if current_slot_in_block == slot_block else 30)
-
+                id_counter += 1
                 if current_end > end:
                     break
                 elif current_slot_in_block != slot_block:
