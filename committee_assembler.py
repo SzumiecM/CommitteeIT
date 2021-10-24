@@ -96,6 +96,9 @@ class CommitteeAssembler:
                 else:
                     child_committee_member_list.append(employee)
 
+            parents[0].thesis = sorted(parents[0].thesis, key=lambda x: x.id)
+            parents[1].thesis = sorted(parents[1].thesis, key=lambda x: x.id)
+
             for j in range(len(self.thesis)):
                 if not self.thesis[j].individual:
                     parent = parents[0]  # random.choice(parents)
@@ -103,7 +106,6 @@ class CommitteeAssembler:
                     thesis, child_employees = assign_employees(thesis, child_employees)
                     child_thesis.append(thesis)
 
-            # todo after x iterations 91 assigned slots changes to 88 (double thesis slots are ignored somehow)
             for j in range(len(self.thesis)):
                 if self.thesis[j].individual:
                     parent = random.choice(parents)
@@ -171,7 +173,7 @@ class CommitteeAssembler:
             start = time.time()
             self.calculate_fitness()
             self.select_parents()
-            # self.crossover()
+            self.crossover()
             self.mutate()
             print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             print(
