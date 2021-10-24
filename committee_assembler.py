@@ -83,6 +83,7 @@ class CommitteeAssembler:
         random.shuffle(self.parents)
         self.populations = self.populations[:-int(len(self.parents) / 2)]
 
+        # todo still problem with crossover (91->88 assigned_thesis)
         for i in range(0, len(self.parents), 2):
             parents = copy.deepcopy(self.parents[i]), copy.deepcopy(self.parents[i + 1])
             child_thesis = []
