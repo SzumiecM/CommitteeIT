@@ -12,7 +12,7 @@ assembler = CommitteeAssembler(
     slots=employee_reader.slots,
     max_thesis_per_slot=5,
     population_count=20,
-    iteration_count=10,
+    iteration_count=20,
     max_slots_per_employee=True
 )
 
