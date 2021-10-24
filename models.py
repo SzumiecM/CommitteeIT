@@ -81,6 +81,7 @@ class Thesis:
         self.supervisor = kwargs['supervisor']
         self.reviewer = kwargs['reviewer']
 
+        self.id = None
         self.slot = None
         self.head_of_committee = None
         self.committee_members = []

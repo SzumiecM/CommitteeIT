@@ -37,8 +37,6 @@ class CommitteeAssembler:
                  max_slots_per_employee: bool):
 
         self.thesis = thesis
-        # for thesis in thesis:
-        #     print(f'{thesis.id} | {thesis.topic}')
 
         self.employees = employees
 

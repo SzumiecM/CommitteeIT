@@ -107,6 +107,9 @@ class ThesisReader(XlsxReader):
                 else:
                     student.thesis = thesis
 
+        for i, thesis in enumerate(self.thesis):
+            thesis.id = i + 1
+
     def check_needed_slots(self):
         for thesis in self.thesis:
             if thesis.individual:
