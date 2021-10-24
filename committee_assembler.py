@@ -131,7 +131,7 @@ class CommitteeAssembler:
         mutate_population_count = int(self.population_count / 4)
         mutate_thesis_count = int(len(self.thesis) / 4)
 
-        origins = random.sample(self.parents, mutate_population_count)
+        origins = random.sample(self.populations, mutate_population_count)
         for origin in origins:
             mutant = copy.deepcopy(origin)
             mutant_head_of_committee_list = []
@@ -155,7 +155,6 @@ class CommitteeAssembler:
                         member = get_by_repr(mutant_committee_member_list, member)
                         member.assigned_slots.remove(get_by_repr(member.assigned_slots, thesis.slot))
                         member.available_slots.append(thesis.slot)
-
                     self.create_thesis(
                         thesis=thesis,
                         employees=mutant.employees
@@ -163,7 +162,8 @@ class CommitteeAssembler:
 
             mutant.fitness = self.calculate_population_fitness(mutant)
             if mutant.fitness > origin.fitness:
-                origin = mutant
+                self.populations.remove(origin)
+                self.populations.append(mutant)
 
     def assemble(self):
         self.create_initial_population()
