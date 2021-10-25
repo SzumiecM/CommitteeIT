@@ -131,7 +131,7 @@ class ThesisReader(XlsxReader):
 
 
 class EmployeesReader(XlsxReader):
-    def __init__(self, file):
+    def __init__(self, file, slot_size=30, break_=15, slot_block=5):
         super().__init__(file)
         self.objects_to_read = {
             Employee: {
@@ -151,7 +151,7 @@ class EmployeesReader(XlsxReader):
         self.read_objects()
         self.read_assign_availabilities()
         self.find_day_start_end()
-        self.create_slots(slot_size=30, break_=15, slot_block=5)
+        self.create_slots(slot_size=slot_size, break_=break_, slot_block=slot_block)
 
         for employee in self.employees:
             self.assign_slots(employee)
@@ -222,7 +222,8 @@ class EmployeesReader(XlsxReader):
                 # todo simplify
                 slots.append(Slot(day=day, start=start, end=current_end, id_=id_counter))
                 start = current_end + timedelta(minutes=break_ if current_slot_in_block == slot_block else 0)
-                current_end += timedelta(minutes=slot_size + break_ if current_slot_in_block == slot_block else slot_size)
+                current_end += timedelta(
+                    minutes=slot_size + break_ if current_slot_in_block == slot_block else slot_size)
                 id_counter += 1
                 if current_end > end:
                     break
