@@ -94,11 +94,12 @@ class CommitteeAssembler:
         print([x.fitness for x in self.parents])
 
     def crossover(self):
-        crossover_count = int(len(self.thesis) * 0.1)
-        random.shuffle(self.parents)
-        self.populations = self.populations[:-int(len(self.parents) / 2)]
+        child_count = int(len(self.parents) / 2)
+        populations_to_replace = self.populations[-child_count:]
+        self.populations = self.populations[:-child_count]
 
-        # todo still problem with crossover (91->88 assigned_thesis)
+        random.shuffle(self.parents)
+
         for i in range(0, len(self.parents), 2):
             parents = copy.deepcopy(self.parents[i]), copy.deepcopy(self.parents[i + 1])
             child_thesis = []
@@ -143,8 +144,15 @@ class CommitteeAssembler:
 
             child_thesis = sorted(child_thesis, key=lambda x: x.id)
 
-            # todo save only better populations (not replace last ones blindly)
-            self.populations.append(Population(child_thesis, child_employees))
+            populations_to_replace.append(Population(child_thesis, child_employees))
+
+        for population in populations_to_replace:
+            if not population.fitness:
+                population.fitness = self.calculate_population_fitness(population)
+
+        populations_to_replace.sort(reverse=True)
+        populations_to_replace = populations_to_replace[:child_count]
+        self.populations.extend(populations_to_replace)
 
     def mutate(self):
         mutate_population_count = int(self.population_count / 4)
