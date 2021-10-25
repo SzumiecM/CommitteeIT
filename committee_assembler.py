@@ -20,16 +20,28 @@ def assign_employees(thesis, employees):
     thesis, employees = copy.deepcopy(thesis), copy.deepcopy(employees)
 
     thesis.head_of_committee = get_by_repr(employees, thesis.head_of_committee)
+
     thesis.head_of_committee.available_slots.remove(
         get_by_repr(thesis.head_of_committee.available_slots, thesis.slot))
     thesis.head_of_committee.assigned_slots.append(thesis.slot)
+    if not thesis.individual:
+        thesis.head_of_committee.assigned_slots.append(
+            get_by_id(thesis.head_of_committee.available_slots, thesis.slot.id + 1))
+        thesis.head_of_committee.available_slots.remove(
+            get_by_id(thesis.head_of_committee.available_slots, thesis.slot.id + 1))
+
     for member in thesis.committee_members:
         member = get_by_repr(employees, member)
         member.available_slots.remove(get_by_repr(member.available_slots, thesis.slot))
         member.assigned_slots.append(thesis.slot)
+        if not thesis.individual:
+            member.assigned_slots.append(get_by_id(member.available_slots, thesis.slot.id + 1))
+            member.available_slots.remove(get_by_id(member.available_slots, thesis.slot.id + 1))
 
     return thesis, employees
 
+
+# todo consider storing only slots id and read their value only in calculate_fitness method
 
 class CommitteeAssembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict,
@@ -59,11 +71,14 @@ class CommitteeAssembler:
 
             thesis = copy.deepcopy(self.thesis)
 
+            # print([x.id for x in thesis if not x.individual])
+
             for single_thesis in thesis:
                 self.create_thesis(
                     thesis=single_thesis,
                     employees=employees,
                 )
+
             self.populations.append(Population(thesis, employees))
 
     def calculate_fitness(self):
@@ -128,6 +143,7 @@ class CommitteeAssembler:
 
             child_thesis = sorted(child_thesis, key=lambda x: x.id)
 
+            # todo save only better populations (not replace last ones blindly)
             self.populations.append(Population(child_thesis, child_employees))
 
     def mutate(self):
@@ -176,6 +192,7 @@ class CommitteeAssembler:
             self.select_parents()
             self.crossover()
             self.mutate()
+
             print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             print(
                 f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
@@ -185,6 +202,7 @@ class CommitteeAssembler:
         self.populations.sort(reverse=True)
 
         self.best_populations = self.populations[:3]
+
         print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
                self.best_populations[0].employees])
         print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / 3)
@@ -206,8 +224,7 @@ class CommitteeAssembler:
                 committee_member_list.append(employee)
 
         # todo assign two slots for double thesis
-        # todo consider approach with merge_slots function like merge_slots(slot1, slot2) -> slot3
-        # todo or just have two slots next to each other reserved and always check if thesis is not individual
+        # todo PICKED: have two slots next to each other reserved and always check if thesis is not individual
         while True:
             head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
@@ -222,6 +239,8 @@ class CommitteeAssembler:
                     continue
                 else:
                     slot_2 = get_by_id(head_of_committee.available_slots, slot.id + 1)
+                    if slot_2.assigned_thesis == self.max_thesis_per_slot:
+                        continue
 
             if slot.assigned_thesis == self.max_thesis_per_slot:
                 continue
@@ -241,11 +260,15 @@ class CommitteeAssembler:
             thesis.committee_members = random.sample(compatible_committee_members, 2)
 
             slot.assigned_thesis += 1
+            if not thesis.individual:
+                slot_2.assigned_thesis += 1
+
             head_of_committee.assigned_slots.append(slot)
             head_of_committee.available_slots.remove(slot)
             if not thesis.individual:
                 head_of_committee.assigned_slots.append(slot_2)
                 head_of_committee.available_slots.remove(slot_2)
+
             for member in thesis.committee_members:
                 member.assigned_slots.append(slot)
                 member.available_slots.remove(get_by_repr(member.available_slots, slot))
