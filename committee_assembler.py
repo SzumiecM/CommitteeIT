@@ -302,8 +302,7 @@ class CommitteeAssembler:
             fitness += breaks.count(15) * 10
 
             double_thesis = len([x for x in thesis if not x.individual])
-            # print(double_thesis)
-            # fitness -= double_thesis * 50  # to not count them as breaks
+            fitness -= double_thesis * 50  # to not count them as breaks
 
             fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
             fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee) * 20 if len(
