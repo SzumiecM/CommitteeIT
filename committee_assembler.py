@@ -2,6 +2,7 @@ import copy
 import random
 import statistics
 import time
+import matplotlib.pyplot as plt
 from typing import List
 
 from models import Thesis, Employee, Population
@@ -194,6 +195,11 @@ class CommitteeAssembler:
 
     def assemble(self):
         self.create_initial_population()
+
+        mean_population_score = []
+        best_population_score = []
+        time_elapsed = []
+
         for i in range(self.iteration_count):
             start = time.time()
             self.calculate_fitness()
@@ -201,10 +207,28 @@ class CommitteeAssembler:
             self.crossover()
             self.mutate()
 
+            mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
+            best_population_score.append(self.populations[0].fitness)
+            time_elapsed.append(round(time.time() - start))
+
             print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             print(
                 f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
         self.save_results()
+
+        x = range(self.iteration_count)
+        plt.plot(x, mean_population_score, '-b', label='mean population score')
+        plt.plot(x, best_population_score, '-r', label='best population score')
+        plt.title('Population score')
+        plt.xlabel('Iteration')
+        plt.ylabel('Score')
+        plt.legend(loc="upper left")
+        plt.show()
+
+        plt.plot(x, time_elapsed)
+        plt.title('Time passed')
+        plt.xlabel('Iteration')
+        plt.show()
 
     def save_results(self):
         self.populations.sort(reverse=True)
