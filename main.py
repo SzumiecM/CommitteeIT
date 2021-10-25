@@ -17,5 +17,3 @@ assembler = CommitteeAssembler(
 )
 
 assembler.assemble()
-
-# todo add specifying slot length (double always count as two)

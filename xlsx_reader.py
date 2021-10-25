@@ -151,7 +151,7 @@ class EmployeesReader(XlsxReader):
         self.read_objects()
         self.read_assign_availabilities()
         self.find_day_start_end()
-        self.create_slots(break_=15, slot_block=5)
+        self.create_slots(slot_size=30, break_=15, slot_block=5)
 
         for employee in self.employees:
             self.assign_slots(employee)
@@ -210,19 +210,19 @@ class EmployeesReader(XlsxReader):
             ]
             self.calendar[key] = '{}-{}'.format(min(hours), max(hours))
 
-    def create_slots(self, break_, slot_block):
+    def create_slots(self, slot_size, break_, slot_block):
         id_counter = 1
         for day, start_end_hours in self.calendar.items():
             start, end = (datetime.strptime(f'{day[0]} {x}', '%d %H:%M') for x in start_end_hours.split('-'))
 
             slots = []
             current_slot_in_block = 1
-            current_end = start + timedelta(minutes=30)
+            current_end = start + timedelta(minutes=slot_size)
             while True:
                 # todo simplify
                 slots.append(Slot(day=day, start=start, end=current_end, id_=id_counter))
                 start = current_end + timedelta(minutes=break_ if current_slot_in_block == slot_block else 0)
-                current_end += timedelta(minutes=30 + break_ if current_slot_in_block == slot_block else 30)
+                current_end += timedelta(minutes=slot_size + break_ if current_slot_in_block == slot_block else slot_size)
                 id_counter += 1
                 if current_end > end:
                     break
