@@ -325,10 +325,12 @@ class CommitteeAssembler:
             fitness += breaks.count(0) * 50
             fitness += breaks.count(15) * 10
 
+            # todo reward same committee squads
+
             double_thesis = len([x for x in thesis if not x.individual])
             fitness -= double_thesis * 50  # to not count them as breaks
 
-            fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 25
+            fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 50
             fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee) * 20 if len(
                 employee.assigned_slots) > self.max_slots_per_employee else 0
 
