@@ -5,8 +5,7 @@ from models import Thesis, Employee
 
 class Assembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict,
-                 max_thesis_per_slot: int, population_count: int, iteration_count: int,
-                 max_slots_per_employee: bool):
+                 max_thesis_per_slot: int, population_count: int, max_slots_per_employee: bool):
         self.thesis = thesis
 
         self.employees = employees
@@ -18,19 +17,15 @@ class Assembler:
             len(self.thesis) * 3 / len(self.employees)) + 2 if max_slots_per_employee else 9999
 
         self.population_count = population_count
-        self.iteration_count = iteration_count
 
         self.populations = []
-        self.parents = []
         self.best_populations = []
+        self.assembler_name = ''
 
     def create_initial_population(self):
         raise NotImplementedError
 
     def assemble(self):
-        raise NotImplementedError
-
-    def save_results(self):
         raise NotImplementedError
 
     def calculate_fitness(self):
@@ -73,3 +68,19 @@ class Assembler:
                 fitness += 70
 
         return fitness
+
+    def save_results(self):
+        self.populations.sort(reverse=True)
+
+        self.best_populations = self.populations[:3]
+
+        print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
+               self.best_populations[0].employees])
+        print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / 3)
+        print(len(self.best_populations[0].thesis))
+
+        for i, population in enumerate(self.best_populations):
+            with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
+                lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
+                f.writelines(lines)
+                f.close()

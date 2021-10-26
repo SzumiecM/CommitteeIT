@@ -3,15 +3,24 @@ import random
 import statistics
 import time
 import matplotlib.pyplot as plt
+from typing import List
 
 from assembler import Assembler
 from utils import get_by_repr, get_by_id, assign_employees
-from models import Population
+from models import Population, Thesis, Employee
 
 
 # todo consider storing only slots id and read their value only in calculate_fitness method
 
 class GeneticAssembler(Assembler):
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict, max_thesis_per_slot: int,
+                 population_count: int, iteration_count: int, max_slots_per_employee: bool):
+        super().__init__(thesis, employees, slots, max_thesis_per_slot, population_count, max_slots_per_employee)
+
+        self.iteration_count = iteration_count
+        self.parents = []
+        self.assembler_name = 'genetic'
+
     def create_initial_population(self):
         for i in range(self.population_count):
             employees = copy.deepcopy(self.employees)
@@ -169,22 +178,6 @@ class GeneticAssembler(Assembler):
         plt.title('Time passed')
         plt.xlabel('Iteration')
         plt.show()
-
-    def save_results(self):
-        self.populations.sort(reverse=True)
-
-        self.best_populations = self.populations[:3]
-
-        print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
-               self.best_populations[0].employees])
-        print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / 3)
-        print(len(self.best_populations[0].thesis))
-
-        for i, population in enumerate(self.best_populations):
-            with open(f'results/{i + 1} population.txt', 'w') as f:
-                lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
-                f.writelines(lines)
-                f.close()
 
     def create_thesis(self, thesis, employees):
         head_of_committee_list = []
