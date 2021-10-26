@@ -3,69 +3,15 @@ import random
 import statistics
 import time
 import matplotlib.pyplot as plt
-from typing import List
 
-from models import Thesis, Employee, Population
-
-
-def get_by_repr(list_, y):
-    return [x for x in list_ if x.__repr__() == y.__repr__()].pop()
-
-
-def get_by_id(list_, id_):
-    # todo maybe replace with some clever lambda
-    return [x for x in list_ if x.id == id_].pop()
-
-
-def assign_employees(thesis, employees):
-    thesis, employees = copy.deepcopy(thesis), copy.deepcopy(employees)
-
-    thesis.head_of_committee = get_by_repr(employees, thesis.head_of_committee)
-
-    thesis.head_of_committee.available_slots.remove(
-        get_by_repr(thesis.head_of_committee.available_slots, thesis.slot))
-    thesis.head_of_committee.assigned_slots.append(thesis.slot)
-    if not thesis.individual:
-        thesis.head_of_committee.assigned_slots.append(
-            get_by_id(thesis.head_of_committee.available_slots, thesis.slot.id + 1))
-        thesis.head_of_committee.available_slots.remove(
-            get_by_id(thesis.head_of_committee.available_slots, thesis.slot.id + 1))
-
-    for member in thesis.committee_members:
-        member = get_by_repr(employees, member)
-        member.available_slots.remove(get_by_repr(member.available_slots, thesis.slot))
-        member.assigned_slots.append(thesis.slot)
-        if not thesis.individual:
-            member.assigned_slots.append(get_by_id(member.available_slots, thesis.slot.id + 1))
-            member.available_slots.remove(get_by_id(member.available_slots, thesis.slot.id + 1))
-
-    return thesis, employees
+from assembler import Assembler
+from utils import get_by_repr, get_by_id, assign_employees
+from models import Population
 
 
 # todo consider storing only slots id and read their value only in calculate_fitness method
 
-class CommitteeAssembler:
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict,
-                 max_thesis_per_slot: int, population_count: int, iteration_count: int,
-                 max_slots_per_employee: bool):
-
-        self.thesis = thesis
-
-        self.employees = employees
-
-        # self.slots = slots
-        # self.slot_list = [item for sublist in self.slots.values() for item in sublist]
-        self.max_thesis_per_slot = max_thesis_per_slot
-        self.max_slots_per_employee = int(
-            len(self.thesis) * 3 / len(self.employees)) + 2 if max_slots_per_employee else 9999
-
-        self.population_count = population_count
-        self.iteration_count = iteration_count
-
-        self.populations = []
-        self.parents = []
-        self.best_populations = []
-
+class GeneticAssembler(Assembler):
     def create_initial_population(self):
         for i in range(self.population_count):
             employees = copy.deepcopy(self.employees)
@@ -81,12 +27,6 @@ class CommitteeAssembler:
                 )
 
             self.populations.append(Population(thesis, employees))
-
-    def calculate_fitness(self):
-        for population in self.populations:
-            population.fitness = self.calculate_population_fitness(population)
-
-        self.populations.sort(reverse=True)
 
     def select_parents(self):
         best_population_count = int(self.population_count / 3)
@@ -308,38 +248,3 @@ class CommitteeAssembler:
                     member.assigned_slots.append(slot_2)
                     member.available_slots.remove(get_by_repr(member.available_slots, slot_2))
             break
-
-    def calculate_population_fitness(self, population):
-        thesis, employees = population.thesis, population.employees
-        fitness = 0
-
-        for employee in employees:
-            if len(employee.assigned_slots) == 0:
-                fitness = -999
-                break
-
-            employee.assigned_slots.sort()
-
-            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
-
-            fitness += breaks.count(0) * 50
-            fitness += breaks.count(15) * 10
-
-            # todo reward same committee squads
-
-            double_thesis = len([x for x in thesis if not x.individual])
-            fitness -= double_thesis * 50  # to not count them as breaks
-
-            fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 50
-            fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee) * 20 if len(
-                employee.assigned_slots) > self.max_slots_per_employee else 0
-
-        for thesis in thesis:
-            if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
-                    or thesis.supervisor.__repr__() is thesis.head_of_committee.__repr__():
-                fitness += 100
-            if thesis.reviewer.__repr__() in thesis.committee_members.__repr__() \
-                    or thesis.reviewer.__repr__() is thesis.head_of_committee.__repr__():
-                fitness += 70
-
-        return fitness
