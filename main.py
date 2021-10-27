@@ -1,20 +1,30 @@
 from xlsx_reader import EmployeesReader, ThesisReader
 from genetic_assembler import GeneticAssembler
-# from heuristic_assembler import HeurisiticAssebler
+from heuristic_assembler import HeuristicAssembler
 
 employee_reader = EmployeesReader('pracownicy.xlsx')
 thesis_reader = ThesisReader('prace.xlsx')
 
 thesis_reader.map_employees(employee_reader.employees)
 
-assembler = GeneticAssembler(
-    thesis=thesis_reader.thesis,
-    employees=employee_reader.employees,
-    slots=employee_reader.slots,
+assembler_params = {
+    'thesis': thesis_reader.thesis,
+    'employees': employee_reader.employees,
+    'slots': employee_reader.slots,
+    'employees_per_slot': 3
+}
+
+genetic_assembler = GeneticAssembler(
+    **assembler_params,
     max_thesis_per_slot=5,
-    population_count=20,
+    population_count=10,
     iteration_count=10,
     max_slots_per_employee=True
 )
 
-assembler.assemble()
+heuristic_assembler = HeuristicAssembler(
+    **assembler_params
+)
+
+# genetic_assembler.assemble()
+heuristic_assembler.assemble()

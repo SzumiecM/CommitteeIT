@@ -10,14 +10,18 @@ from utils import get_by_repr, get_by_id, assign_employees
 from models import Population, Thesis, Employee
 
 
-# todo consider storing only slots id and read their value only in calculate_fitness method
-
 class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict, max_thesis_per_slot: int,
-                 population_count: int, iteration_count: int, max_slots_per_employee: bool):
-        super().__init__(thesis, employees, slots, max_thesis_per_slot, population_count, max_slots_per_employee)
+                 population_count: int, iteration_count: int, max_slots_per_employee: bool, employees_per_slot: int):
+        super().__init__(thesis, employees, slots, employees_per_slot)
 
+        self.max_thesis_per_slot = max_thesis_per_slot
+        self.max_slots_per_employee = int(
+            len(self.thesis) * self.employees_per_slot / len(self.employees)) + 2 if max_slots_per_employee else 9999
+
+        self.population_count = population_count
         self.iteration_count = iteration_count
+
         self.parents = []
         self.assembler_name = 'genetic'
 
