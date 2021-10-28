@@ -17,9 +17,12 @@ class HeuristicAssembler(Assembler):
         self.assembler_name = 'heuristic'
 
     def create_initial_population(self):
+        thesis = copy.deepcopy(self.thesis)
+        employees = copy.deepcopy(self.employees)
+
         head_of_committee_list = []
         committee_member_list = []
-        for employee in self.employees:
+        for employee in employees:
             if employee.tenure:
                 head_of_committee_list.append(employee)
             else:
@@ -27,28 +30,34 @@ class HeuristicAssembler(Assembler):
 
         block = 3
 
-        single_thesis = []  # todo rename (shadowing different variable)
+        individual_thesis = []  # todo rename (shadowing different variable)
         double_thesis = []
 
-        for thesis in self.thesis:
-            if thesis.individual:
-                single_thesis.append(thesis)
+        for single_thesis in thesis:
+            if single_thesis.individual:
+                individual_thesis.append(single_thesis)
             else:
-                double_thesis.append(thesis)
+                double_thesis.append(single_thesis)
 
         self.assign_to_thesis(double_thesis, head_of_committee_list, committee_member_list, 1, 2)
-        self.assign_to_thesis(single_thesis, head_of_committee_list, committee_member_list, block, 1)
+        self.assign_to_thesis(individual_thesis, head_of_committee_list, committee_member_list, block, 1)
 
-        self.populations.append(Population(self.thesis, self.employees))
+        self.populations.append(Population(thesis, employees))
         self.populations[0].fitness = self.calculate_population_fitness(self.populations[0])
         self.best_populations.append(self.populations[0])
 
     def assemble(self):
-        self.create_initial_population()
+        while True:
+            try:
+                self.create_initial_population()
+                break
+            except TimeoutError:
+                continue
         self.save_results()
 
     def assign_to_thesis(self, thesis, head_of_committee_list, committee_member_list, block, slots_to_assign):
         for i in range(0, len(thesis), block):
+            start = time.time()
             head_of_committee_list.sort()
             committee_member_list.sort()
             head_counter = 0
@@ -56,6 +65,9 @@ class HeuristicAssembler(Assembler):
             print(f'running thesis {i}-{i + block - 1}')
 
             while True:
+                if time.time() - start > 2:
+                    raise TimeoutError
+
                 if len(head_of_committee_list) <= head_counter:
                     slot_counter = 0
                     head_counter = 0
@@ -110,7 +122,7 @@ class HeuristicAssembler(Assembler):
                     head_of_committee.available_slots.remove(slot)
 
                     if slots_to_assign == 2:
-                        # todo problem here, but only sometimes
+                        # todo problem here, but only sometimes (STILL OCCURRING)
                         slot_2 = get_by_id(slots, slot.id + 1)
                         head_of_committee.assigned_slots.append(slot_2)
                         head_of_committee.available_slots.remove(slot_2)

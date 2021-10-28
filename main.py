@@ -17,7 +17,7 @@ assembler_params = {
 genetic_assembler = GeneticAssembler(
     **assembler_params,
     max_thesis_per_slot=5,
-    population_count=10,
+    population_count=20,
     iteration_count=10,
     max_slots_per_employee=True
 )
