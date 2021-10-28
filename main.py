@@ -1,6 +1,6 @@
 from xlsx_reader import EmployeesReader, ThesisReader
-from genetic_assembler import GeneticAssembler
-from heuristic_assembler import HeuristicAssembler
+from assemblers.genetic_assembler import GeneticAssembler
+from assemblers.heuristic_assembler import HeuristicAssembler
 
 employee_reader = EmployeesReader('pracownicy.xlsx')
 thesis_reader = ThesisReader('prace.xlsx')

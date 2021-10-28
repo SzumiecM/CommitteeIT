@@ -5,7 +5,7 @@ import time
 import matplotlib.pyplot as plt
 from typing import List
 
-from assembler import Assembler
+from .assembler import Assembler
 from utils import get_by_repr, get_by_id
 from models import Population, Thesis, Employee
 
