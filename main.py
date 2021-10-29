@@ -1,6 +1,6 @@
-from assemblers.hybrid_assembler import HybridAssembler
+from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
 from xlsx_reader import EmployeesReader, ThesisReader
-from assemblers.genetic_assembler import GeneticAssembler
+from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
 
 employee_reader = EmployeesReader('pracownicy.xlsx')
@@ -17,7 +17,7 @@ assembler_params = {
     'max_thesis_per_slot': 5
 }
 
-genetic_assembler = GeneticAssembler(
+genetic_assembler = GeneticOnlyAssembler(
     **assembler_params,
     iteration_count=10,
 )
@@ -26,7 +26,7 @@ heuristic_assembler = HeuristicAssembler(
     **assembler_params
 )
 
-hybrid_assembler = HybridAssembler(
+hybrid_assembler = GeneticHybridAssembler(
     **assembler_params,
     iteration_count=10
 )
