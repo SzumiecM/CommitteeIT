@@ -6,18 +6,18 @@ from utils import assign_to_thesis_heuristically
 
 
 class Assembler:
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict, employees_per_slot: int,
-                 population_count: int):
+    # todo define everywhere super() with parameter names
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
+                 population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int):
 
         self.thesis = copy.deepcopy(thesis)
         self.employees = copy.deepcopy(employees)
         self.population_count = population_count
         self.employees_per_slot = employees_per_slot
         self.mean_slots_per_employee = int(len(self.thesis) * self.employees_per_slot / len(self.employees))
-        self.max_slots_per_employee = self.mean_slots_per_employee + 6
 
-        # self.slots = slots
-        # self.slot_list = [item for sublist in self.slots.values() for item in sublist]
+        self.max_slots_per_employee = self.mean_slots_per_employee + 6 if max_slots_per_employee else 9999
+        self.max_thesis_per_slot = max_thesis_per_slot
 
         self.populations = []
         self.best_populations = []

@@ -11,13 +11,10 @@ from models import Population, Thesis, Employee
 
 
 class GeneticAssembler(Assembler):
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict, max_thesis_per_slot: int,
-                 population_count: int, iteration_count: int, max_slots_per_employee: bool, employees_per_slot: int):
-        super().__init__(thesis, employees, slots, employees_per_slot, population_count)
-
-        self.max_thesis_per_slot = max_thesis_per_slot
-        self.max_slots_per_employee = int(
-            len(self.thesis) * self.employees_per_slot / len(self.employees)) + 2 if max_slots_per_employee else 9999
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
+                 population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int):
+        super().__init__(thesis, employees, employees_per_slot, population_count, max_slots_per_employee,
+                         max_thesis_per_slot)
 
         self.iteration_count = iteration_count
 
@@ -29,8 +26,6 @@ class GeneticAssembler(Assembler):
             employees = copy.deepcopy(self.employees)
 
             thesis = copy.deepcopy(self.thesis)
-
-            # print([x.id for x in thesis if not x.individual])
 
             for single_thesis in thesis:
                 self.create_thesis(
