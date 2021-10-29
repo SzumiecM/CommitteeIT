@@ -119,10 +119,9 @@ class Assembler:
                         double_thesis.append(single_thesis)
 
                 assign_to_thesis_heuristically(double_thesis, head_of_committee_list, committee_member_list, 1, 2,
-                                               self.max_slots_per_employee)
+                                               self.max_slots_per_employee, self.max_thesis_per_slot)
                 assign_to_thesis_heuristically(individual_thesis, head_of_committee_list, committee_member_list, block,
-                                               1,
-                                               self.max_slots_per_employee)
+                                               1, self.max_slots_per_employee, self.max_thesis_per_slot)
 
                 self.populations.append(Population(thesis, employees))
 

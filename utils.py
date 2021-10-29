@@ -38,7 +38,7 @@ def assign_employees(thesis, employees):
 
 
 def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_member_list, block,
-                                   slots_to_assign, max_slots_per_employee):
+                                   slots_to_assign, max_slots_per_employee, max_thesis_per_slot):
     for i in range(0, len(thesis), block):
         start = time.time()
         head_of_committee_list.sort()
@@ -73,6 +73,9 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
             slots = head_of_committee.available_slots[
                     slot_counter * slots_to_assign:(slot_counter + block) * slots_to_assign]
 
+            if any(slot.assigned_thesis == max_thesis_per_slot for slot in slots):
+                continue
+
             if len(set([b - a for a, b in zip(slots[:-1], slots[1:]) if b - a != 15])) != 1:
                 # todo dynamically read break
                 slot_counter += 1
@@ -104,14 +107,21 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
                 head_of_committee.assigned_slots.append(slot)
                 head_of_committee.available_slots.remove(slot)
 
+                slot.assigned_thesis += 1
+
                 if slots_to_assign == 2:
                     if slot.id + 1 not in [slot.id for slot in slots]:
                         # todo continue also upper loop
                         raise TimeoutError
 
                     slot_2 = get_by_id(slots, slot.id + 1)
+                    if slot_2.assigned_thesis == max_thesis_per_slot:
+                        raise TimeoutError
+                    slot_2.assigned_thesis += 1
+
                     head_of_committee.assigned_slots.append(slot_2)
                     head_of_committee.available_slots.remove(slot_2)
+
                 for member in compatible_committee_members:
                     member.assigned_slots.append(slot)
                     member.available_slots.remove(get_by_repr(member.available_slots, slot))
