@@ -13,7 +13,9 @@ assembler_params = {
     'employees': employee_reader.employees,
     'employees_per_slot': 3,
     'population_count': 10,
+    # todo CHECK MAX SLOTS PER EMPLOYEE
     'max_slots_per_employee': True,
+    # todo CHECK IN HEURISTIC
     'max_thesis_per_slot': 5
 }
 
@@ -31,6 +33,10 @@ hybrid_assembler = GeneticHybridAssembler(
     iteration_count=10
 )
 
-# genetic_assembler.assemble()
-# heuristic_assembler.assemble()
+genetic_assembler.assemble()
+heuristic_assembler.assemble()
 hybrid_assembler.assemble()
+
+genetic_assembler.save_results()
+heuristic_assembler.save_results()
+hybrid_assembler.save_results()

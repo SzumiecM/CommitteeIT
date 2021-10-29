@@ -45,7 +45,7 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
         committee_member_list.sort()
         head_counter = 0
         slot_counter = 0
-        print(f'running thesis {i}-{i + block - 1}')
+        # print(f'running thesis {i}-{i + block - 1}')
 
         while True:
             if time.time() - start > 1:
