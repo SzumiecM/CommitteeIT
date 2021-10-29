@@ -11,13 +11,13 @@ assembler_params = {
     'thesis': thesis_reader.thesis,
     'employees': employee_reader.employees,
     'slots': employee_reader.slots,
-    'employees_per_slot': 3
+    'employees_per_slot': 3,
+    'population_count': 10
 }
 
 genetic_assembler = GeneticAssembler(
     **assembler_params,
     max_thesis_per_slot=5,
-    population_count=20,
     iteration_count=10,
     max_slots_per_employee=True
 )

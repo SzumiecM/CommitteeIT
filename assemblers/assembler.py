@@ -1,16 +1,18 @@
 from typing import List
 import copy
 
-from models import Thesis, Employee
+from models import Thesis, Employee, Population
+from utils import assign_to_thesis_heuristically
 
 
 class Assembler:
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict, employees_per_slot: int):
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], slots: dict, employees_per_slot: int,
+                 population_count: int):
 
         self.thesis = copy.deepcopy(thesis)
         self.employees = copy.deepcopy(employees)
-        self.employees_per_slot = employees_per_slot\
-
+        self.population_count = population_count
+        self.employees_per_slot = employees_per_slot
         self.mean_slots_per_employee = int(len(self.thesis) * self.employees_per_slot / len(self.employees))
         self.max_slots_per_employee = self.mean_slots_per_employee + 6
 
@@ -45,7 +47,7 @@ class Assembler:
 
             employee.assigned_slots.sort()
 
-            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:]) if b-a != 15]
+            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:]) if b - a != 15]
 
             fitness += breaks.count(0) * 50
             fitness += breaks.count(15) * 10
@@ -78,10 +80,47 @@ class Assembler:
         print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
                self.best_populations[0].employees])
         print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / self.employees_per_slot)
-        print(self.best_populations[0].fitness)
+        print(f'{self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
 
         for i, population in enumerate(self.best_populations):
             with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
                 lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
                 f.writelines(lines)
                 f.close()
+
+    def create_initial_population_heuristically(self):
+        while True:
+            try:
+                thesis = copy.deepcopy(self.thesis)
+                employees = copy.deepcopy(self.employees)
+
+                head_of_committee_list = []
+                committee_member_list = []
+                for employee in employees:
+                    if employee.tenure:
+                        head_of_committee_list.append(employee)
+                    else:
+                        committee_member_list.append(employee)
+
+                block = 3
+
+                individual_thesis = []
+                double_thesis = []
+
+                for single_thesis in thesis:
+                    if single_thesis.individual:
+                        individual_thesis.append(single_thesis)
+                    else:
+                        double_thesis.append(single_thesis)
+
+                assign_to_thesis_heuristically(double_thesis, head_of_committee_list, committee_member_list, 1, 2,
+                                               self.max_slots_per_employee)
+                assign_to_thesis_heuristically(individual_thesis, head_of_committee_list, committee_member_list, block,
+                                               1,
+                                               self.max_slots_per_employee)
+
+                self.populations.append(Population(thesis, employees))
+
+                break
+            except TimeoutError:
+                continue
