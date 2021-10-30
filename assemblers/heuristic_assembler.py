@@ -23,6 +23,9 @@ class HeuristicAssembler(Assembler):
             self.create_initial_population_heuristically()
 
     def assemble(self):
+        global_start = time.time()
         self.create_initial_population()
         self.calculate_fitness()
+
+        self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()

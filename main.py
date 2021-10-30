@@ -2,40 +2,45 @@ from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
 from xlsx_reader import EmployeesReader, ThesisReader
 from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
+from multiprocessing import Process
 
-employee_reader = EmployeesReader('pracownicy.xlsx')
-thesis_reader = ThesisReader('prace.xlsx')
+if __name__ == '__main__':
+    employee_reader = EmployeesReader('pracownicy.xlsx')
+    thesis_reader = ThesisReader('prace.xlsx')
 
-thesis_reader.map_employees(employee_reader.employees)
+    thesis_reader.map_employees(employee_reader.employees)
 
-assembler_params = {
-    'thesis': thesis_reader.thesis,
-    'employees': employee_reader.employees,
-    'employees_per_slot': 3,
-    'population_count': 10,
-    # todo CHECK MAX SLOTS PER EMPLOYEE (its done to some extend)
-    'max_slots_per_employee': True,
-    'max_thesis_per_slot': 5
-}
+    assembler_params = {
+        'thesis': thesis_reader.thesis,
+        'employees': employee_reader.employees,
+        'employees_per_slot': 3,
+        'population_count': 20,
+        # todo CHECK MAX SLOTS PER EMPLOYEE (its done to some extend)
+        'max_slots_per_employee': True,
+        # todo check in genetic during crossovers and stuff
+        'max_thesis_per_slot': 5
+    }
 
-genetic_assembler = GeneticOnlyAssembler(
-    **assembler_params,
-    iteration_count=10,
-)
+    iteration_count = 50
+    assemblers = [
+        GeneticOnlyAssembler(
+            **assembler_params,
+            iteration_count=iteration_count
+        ),
+        HeuristicAssembler(
+            **assembler_params
+        ),
+        GeneticHybridAssembler(
+            **assembler_params,
+            iteration_count=iteration_count
+        )
+    ]
 
-heuristic_assembler = HeuristicAssembler(
-    **assembler_params
-)
+    processes = []
+    for assembler in assemblers:
+        p = Process(target=assembler.assemble)
+        p.start()
+        processes.append(p)
 
-hybrid_assembler = GeneticHybridAssembler(
-    **assembler_params,
-    iteration_count=10
-)
-
-# genetic_assembler.assemble()
-heuristic_assembler.assemble()
-# hybrid_assembler.assemble()
-
-# genetic_assembler.save_results()
-# heuristic_assembler.save_results()
-# hybrid_assembler.save_results()
+    for p in processes:
+        p.join()

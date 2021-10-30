@@ -27,6 +27,7 @@ class Assembler:
         self.populations = []
         self.best_populations = []
         self.assembler_name = ''
+        self.time_elapsed = 0
 
     def create_initial_population(self):
         raise NotImplementedError
@@ -85,7 +86,7 @@ class Assembler:
         print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
                self.best_populations[0].employees])
         # print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / self.employees_per_slot)
-        print(f'{self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
+        print(f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
 
         for i, population in enumerate(self.best_populations):
             with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
@@ -146,7 +147,7 @@ class GeneticAssembler(Assembler):
         best_population_count = int(self.population_count / 3)
         self.parents = self.populations[
                        :best_population_count if best_population_count % 2 == 0 else best_population_count + 1]
-        print([x.fitness for x in self.parents])
+        # print([x.fitness for x in self.parents])
 
     def crossover(self):
         child_count = int(len(self.parents) / 2)
@@ -248,13 +249,14 @@ class GeneticAssembler(Assembler):
                 self.populations.append(mutant)
 
     def assemble(self):
+        global_start = time.time()
         self.create_initial_population()
 
         mean_population_score = []
         best_population_score = []
 
         for i in range(self.iteration_count):
-            start = time.time()
+            print(f'{i + 1}/{self.iteration_count}')
             self.calculate_fitness()
             self.select_parents()
             self.crossover()
@@ -266,12 +268,13 @@ class GeneticAssembler(Assembler):
             # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             # print(
             #     f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
+        self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()
 
         x = range(self.iteration_count)
         plt.plot(x, mean_population_score, '-b', label='mean population score')
         plt.plot(x, best_population_score, '-r', label='best population score')
-        plt.title(f'Population score for {self.assembler_name}')
+        plt.title(f'Population score for {self.assembler_name} with {self.time_elapsed}m execution time')
         plt.xlabel('Iteration')
         plt.ylabel('Score')
         plt.legend(loc="upper left")
