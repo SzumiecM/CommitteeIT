@@ -20,18 +20,24 @@ if __name__ == '__main__':
         'max_thesis_per_slot': 5
     }
 
-    iteration_count = 10
+    genetic_params = {
+        'iteration_count': 80,
+        'parents_percent': 0.8,
+        'population_mutation_percent': 0.8,
+        'thesis_mutation_percent': 0.2
+    }
+
     assemblers = [
         GeneticOnlyAssembler(
             **assembler_params,
-            iteration_count=iteration_count
+            **genetic_params
         ),
         HeuristicAssembler(
             **assembler_params
         ),
         GeneticHybridAssembler(
             **assembler_params,
-            iteration_count=iteration_count
+            **genetic_params
         )
     ]
 

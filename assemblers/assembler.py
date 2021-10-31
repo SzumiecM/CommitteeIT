@@ -134,23 +134,28 @@ class Assembler:
 
 class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
-                 population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int):
+                 population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
+                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float):
         super().__init__(thesis, employees, employees_per_slot, population_count, max_slots_per_employee,
                          max_thesis_per_slot)
 
         self.iteration_count = iteration_count
+        self.parents_percent = parents_percent
+        self.population_mutation_percent = population_mutation_percent
+        self.thesis_mutation_percent = thesis_mutation_percent
         self.parents = []
 
     def create_initial_population(self):
         raise NotImplementedError
 
     def select_parents(self):
-        best_population_count = int(self.population_count / 3)
+        best_population_count = int(self.population_count * self.parents_percent)
         self.parents = self.populations[
                        :best_population_count if best_population_count % 2 == 0 else best_population_count + 1]
         # print([x.fitness for x in self.parents])
 
     def crossover(self):
+        # todo make these parameters configurable from main.py (for select_parents, crossover and mutate)
         child_count = int(len(self.parents) / 2)
         populations_to_replace = self.populations[-child_count:]
         self.populations = self.populations[:-child_count]
@@ -214,8 +219,8 @@ class GeneticAssembler(Assembler):
         self.populations.extend(populations_to_replace)
 
     def mutate(self):
-        mutate_population_count = int(self.population_count / 4)
-        mutate_thesis_count = int(len(self.thesis) / 4)
+        mutate_population_count = int(self.population_count * self.population_mutation_percent)
+        mutate_thesis_count = int(len(self.thesis) * self.thesis_mutation_percent)
 
         origins = random.sample(self.populations, mutate_population_count)
         for origin in origins:
@@ -274,10 +279,13 @@ class GeneticAssembler(Assembler):
         self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()
 
+        # todo add fitness diff + time of each iteration (since they changes)
+
         x = range(self.iteration_count)
         plt.plot(x, mean_population_score, '-b', label='mean population score')
         plt.plot(x, best_population_score, '-r', label='best population score')
-        plt.title(f'Population score for {self.assembler_name} with {self.time_elapsed}m execution time')
+        plt.title(f'Population score for {self.assembler_name} with {self.time_elapsed}m execution time\n'
+                  f'parents: {self.parents_percent} | mutation percent: {self.population_mutation_percent} | mutated thesis: {self.thesis_mutation_percent}')
         plt.xlabel('Iteration')
         plt.ylabel('Score')
         plt.legend(loc="upper left")

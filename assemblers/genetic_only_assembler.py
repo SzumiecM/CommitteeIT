@@ -12,9 +12,11 @@ from models import Population, Thesis, Employee
 
 class GeneticOnlyAssembler(GeneticAssembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
-                 population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int):
+                 population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
+                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float):
         super().__init__(thesis, employees, employees_per_slot, population_count, iteration_count,
-                         max_slots_per_employee, max_thesis_per_slot)
+                         max_slots_per_employee, max_thesis_per_slot, parents_percent, population_mutation_percent,
+                         thesis_mutation_percent)
 
         self.assembler_name = 'genetic'
 
