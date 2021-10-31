@@ -15,13 +15,12 @@ if __name__ == '__main__':
         'employees': employee_reader.employees,
         'employees_per_slot': 3,
         'population_count': 20,
-        # todo CHECK MAX SLOTS PER EMPLOYEE (its done to some extend)
         'max_slots_per_employee': True,
         # todo check in genetic during crossovers and stuff
         'max_thesis_per_slot': 5
     }
 
-    iteration_count = 50
+    iteration_count = 10
     assemblers = [
         GeneticOnlyAssembler(
             **assembler_params,

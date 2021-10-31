@@ -12,10 +12,25 @@ def get_by_id(list_, id_):
     return [x for x in list_ if x.id == id_].pop()
 
 
-def assign_employees(thesis, employees):
+def assign_employees(thesis, employees, max_slots_per_employee):
     thesis, employees = copy.deepcopy(thesis), copy.deepcopy(employees)
+    # todo add thesis_per_slot verificaiton
 
     thesis.head_of_committee = get_by_repr(employees, thesis.head_of_committee)
+
+    if len(thesis.head_of_committee.assigned_slots) == max_slots_per_employee or not thesis.individual and len(thesis.head_of_committee.assigned_slots) + 1 == max_slots_per_employee:
+        raise Exception
+
+    for member in thesis.committee_members:
+        member = get_by_repr(employees, member)
+        if len(member.assigned_slots) == max_slots_per_employee or not thesis.individual and len(member.assigned_slots) + 1 == max_slots_per_employee:
+            raise Exception
+
+        member.available_slots.remove(get_by_repr(member.available_slots, thesis.slot))
+        member.assigned_slots.append(thesis.slot)
+        if not thesis.individual:
+            member.assigned_slots.append(get_by_id(member.available_slots, thesis.slot.id + 1))
+            member.available_slots.remove(get_by_id(member.available_slots, thesis.slot.id + 1))
 
     thesis.head_of_committee.available_slots.remove(
         get_by_repr(thesis.head_of_committee.available_slots, thesis.slot))
@@ -25,14 +40,6 @@ def assign_employees(thesis, employees):
             get_by_id(thesis.head_of_committee.available_slots, thesis.slot.id + 1))
         thesis.head_of_committee.available_slots.remove(
             get_by_id(thesis.head_of_committee.available_slots, thesis.slot.id + 1))
-
-    for member in thesis.committee_members:
-        member = get_by_repr(employees, member)
-        member.available_slots.remove(get_by_repr(member.available_slots, thesis.slot))
-        member.assigned_slots.append(thesis.slot)
-        if not thesis.individual:
-            member.assigned_slots.append(get_by_id(member.available_slots, thesis.slot.id + 1))
-            member.available_slots.remove(get_by_id(member.available_slots, thesis.slot.id + 1))
 
     return thesis, employees
 
@@ -83,7 +90,7 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
 
             compatible_committee_members = [committee_member for committee_member in committee_member_list
                                             if all(
-                    slot in [x.id for x in committee_member.available_slots] for slot in
+                    slot_id in [x.id for x in committee_member.available_slots] for slot_id in
                     [x.id for x in slots]) and len(
                     committee_member.assigned_slots) <= (max_slots_per_employee - block) * slots_to_assign]
 

@@ -86,7 +86,8 @@ class Assembler:
         print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
                self.best_populations[0].employees])
         # print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / self.employees_per_slot)
-        print(f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
+        print(
+            f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
 
         for i, population in enumerate(self.best_populations):
             with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
@@ -176,20 +177,22 @@ class GeneticAssembler(Assembler):
                 if not self.thesis[j].individual:
                     parent = parents[0]  # random.choice(parents)
                     thesis = parent.thesis[j]
-                    thesis, child_employees = assign_employees(thesis, child_employees)
+                    thesis, child_employees = assign_employees(thesis, child_employees, self.max_slots_per_employee)
                     child_thesis.append(thesis)
 
             for j in range(len(self.thesis)):
                 if self.thesis[j].individual:
                     parent = random.choice(parents)
                     thesis = parent.thesis[j]
+                    # todo add thesis.assigned_slots verification (appears pretty difficult to achieve)
                     try:
-                        thesis, child_employees = assign_employees(thesis, child_employees)
+                        thesis, child_employees = assign_employees(thesis, child_employees, self.max_slots_per_employee)
                     except:
                         try:
                             parent = parents[0 if parents.index(get_by_repr(parents, parent)) == 1 else 1]
                             thesis = parent.thesis[j]
-                            thesis, child_employees = assign_employees(thesis, child_employees)
+                            thesis, child_employees = assign_employees(thesis, child_employees,
+                                                                       self.max_slots_per_employee)
                         except:
                             self.create_thesis(
                                 thesis=thesis,
@@ -292,7 +295,7 @@ class GeneticAssembler(Assembler):
         while True:
             head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
-            if len(head_of_committee.available_slots) < 1:
+            if len(head_of_committee.available_slots) < 1 or head_of_committee.assigned_slots == self.max_slots_per_employee:
                 head_of_committee_list.remove(head_of_committee)
                 continue
 
@@ -310,11 +313,14 @@ class GeneticAssembler(Assembler):
                 continue
 
             compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                            if slot.__repr__() in committee_member.available_slots.__repr__()]
+                                            if slot.__repr__() in committee_member.available_slots.__repr__() and len(
+                    committee_member.assigned_slots) < self.max_slots_per_employee]
 
             if not thesis.individual:
                 compatible_committee_members = [committee_member for committee_member in compatible_committee_members
-                                                if slot_2.__repr__() in committee_member.available_slots.__repr__()]
+                                                if
+                                                slot_2.__repr__() in committee_member.available_slots.__repr__() and len(
+                                                    committee_member.assigned_slots) < self.max_slots_per_employee + 1]
 
             if len(compatible_committee_members) < 2:
                 continue
