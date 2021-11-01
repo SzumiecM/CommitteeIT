@@ -1,8 +1,17 @@
+from assemblers.assembler import Assembler
 from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
 from xlsx_reader import EmployeesReader, ThesisReader
 from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
-from multiprocessing import Process
+from multiprocessing import Process, Manager
+
+from xlsx_writer import XlsxWriter
+
+
+def assemble_in_process(assembler: Assembler, return_dict):
+    assembler.assemble()
+    return_dict[assembler.assembler_name] = assembler
+
 
 if __name__ == '__main__':
     employee_reader = EmployeesReader('pracownicy.xlsx')
@@ -14,14 +23,14 @@ if __name__ == '__main__':
         'thesis': thesis_reader.thesis,
         'employees': employee_reader.employees,
         'employees_per_slot': 3,
-        'population_count': 20,
+        'population_count': 5,
         'max_slots_per_employee': True,
         # todo check in genetic during crossovers and stuff
         'max_thesis_per_slot': 5
     }
 
     genetic_params = {
-        'iteration_count': 60,
+        'iteration_count': 2,
         'parents_percent': 0.6,
         'population_mutation_percent': 0.8,
         'thesis_mutation_percent': 0.6
@@ -41,11 +50,15 @@ if __name__ == '__main__':
         )
     ]
 
+    return_dict = Manager().dict()
     processes = []
     for assembler in assemblers:
-        p = Process(target=assembler.assemble)
+        p = Process(target=assemble_in_process, args=(assembler, return_dict))
         p.start()
         processes.append(p)
 
     for p in processes:
         p.join()
+
+    xlsx_writer = XlsxWriter('prace.xlsx', return_dict['genetic'].populations[0])
+    xlsx_writer.write()
