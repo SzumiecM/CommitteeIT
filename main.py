@@ -21,10 +21,10 @@ if __name__ == '__main__':
     }
 
     genetic_params = {
-        'iteration_count': 80,
-        'parents_percent': 0.8,
+        'iteration_count': 60,
+        'parents_percent': 0.6,
         'population_mutation_percent': 0.8,
-        'thesis_mutation_percent': 0.2
+        'thesis_mutation_percent': 0.6
     }
 
     assemblers = [

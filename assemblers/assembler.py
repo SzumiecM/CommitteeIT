@@ -155,9 +155,9 @@ class GeneticAssembler(Assembler):
         # print([x.fitness for x in self.parents])
 
     def crossover(self):
-        # todo make these parameters configurable from main.py (for select_parents, crossover and mutate)
         child_count = int(len(self.parents) / 2)
         populations_to_replace = self.populations[-child_count:]
+        # todo consider saving only better ones
         self.populations = self.populations[:-child_count]
 
         random.shuffle(self.parents)
@@ -218,6 +218,7 @@ class GeneticAssembler(Assembler):
         populations_to_replace = populations_to_replace[:child_count]
         self.populations.extend(populations_to_replace)
 
+    # todo check cuz sometimes blocking somewhere with higher values
     def mutate(self):
         mutate_population_count = int(self.population_count * self.population_mutation_percent)
         mutate_thesis_count = int(len(self.thesis) * self.thesis_mutation_percent)
@@ -263,8 +264,11 @@ class GeneticAssembler(Assembler):
         mean_population_score = []
         best_population_score = []
 
+        # todo add mutation mode that turns on when all populations have the same fitness
+        # todo - no crossovers, more mutations until better population is created
         for i in range(self.iteration_count):
-            print(f'{i + 1}/{self.iteration_count}')
+            start = time.time()
+            previous_fitness = [p.fitness for p in self.populations]
             self.calculate_fitness()
             self.select_parents()
             self.crossover()
@@ -273,13 +277,15 @@ class GeneticAssembler(Assembler):
             mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
             best_population_score.append(self.populations[0].fitness)
 
+            mean_population_diff = statistics.mean([x - y for (x, y) in zip([p.fitness for p in self.populations], previous_fitness)])
+
+            print(f'{i + 1}/{self.iteration_count} {self.assembler_name} ({round(time.time()-start, 2)}) -> mean score: {mean_population_score[-1]} | mean diff: {mean_population_diff}')
+
             # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             # print(
             #     f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
         self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()
-
-        # todo add fitness diff + time of each iteration (since they changes)
 
         x = range(self.iteration_count)
         plt.plot(x, mean_population_score, '-b', label='mean population score')
