@@ -80,6 +80,8 @@ class Assembler:
     def save_results(self):
         self.populations.sort(reverse=True)
 
+        self.check_if_slots_duplicates()
+
         if len(self.populations) >= 3:
             self.best_populations = self.populations[:3]
 
@@ -131,6 +133,13 @@ class Assembler:
             except TimeoutError:
                 continue
 
+    def check_if_slots_duplicates(self):
+        for population in self.populations:
+            for employee in population.employees:
+                slots = [slot.id for slot in employee.assigned_slots]
+                if len(set(slots)) != len(slots):
+                    raise Exception
+
 
 class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
@@ -155,6 +164,7 @@ class GeneticAssembler(Assembler):
         # print([x.fitness for x in self.parents])
 
     def crossover(self):
+        self.populations.sort(reverse=True)
         child_count = int(len(self.parents) / 2)
         populations_to_replace = self.populations[-child_count:]
         # todo consider saving only better ones
@@ -263,6 +273,7 @@ class GeneticAssembler(Assembler):
 
         mean_population_score = []
         best_population_score = []
+        # todo add timeout
 
         # todo add mutation mode that turns on when all populations have the same fitness
         # todo - no crossovers, more mutations until better population is created
@@ -274,12 +285,16 @@ class GeneticAssembler(Assembler):
             self.crossover()
             self.mutate()
 
+            self.populations.sort(reverse=True)
+
             mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
             best_population_score.append(self.populations[0].fitness)
 
-            mean_population_diff = statistics.mean([x - y for (x, y) in zip([p.fitness for p in self.populations], previous_fitness)])
+            mean_population_diff = statistics.mean(
+                [x - y for (x, y) in zip([p.fitness for p in self.populations], previous_fitness)])
 
-            print(f'{i + 1}/{self.iteration_count} {self.assembler_name} ({round(time.time()-start, 2)}) -> mean score: {mean_population_score[-1]} | mean diff: {mean_population_diff}')
+            print(
+                f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {mean_population_score[-1]} | mean diff: {mean_population_diff}')
 
             # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
             # print(

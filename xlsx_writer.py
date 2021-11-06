@@ -2,12 +2,13 @@ from openpyxl import load_workbook
 
 
 class XlsxWriter:
-    def __init__(self, file, population):
+    def __init__(self, file):
         self.filename = f'files/{file}'
         self.workbook = load_workbook(filename=self.filename)
-        self.population = population
+        self.population = None
 
-    def write(self):
+    def write(self, population):
+        self.population = population
         self.copy_worksheet()
         self.write_thesis()
         self.save()

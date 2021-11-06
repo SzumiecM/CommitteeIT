@@ -30,10 +30,11 @@ if __name__ == '__main__':
     }
 
     genetic_params = {
-        'iteration_count': 2,
-        'parents_percent': 0.6,
-        'population_mutation_percent': 0.8,
-        'thesis_mutation_percent': 0.6
+        'iteration_count': 200,
+        # todo add timeouts to crossover and mutation, maybe calculate it
+        'parents_percent': 0.9,
+        'population_mutation_percent': 0.9,
+        'thesis_mutation_percent': 0.9
     }
 
     assemblers = [
@@ -60,5 +61,6 @@ if __name__ == '__main__':
     for p in processes:
         p.join()
 
-    xlsx_writer = XlsxWriter('prace.xlsx', return_dict['genetic'].populations[0])
-    xlsx_writer.write()
+    xlsx_writer = XlsxWriter('prace.xlsx')
+    xlsx_writer.write(return_dict['genetic'].populations[0])
+    xlsx_writer.write(return_dict['hybrid'].populations[0])
