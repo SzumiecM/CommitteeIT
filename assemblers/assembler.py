@@ -81,6 +81,7 @@ class Assembler:
         self.populations.sort(reverse=True)
 
         self.check_if_slots_duplicates()
+        self.check_max_thesis_per_slot()
 
         if len(self.populations) >= 3:
             self.best_populations = self.populations[:3]
@@ -139,6 +140,11 @@ class Assembler:
                 slots = [slot.id for slot in employee.assigned_slots]
                 if len(set(slots)) != len(slots):
                     raise Exception
+
+    def check_max_thesis_per_slot(self):
+        print([max(slot.assigned_thesis for slot in [thesis.slot for thesis in population.thesis]) for population in self.populations])
+
+    # todo break assemble on ctrl+c while still saving results
 
 
 class GeneticAssembler(Assembler):
@@ -209,10 +215,14 @@ class GeneticAssembler(Assembler):
                             thesis, child_employees = assign_employees(thesis, child_employees,
                                                                        self.max_slots_per_employee)
                         except:
-                            self.create_thesis(
-                                thesis=thesis,
-                                employees=child_employees
-                            )
+                            try:
+                                self.create_thesis(
+                                    thesis=thesis,
+                                    employees=child_employees
+                                )
+                            except TimeoutError:
+                                print('Crossover not successful')
+                                return
 
                     child_thesis.append(thesis)
 
@@ -248,19 +258,23 @@ class GeneticAssembler(Assembler):
             mutated_thesis = random.sample(mutant.thesis, mutate_thesis_count)
 
             for thesis in mutated_thesis:
-                if thesis.individual:  # todo consider mutating also double (but it would overcomplicate stuff)
-                    head = get_by_repr(mutant_head_of_committee_list, thesis.head_of_committee)
-                    thesis.head_of_committee = head
-                    thesis.head_of_committee.assigned_slots.remove(get_by_repr(head.assigned_slots, thesis.slot))
-                    thesis.head_of_committee.available_slots.append(thesis.slot)
-                    for member in thesis.committee_members:
-                        member = get_by_repr(mutant_committee_member_list, member)
-                        member.assigned_slots.remove(get_by_repr(member.assigned_slots, thesis.slot))
-                        member.available_slots.append(thesis.slot)
-                    self.create_thesis(
-                        thesis=thesis,
-                        employees=mutant.employees
-                    )
+                if thesis.individual:
+                    try:
+                        head = get_by_repr(mutant_head_of_committee_list, thesis.head_of_committee)
+                        thesis.head_of_committee = head
+                        thesis.head_of_committee.assigned_slots.remove(get_by_repr(head.assigned_slots, thesis.slot))
+                        thesis.head_of_committee.available_slots.append(thesis.slot)
+                        for member in thesis.committee_members:
+                            member = get_by_repr(mutant_committee_member_list, member)
+                            member.assigned_slots.remove(get_by_repr(member.assigned_slots, thesis.slot))
+                            member.available_slots.append(thesis.slot)
+                        self.create_thesis(
+                            thesis=thesis,
+                            employees=mutant.employees
+                        )
+                    except TimeoutError:
+                        print('Mutation not successful')
+                        return
 
             mutant.fitness = self.calculate_population_fitness(mutant)
             if mutant.fitness > origin.fitness:
@@ -321,7 +335,11 @@ class GeneticAssembler(Assembler):
             else:
                 committee_member_list.append(employee)
 
+        start = time.time()
         while True:
+            if time.time() - start > 20:
+                raise TimeoutError
+
             head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
 
             if len(head_of_committee.available_slots) < 1 or head_of_committee.assigned_slots == self.max_slots_per_employee:
