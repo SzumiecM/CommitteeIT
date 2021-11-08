@@ -173,13 +173,11 @@ class GeneticAssembler(Assembler):
         best_population_count = int(self.population_count * self.parents_percent)
         self.parents = self.populations[
                        :best_population_count if best_population_count % 2 == 0 else best_population_count + 1]
-        # print([x.fitness for x in self.parents])
 
     def crossover(self):
         self.populations.sort(reverse=True)
         child_count = int(len(self.parents) / 2)
         populations_to_replace = self.populations[-child_count:]
-        # todo consider saving only better ones
         self.populations = self.populations[:-child_count]
 
         random.shuffle(self.parents)
@@ -202,7 +200,7 @@ class GeneticAssembler(Assembler):
 
             for j in range(len(self.thesis)):
                 if not self.thesis[j].individual:
-                    parent = parents[0]  # random.choice(parents)
+                    parent = parents[0]
                     thesis = parent.thesis[j]
                     thesis, child_employees = assign_employees(thesis, child_employees, self.max_slots_per_employee)
                     child_thesis.append(thesis)
@@ -211,7 +209,6 @@ class GeneticAssembler(Assembler):
                 if self.thesis[j].individual:
                     parent = random.choice(parents)
                     thesis = parent.thesis[j]
-                    # todo add thesis.assigned_slots verification (appears pretty difficult to achieve)
                     try:
                         thesis, child_employees = assign_employees(thesis, child_employees, self.max_slots_per_employee)
                     except:
@@ -241,10 +238,9 @@ class GeneticAssembler(Assembler):
                 population.fitness = self.calculate_population_fitness(population)
 
         populations_to_replace.sort(reverse=True)
-        populations_to_replace = populations_to_replace[:child_count]
+        populations_to_replace = populations_to_replace[:child_count]  # todo is it necessary, take only better ones
         self.populations.extend(populations_to_replace)
 
-    # todo check cuz sometimes blocking somewhere with higher values
     def mutate(self):
         mutate_population_count = int(self.population_count * self.population_mutation_percent)
         mutate_thesis_count = int(len(self.thesis) * self.thesis_mutation_percent)
@@ -293,7 +289,6 @@ class GeneticAssembler(Assembler):
 
         mean_population_score = []
         best_population_score = []
-        # todo add timeout
 
         # todo add mutation mode that turns on when all populations have the same fitness
         # todo - no crossovers, more mutations until better population is created
