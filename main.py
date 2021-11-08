@@ -25,13 +25,11 @@ if __name__ == '__main__':
         'employees_per_slot': 3,
         'population_count': 20,
         'max_slots_per_employee': True,
-        # todo check in genetic during crossovers and stuff
         'max_thesis_per_slot': 5
     }
 
     genetic_params = {
         'iteration_count': 60,
-        # todo add timeouts to crossover and mutation, maybe calculate it
         'parents_percent': 0.9,
         'population_mutation_percent': 0.9,
         'thesis_mutation_percent': 0.9
