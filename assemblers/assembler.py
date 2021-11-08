@@ -11,7 +11,6 @@ from utils import assign_to_thesis_heuristically, get_by_repr, get_by_id, assign
 
 
 class Assembler:
-    # todo define everywhere super() with parameter names
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int):
 

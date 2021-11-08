@@ -23,16 +23,16 @@ if __name__ == '__main__':
         'thesis': thesis_reader.thesis,
         'employees': employee_reader.employees,
         'employees_per_slot': 3,
-        'population_count': 20,
+        'population_count': 30,
         'max_slots_per_employee': True,
         'max_thesis_per_slot': 5
     }
 
     genetic_params = {
         'iteration_count': 60,
-        'parents_percent': 0.9,
-        'population_mutation_percent': 0.9,
-        'thesis_mutation_percent': 0.9
+        'parents_percent': 0.5,
+        'population_mutation_percent': 0.4,
+        'thesis_mutation_percent': 0.3
     }
 
     assemblers = [
