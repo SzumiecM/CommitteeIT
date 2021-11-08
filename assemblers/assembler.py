@@ -311,9 +311,6 @@ class GeneticAssembler(Assembler):
             print(
                 f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {mean_population_score[-1]} | mean diff: {mean_population_diff}')
 
-            # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / 3)
-            # print(
-            #     f'{i + 1}/{self.iteration_count} | time: {round(time.time() - start)}s | mean: {round(statistics.mean([p.fitness for p in self.populations]))}')
         self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()
 
