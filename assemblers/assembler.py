@@ -142,7 +142,8 @@ class Assembler:
                     raise Exception
 
     def check_max_thesis_per_slot(self):
-        print([max(slot.assigned_thesis for slot in [thesis.slot for thesis in population.thesis]) for population in self.populations])
+        print([max(slot.assigned_thesis for slot in [thesis.slot for thesis in population.thesis]) for population in
+               self.populations])
 
     # todo break assemble on ctrl+c while still saving results
 
@@ -151,8 +152,14 @@ class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
                  parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float):
-        super().__init__(thesis, employees, employees_per_slot, population_count, max_slots_per_employee,
-                         max_thesis_per_slot)
+        super().__init__(
+            thesis=thesis,
+            employees=employees,
+            employees_per_slot=employees_per_slot,
+            population_count=population_count,
+            max_slots_per_employee=max_slots_per_employee,
+            max_thesis_per_slot=max_thesis_per_slot
+        )
 
         self.iteration_count = iteration_count
         self.parents_percent = parents_percent
