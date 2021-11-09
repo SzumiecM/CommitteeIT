@@ -14,8 +14,6 @@ def get_by_id(list_, id_):
 
 def assign_employees(thesis, employees, max_slots_per_employee):
     thesis, employees = copy.deepcopy(thesis), copy.deepcopy(employees)
-    # todo add thesis_per_slot verificaiton
-
     thesis.head_of_committee = get_by_repr(employees, thesis.head_of_committee)
 
     if len(thesis.head_of_committee.assigned_slots) == max_slots_per_employee or not thesis.individual and len(thesis.head_of_committee.assigned_slots) + 1 == max_slots_per_employee:
@@ -52,7 +50,6 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
         committee_member_list.sort()
         head_counter = 0
         slot_counter = 0
-        # print(f'running thesis {i}-{i + block - 1}')
 
         while True:
             if time.time() - start > 1:
@@ -118,7 +115,6 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
 
                 if slots_to_assign == 2:
                     if slot.id + 1 not in [slot.id for slot in slots]:
-                        # todo continue also upper loop
                         raise TimeoutError
 
                     slot_2 = get_by_id(slots, slot.id + 1)
@@ -135,9 +131,4 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
                     if slots_to_assign == 2:
                         member.assigned_slots.append(slot_2)
                         member.available_slots.remove(get_by_repr(member.available_slots, slot_2))
-
-            # for member in compatible_committee_members:
-            #     committee_member_list.remove(member)
-            # head_of_committee_list.remove(head_of_committee)
-
             break

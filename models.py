@@ -41,14 +41,12 @@ class Employee(Person):
         return f'{self.name}|{self.surname}|{self.tenure}'
 
     def __lt__(self, other):
-        # todo check this exception in other __lt__s
         if self.available_slots and other.available_slots:
             return self.available_slots[0] < other.available_slots[0]
         elif self.available_slots:
             return False
         else:
             return True
-        # return len(self.available_slots) > len(other.available_slots)
 
     def check_slots(self, online_slots, stationary_slots):
         self.online_slot_single, self.online_slot_multiple = online_slots.split('; ')

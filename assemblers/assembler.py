@@ -43,7 +43,6 @@ class Assembler:
     def calculate_population_fitness(self, population):
         thesis, employees = population.thesis, population.employees
         fitness = 0
-        # todo consider storing only slots id and read their value only in calculate_fitness method
 
         for employee in employees:
             if len(employee.assigned_slots) == 0:
