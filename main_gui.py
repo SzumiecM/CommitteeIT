@@ -2,11 +2,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from xlsx_reader import ThesisReader, EmployeesReader
-
-ALGORITHMS = ('heuristic', 'hybrid', 'genetic')
-GENETIC = ('hybrid', 'genetic')
-ASSEMBLER_PARAMS = ('employees_per_slot', 'population_count', 'max_slots_per_employee', 'max_thesis_per_slot')
-GENETIC_PARAMS = ('iteration_count', 'parents_percent', 'population_mutation_percent', 'thesis_mutation_percent')
+from config import *
 
 
 class Window:
@@ -22,19 +18,6 @@ class Window:
 
         self.genetic_params_visible = False
 
-        entry_params = {
-            'bg': 'pink'
-        }
-        button_params = {
-            'width': 25,
-            'height': 2,
-            'bg': 'purple'
-        }
-        black_and_white = {
-            'bg': 'black',
-            'fg': 'white'
-        }
-
         self.files_frame = tk.Frame(self.master, bg='yellow')
         self.employees_frame = tk.Frame(self.files_frame)
         self.thesis_frame = tk.Frame(self.files_frame)
@@ -46,20 +29,20 @@ class Window:
             self.master,
             text='CommitteeIT',
             font=('HoboStd', 45),
-            **black_and_white
+            **BLACK_AND_WHITE
         )
 
         self.employees_entry = tk.Entry(
             self.employees_frame,
             text=self.employees_file,
-            **entry_params
+            **ENTRY_PARAMS
         )
         self.employees_entry.insert(0, 'pracownicy.xlsx')
 
         self.thesis_entry = tk.Entry(
             self.thesis_frame,
             text=self.thesis_file,
-            **entry_params
+            **ENTRY_PARAMS
         )
         self.thesis_entry.insert(0, 'prace.xlsx')
 
@@ -67,14 +50,14 @@ class Window:
             self.employees_frame,
             text='Choose employees file',
             command=lambda: self.browse_files('employees'),
-            **button_params
+            **BUTTON_PARAMS
         )
 
         self.thesis_button = tk.Button(
             self.thesis_frame,
             text='Choose thesis file',
             command=lambda: self.browse_files('thesis'),
-            **button_params
+            **BUTTON_PARAMS
         )
 
         self.algorithm_checkboxes = []
@@ -96,7 +79,7 @@ class Window:
                 ),
                 tk.Label(
                     text=' '.join(entry.split('_')).title(),
-                    **black_and_white
+                    **BLACK_AND_WHITE
                 ),
                 tk.Entry()
             )
@@ -110,7 +93,7 @@ class Window:
                 ),
                 tk.Label(
                     text=' '.join(entry.split('_')).title(),
-                    **black_and_white
+                    **BLACK_AND_WHITE
                 ),
                 tk.Entry()
             )
