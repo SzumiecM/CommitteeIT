@@ -9,10 +9,11 @@ class Window:
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
         self.master.geometry('800x400')
-        self.master.option_add('*Font', 'HoboStd 10')
+        self.master.option_add('*Font', 'HoboStd 12')
 
         self.thesis_file = None
         self.employees_file = None
+        self.algorithms = []
 
         entry_params = {
             'bg': 'pink'
@@ -26,6 +27,15 @@ class Window:
         self.files_frame = tk.Frame(self.master, bg='yellow')
         self.employees_frame = tk.Frame(self.files_frame)
         self.thesis_frame = tk.Frame(self.files_frame)
+        self.checkbox_frame = tk.Frame(self.files_frame, bg='black')
+
+        self.banner = tk.Label(
+            self.master,
+            text='CommitteeIT',
+            bg='black',
+            fg='white',
+            font=('HoboStd', 45)
+        )
 
         self.employees_entry = tk.Entry(
             self.employees_frame,
@@ -52,14 +62,32 @@ class Window:
             **button_params
         )
 
-        self.files_frame.pack(fill='x', anchor='n')
+        checkboxes = []
+        for name in ('heuristic', 'hybrid', 'genetic'):
+            checkboxes.append(
+                tk.Checkbutton(
+                    self.checkbox_frame,
+                    text=f'{name.capitalize()} Algorithm',
+                    command=lambda: self.check_changed(name),
+                    bg='black',
+                    fg='white'
+                )
+            )
+
+        self.banner.pack(side='top', anchor='center', fill='both')
+
+        self.files_frame.pack(side='top', fill='x')
         self.employees_frame.pack(side='left')
         self.thesis_frame.pack(side='right')
 
-        self.employees_entry.pack(anchor='n', fill='x')
-        self.employees_button.pack(anchor='s', fill='x')
-        self.thesis_entry.pack(anchor='n', fill='x')
-        self.thesis_button.pack(anchor='s', fill='x')
+        self.employees_entry.pack(side='top', fill='x')
+        self.employees_button.pack(side='top', fill='x')
+        self.thesis_entry.pack(side='top', fill='x')
+        self.thesis_button.pack(side='top', fill='x')
+
+        self.checkbox_frame.pack(anchor='center', fill='both')
+        for checkbox in checkboxes:
+            checkbox.pack(side='top', anchor='w')
 
     def run(self):
         self.master.mainloop()
@@ -74,6 +102,10 @@ class Window:
         entry = getattr(self, f'{file}_entry')
         entry.delete(0, tk.END)
         entry.insert(0, filename)
+
+    def check_changed(self, algorithm):
+        self.algorithms.append(algorithm) if algorithm not in self.algorithms else self.algorithms.remove(algorithm)
+        self.banner.configure(text=''.join(self.algorithms))
 
 
 Window().run()
