@@ -14,58 +14,52 @@ class Window:
         self.thesis_file = None
         self.employees_file = None
 
-        background_label = 'pink'
-        background_button = 'purple'
-
-        dimensions_label = {
-            'width': 20,
-            'height': 4
+        entry_params = {
+            'bg': 'pink'
         }
-        dimensions_button = {
+        button_params = {
             'width': 25,
-            'height': 2
+            'height': 2,
+            'bg': 'purple'
         }
 
         self.files_frame = tk.Frame(self.master, bg='yellow')
-        self.employees_frame = tk.Frame(self.files_frame, bg='cyan')
-        self.thesis_frame = tk.Frame(self.files_frame, bg='pink')
+        self.employees_frame = tk.Frame(self.files_frame)
+        self.thesis_frame = tk.Frame(self.files_frame)
 
-        self.employees_label = tk.Label(
+        self.employees_entry = tk.Entry(
             self.employees_frame,
             text=self.employees_file,
-            bg=background_label,
-            **dimensions_label
+            **entry_params
         )
-        self.thesis_label = tk.Label(
+        self.employees_entry.insert(0, 'pracownicy.xlsx')
+        self.thesis_entry = tk.Entry(
             self.thesis_frame,
             text=self.thesis_file,
-            bg=background_label,
-            **dimensions_label
+            **entry_params
         )
+        self.thesis_entry.insert(0, 'prace.xlsx')
         self.employees_button = tk.Button(
             self.employees_frame,
             text='Choose employees file',
             command=lambda: self.browse_files('employees'),
-            bg=background_button,
-            **dimensions_button
+            **button_params
         )
         self.thesis_button = tk.Button(
             self.thesis_frame,
             text='Choose thesis file',
             command=lambda: self.browse_files('thesis'),
-            bg=background_button,
-            **dimensions_button
+            **button_params
         )
 
-        # todo create frames with sizable elements
         self.files_frame.pack(fill='x', anchor='n')
         self.employees_frame.pack(side='left')
         self.thesis_frame.pack(side='right')
 
-        self.employees_label.pack(anchor='n')
-        self.employees_button.pack(anchor='s')
-        self.thesis_label.pack(anchor='n')
-        self.thesis_button.pack(anchor='s')
+        self.employees_entry.pack(anchor='n', fill='x')
+        self.employees_button.pack(anchor='s', fill='x')
+        self.thesis_entry.pack(anchor='n', fill='x')
+        self.thesis_button.pack(anchor='s', fill='x')
 
     def run(self):
         self.master.mainloop()
@@ -77,7 +71,7 @@ class Window:
             filetypes=(('xlsx files', '.xlsx'),)
         )
         setattr(self, f'{file}_file', filename)
-        getattr(self, f'{file}_label').configure(text=filename)
+        getattr(self, f'{file}_entry').configure(text=filename)
 
 
 Window().run()
