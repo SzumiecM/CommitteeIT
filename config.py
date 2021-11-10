@@ -1,17 +1,43 @@
 ALGORITHMS = ('heuristic', 'hybrid', 'genetic')
 GENETIC = ('hybrid', 'genetic')
-ASSEMBLER_PARAMS = ('employees_per_slot', 'population_count', 'max_slots_per_employee', 'max_thesis_per_slot')
-GENETIC_PARAMS = ('iteration_count', 'parents_percent', 'population_mutation_percent', 'thesis_mutation_percent')
 
-ENTRY_PARAMS = {
-    'bg': 'pink'
+ASSEMBLER_PARAMS = {
+    'employees_per_slot': {
+        'type': int,
+        'min': 1
+    },
+    'population_count': {
+        'type': int,
+        'min': 1
+    },
+    'max_slots_per_employee': {
+        'type': int,
+        'min': 1
+    },
+    'max_thesis_per_slot': {
+        'type': int,
+        'min': 1
+    }
 }
-BUTTON_PARAMS = {
-    'width': 25,
-    'height': 2,
-    'bg': 'purple'
-}
-BLACK_AND_WHITE = {
-    'bg': 'black',
-    'fg': 'white'
+
+GENETIC_PARAMS = {
+    'iteration_count': {
+        'type': int,
+        'min': 1
+    },
+    'parents_percent': {
+        'type': float,
+        'min': 0.1,
+        'max': 1.0
+    },
+    'population_mutation_percent': {
+        'type': float,
+        'min': 0.1,
+        'max': 1.0
+    },
+    'thesis_mutation_percent': {
+        'type': float,
+        'min': 0.1,
+        'max': 1.0
+    }
 }

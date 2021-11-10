@@ -2,7 +2,9 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from xlsx_reader import ThesisReader, EmployeesReader
+
 from config import *
+from styles import *
 
 
 class Window:
@@ -71,7 +73,7 @@ class Window:
             )
 
         self.assembler_params_entries = {}
-        for entry in ASSEMBLER_PARAMS:
+        for entry in ASSEMBLER_PARAMS.keys():
             self.assembler_params_entries[entry] = (
                 tk.Frame(
                     self.assembler_params_frame,
@@ -85,7 +87,7 @@ class Window:
             )
 
         self.genetic_params_entries = {}
-        for entry in GENETIC_PARAMS:
+        for entry in GENETIC_PARAMS.keys():
             self.genetic_params_entries[entry] = (
                 tk.Frame(
                     self.genetic_params_frame,
@@ -97,6 +99,13 @@ class Window:
                 ),
                 tk.Entry()
             )
+
+        self.assemble_button = tk.Button(
+            self.master,
+            text='ASSEMBLE',
+            command=self.assemble,
+            **BUTTON_PARAMS
+        )
 
         self.banner.pack(side='top', anchor='center', fill='both')
 
@@ -118,6 +127,8 @@ class Window:
             frame.pack(side='top', fill='x')
             label.pack(side='left', in_=frame)
             entry.pack(side='left', in_=frame)
+
+        self.assemble_button.pack(side='bottom', fill='x')
 
     def run(self):
         self.master.mainloop()
@@ -159,6 +170,9 @@ class Window:
             entry.pack_forget()
 
         self.genetic_params_visible = False
+
+    def assemble(self):
+        pass
 
 
 Window().run()
