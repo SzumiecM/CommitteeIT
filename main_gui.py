@@ -46,18 +46,21 @@ class Window:
             **entry_params
         )
         self.employees_entry.insert(0, 'pracownicy.xlsx')
+
         self.thesis_entry = tk.Entry(
             self.thesis_frame,
             text=self.thesis_file,
             **entry_params
         )
         self.thesis_entry.insert(0, 'prace.xlsx')
+
         self.employees_button = tk.Button(
             self.employees_frame,
             text='Choose employees file',
             command=lambda: self.browse_files('employees'),
             **button_params
         )
+
         self.thesis_button = tk.Button(
             self.thesis_frame,
             text='Choose thesis file',
