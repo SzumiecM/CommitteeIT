@@ -23,6 +23,10 @@ class Window:
             'height': 2,
             'bg': 'purple'
         }
+        black_and_white = {
+            'bg': 'black',
+            'fg': 'white'
+        }
 
         self.files_frame = tk.Frame(self.master, bg='yellow')
         self.employees_frame = tk.Frame(self.files_frame)
@@ -32,9 +36,8 @@ class Window:
         self.banner = tk.Label(
             self.master,
             text='CommitteeIT',
-            bg='black',
-            fg='white',
-            font=('HoboStd', 45)
+            font=('HoboStd', 45),
+            **black_and_white
         )
 
         self.employees_entry = tk.Entry(
@@ -66,24 +69,21 @@ class Window:
             self.checkbox_frame,
             text='Heuristic Algorithm',
             command=lambda: self.check_changed('heuristic'),
-            bg='black',
-            fg='white'
+            **black_and_white
         )
 
         self.checkbox_hybrid = tk.Checkbutton(
             self.checkbox_frame,
             text='Hybrid Algorithm',
             command=lambda: self.check_changed('hybrid'),
-            bg='black',
-            fg='white'
+            **black_and_white
         )
 
         self.checkbox_genetic = tk.Checkbutton(
             self.checkbox_frame,
             text='Genetic Algorithm',
             command=lambda: self.check_changed('genetic'),
-            bg='black',
-            fg='white'
+            **black_and_white
         )
 
         self.banner.pack(side='top', anchor='center', fill='both')
@@ -107,7 +107,7 @@ class Window:
 
     def browse_files(self, file):
         filename = filedialog.askopenfilename(
-            initialdir=f'{os.path.dirname(os.path.realpath(__file__))}\\files\\',
+            initialdir=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files'),
             title='Select File',
             filetypes=(('xlsx files', '.xlsx'),)
         )
