@@ -62,17 +62,29 @@ class Window:
             **button_params
         )
 
-        checkboxes = []
-        for name in ('heuristic', 'hybrid', 'genetic'):
-            checkboxes.append(
-                tk.Checkbutton(
-                    self.checkbox_frame,
-                    text=f'{name.capitalize()} Algorithm',
-                    command=lambda: self.check_changed(name),
-                    bg='black',
-                    fg='white'
-                )
-            )
+        self.checkbox_heuristic = tk.Checkbutton(
+            self.checkbox_frame,
+            text='Heuristic Algorithm',
+            command=lambda: self.check_changed('heuristic'),
+            bg='black',
+            fg='white'
+        )
+
+        self.checkbox_hybrid = tk.Checkbutton(
+            self.checkbox_frame,
+            text='Hybrid Algorithm',
+            command=lambda: self.check_changed('hybrid'),
+            bg='black',
+            fg='white'
+        )
+
+        self.checkbox_genetic = tk.Checkbutton(
+            self.checkbox_frame,
+            text='Genetic Algorithm',
+            command=lambda: self.check_changed('genetic'),
+            bg='black',
+            fg='white'
+        )
 
         self.banner.pack(side='top', anchor='center', fill='both')
 
@@ -86,8 +98,9 @@ class Window:
         self.thesis_button.pack(side='top', fill='x')
 
         self.checkbox_frame.pack(anchor='center', fill='both')
-        for checkbox in checkboxes:
-            checkbox.pack(side='top', anchor='w')
+        self.checkbox_heuristic.pack(side='top', anchor='w')
+        self.checkbox_hybrid.pack(side='top', anchor='w')
+        self.checkbox_genetic.pack(side='top', anchor='w')
 
     def run(self):
         self.master.mainloop()
@@ -105,7 +118,5 @@ class Window:
 
     def check_changed(self, algorithm):
         self.algorithms.append(algorithm) if algorithm not in self.algorithms else self.algorithms.remove(algorithm)
-        self.banner.configure(text=''.join(self.algorithms))
-
 
 Window().run()
