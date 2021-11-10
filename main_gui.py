@@ -3,6 +3,11 @@ import tkinter as tk
 from tkinter import filedialog
 from xlsx_reader import ThesisReader, EmployeesReader
 
+ALGORITHMS = ('heuristic', 'hybrid', 'genetic')
+GENETIC = ('hybrid', 'genetic')
+ASSEMBLER_PARAMS = ('employees_per_slot', 'population_count', 'max_slots_per_employee', 'max_thesis_per_slot')
+GENETIC_PARAMS = ('iteration_count', 'parents_percent', 'population_mutation_percent', 'thesis_mutation_percent')
+
 
 class Window:
     def __init__(self):
@@ -14,6 +19,8 @@ class Window:
         self.thesis_file = None
         self.employees_file = None
         self.algorithms = []
+
+        self.genetic_params_visible = False
 
         entry_params = {
             'bg': 'pink'
@@ -32,6 +39,8 @@ class Window:
         self.employees_frame = tk.Frame(self.files_frame)
         self.thesis_frame = tk.Frame(self.files_frame)
         self.checkbox_frame = tk.Frame(self.files_frame, bg='black')
+        self.assembler_params_frame = tk.Frame(self.master, bg='orange')
+        self.genetic_params_frame = tk.Frame(self.master, bg='cyan')
 
         self.banner = tk.Label(
             self.master,
@@ -68,26 +77,44 @@ class Window:
             **button_params
         )
 
-        self.checkbox_heuristic = tk.Checkbutton(
-            self.checkbox_frame,
-            text='Heuristic Algorithm',
-            command=lambda: self.check_changed('heuristic'),
-            **black_and_white
-        )
+        self.algorithm_checkboxes = []
+        for name in ALGORITHMS:
+            self.algorithm_checkboxes.append(
+                tk.Checkbutton(
+                    self.checkbox_frame,
+                    text=f'{name.capitalize()} Algorithm',
+                    command=lambda x=name: self.check_changed(x),
+                    **black_and_white
+                )
+            )
 
-        self.checkbox_hybrid = tk.Checkbutton(
-            self.checkbox_frame,
-            text='Hybrid Algorithm',
-            command=lambda: self.check_changed('hybrid'),
-            **black_and_white
-        )
+        self.assembler_params_entries = {}
+        for entry in ASSEMBLER_PARAMS:
+            self.assembler_params_entries[entry] = (
+                tk.Frame(
+                    self.assembler_params_frame,
+                    bg='black'
+                ),
+                tk.Label(
+                    text=' '.join(entry.split('_')).title(),
+                    **black_and_white
+                ),
+                tk.Entry()
+            )
 
-        self.checkbox_genetic = tk.Checkbutton(
-            self.checkbox_frame,
-            text='Genetic Algorithm',
-            command=lambda: self.check_changed('genetic'),
-            **black_and_white
-        )
+        self.genetic_params_entries = {}
+        for entry in GENETIC_PARAMS:
+            self.genetic_params_entries[entry] = (
+                tk.Frame(
+                    self.genetic_params_frame,
+                    bg='black'
+                ),
+                tk.Label(
+                    text=' '.join(entry.split('_')).title(),
+                    **black_and_white
+                ),
+                tk.Entry()
+            )
 
         self.banner.pack(side='top', anchor='center', fill='both')
 
@@ -101,9 +128,14 @@ class Window:
         self.thesis_button.pack(side='top', fill='x')
 
         self.checkbox_frame.pack(anchor='center', fill='both')
-        self.checkbox_heuristic.pack(side='top', anchor='w')
-        self.checkbox_hybrid.pack(side='top', anchor='w')
-        self.checkbox_genetic.pack(side='top', anchor='w')
+        for checkbox in self.algorithm_checkboxes:
+            checkbox.pack(side='top', anchor='w')
+
+        self.assembler_params_frame.pack(side='top', fill='x')
+        for frame, label, entry in self.assembler_params_entries.values():
+            frame.pack(side='top', fill='x')
+            label.pack(side='left', in_=frame)
+            entry.pack(side='left', in_=frame)
 
     def run(self):
         self.master.mainloop()
@@ -121,6 +153,32 @@ class Window:
 
     def check_changed(self, algorithm):
         self.algorithms.append(algorithm) if algorithm not in self.algorithms else self.algorithms.remove(algorithm)
+        self.banner.configure(text=''.join(self.algorithms))
+
+        if algorithm in GENETIC and not self.genetic_params_visible:
+            self.show_genetic_params()
+        elif all(x not in self.algorithms for x in GENETIC) and self.genetic_params_visible:
+            self.hide_genetic_params()
+
+    def show_genetic_params(self):
+        print('showing')
+        self.genetic_params_frame.pack(side='top', fill='x')
+        for frame, label, entry in self.genetic_params_entries.values():
+            frame.pack(side='top', fill='x')
+            label.pack(side='left', in_=frame)
+            entry.pack(side='left', in_=frame)
+
+        self.genetic_params_visible = True
+
+    def hide_genetic_params(self):
+        print('hiding')
+        self.genetic_params_frame.pack_forget()
+        for frame, label, entry in self.genetic_params_entries.values():
+            frame.pack_forget()
+            label.pack_forget()
+            entry.pack_forget()
+
+        self.genetic_params_visible = False
 
 
 Window().run()
