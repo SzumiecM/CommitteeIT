@@ -119,4 +119,5 @@ class Window:
     def check_changed(self, algorithm):
         self.algorithms.append(algorithm) if algorithm not in self.algorithms else self.algorithms.remove(algorithm)
 
+
 Window().run()
