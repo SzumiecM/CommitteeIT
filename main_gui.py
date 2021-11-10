@@ -71,7 +71,9 @@ class Window:
             filetypes=(('xlsx files', '.xlsx'),)
         )
         setattr(self, f'{file}_file', filename)
-        getattr(self, f'{file}_entry').configure(text=filename)
+        entry = getattr(self, f'{file}_entry')
+        entry.delete(0, tk.END)
+        entry.insert(0, filename)
 
 
 Window().run()
