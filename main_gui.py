@@ -175,4 +175,5 @@ class Window:
         pass
 
 
-Window().run()
+if __name__ == '__main__':
+    Window().run()
