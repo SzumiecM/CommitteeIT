@@ -83,8 +83,7 @@ class Window:
                 tk.Checkbutton(
                     self.checkbox_frame,
                     text=f'{name.capitalize()} Algorithm',
-                    command=lambda x=name: self.check_changed(x),
-                    **black_and_white
+                    command=lambda x=name: self.check_changed(x)
                 )
             )
 
@@ -161,7 +160,6 @@ class Window:
             self.hide_genetic_params()
 
     def show_genetic_params(self):
-        print('showing')
         self.genetic_params_frame.pack(side='top', fill='x')
         for frame, label, entry in self.genetic_params_entries.values():
             frame.pack(side='top', fill='x')
@@ -171,7 +169,6 @@ class Window:
         self.genetic_params_visible = True
 
     def hide_genetic_params(self):
-        print('hiding')
         self.genetic_params_frame.pack_forget()
         for frame, label, entry in self.genetic_params_entries.values():
             frame.pack_forget()
