@@ -10,14 +10,10 @@ from assemblers.heuristic_assembler import HeuristicAssembler
 from multiprocessing import Process, Manager
 
 from xlsx_writer import XlsxWriter
+from threading import Thread
 
 from config import *
 from styles import *
-
-
-def assemble_in_process(assembler: Assembler, return_dict):
-    assembler.assemble()
-    return_dict[assembler.assembler_name] = assembler
 
 
 class ValidationError(Exception):
@@ -211,6 +207,12 @@ class Window:
         self.genetic_params_visible = False
 
     def assemble(self):
+        t = Thread(target=self.assemble_in_thread)
+        t.start()
+
+        self.assemble_button['state'] = 'disabled'
+
+    def assemble_in_thread(self):
         validated_data = self.validate()
 
         if not validated_data:
@@ -234,20 +236,20 @@ class Window:
         if 'genetic' in self.algorithms:
             assemblers.append(GeneticOnlyAssembler(**assembler_params, **genetic_params))
 
-        # todo processes dont start as intended to
-        return_dict = Manager().dict()
-        processes = []
+        threads = []
         for assembler in assemblers:
-            p = Process(target=assemble_in_process, args=(assembler, return_dict))
-            p.start()
-            processes.append(p)
+            t = Thread(target=assembler.assemble)
+            t.start()
+            threads.append(t)
 
-        for p in processes:
-            p.join()
+        for t in threads:
+            t.join()
 
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
-        for name in self.algorithms:
-            xlsx_writer.write(return_dict[name].populations[0])
+        for assembler in assemblers:
+            xlsx_writer.write(assembler.populations[0])
+
+        self.assemble_button['state'] = 'normal'
 
     def validate(self):
         try:
