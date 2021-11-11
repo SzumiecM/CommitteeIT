@@ -16,10 +16,8 @@ from styles import *
 
 
 def assemble_in_process(assembler: Assembler, return_dict):
-    print('starting')
     assembler.assemble()
     return_dict[assembler.assembler_name] = assembler
-    print('finished')
 
 
 class ValidationError(Exception):
@@ -66,6 +64,10 @@ class Window:
             text=self.thesis_file,
             **ENTRY_PARAMS
         )
+
+        employees_file, thesis_file = self.check_default_files()
+        self.employees_entry.insert(0, employees_file)
+        self.thesis_entry.insert(0, thesis_file)
 
         self.employees_button = tk.Button(
             self.employees_frame,
@@ -156,6 +158,21 @@ class Window:
     def run(self):
         self.master.mainloop()
 
+    @staticmethod
+    def check_default_files():
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        default_employees_file = os.path.join(current_dir, 'files', DEFAULT_EMPLOYEES_FILE)
+        default_thesis_file = os.path.join(current_dir, 'files', DEFAULT_THESIS_FILE)
+        employees_starting_file = ''
+        thesis_starting_file = ''
+
+        if os.path.isfile(default_employees_file):
+            employees_starting_file = default_employees_file
+        if os.path.isfile(default_thesis_file):
+            thesis_starting_file = default_thesis_file
+
+        return employees_starting_file, thesis_starting_file
+
     def browse_files(self, file):
         filename = filedialog.askopenfilename(
             initialdir=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files'),
@@ -169,7 +186,6 @@ class Window:
 
     def check_changed(self, algorithm):
         self.algorithms.append(algorithm) if algorithm not in self.algorithms else self.algorithms.remove(algorithm)
-        self.banner.configure(text=''.join(self.algorithms))
 
         if algorithm in GENETIC and not self.genetic_params_visible:
             self.show_genetic_params()

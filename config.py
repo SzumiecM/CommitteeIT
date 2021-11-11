@@ -1,3 +1,6 @@
+DEFAULT_EMPLOYEES_FILE = 'pracownicy.xlsx'
+DEFAULT_THESIS_FILE = 'prace.xlsx'
+
 ALGORITHMS = ('heuristic', 'hybrid', 'genetic')
 GENETIC = ('hybrid', 'genetic')
 
