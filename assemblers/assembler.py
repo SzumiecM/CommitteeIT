@@ -165,6 +165,9 @@ class GeneticAssembler(Assembler):
         self.thesis_mutation_percent = thesis_mutation_percent
         self.parents = []
 
+        self.mean_population_score = []
+        self.best_population_score = []
+
     def create_initial_population(self):
         raise NotImplementedError
 
@@ -286,9 +289,6 @@ class GeneticAssembler(Assembler):
         global_start = time.time()
         self.create_initial_population()
 
-        mean_population_score = []
-        best_population_score = []
-
         # todo add mutation mode that turns on when all populations have the same fitness
         # todo - no crossovers, more mutations until better population is created
         for i in range(self.iteration_count):
@@ -301,27 +301,27 @@ class GeneticAssembler(Assembler):
 
             self.populations.sort(reverse=True)
 
-            mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
-            best_population_score.append(self.populations[0].fitness)
+            self.mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
+            self.best_population_score.append(self.populations[0].fitness)
 
             mean_population_diff = statistics.mean(
                 [x - y for (x, y) in zip([p.fitness for p in self.populations], previous_fitness)])
 
             print(
-                f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {mean_population_score[-1]} | mean diff: {mean_population_diff}')
+                f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_score[-1]} | mean diff: {mean_population_diff}')
 
         self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()
 
-        x = range(self.iteration_count)
-        plt.plot(x, mean_population_score, '-b', label='mean population score')
-        plt.plot(x, best_population_score, '-r', label='best population score')
-        plt.title(f'Population score for {self.assembler_name} with {self.time_elapsed}m execution time\n'
-                  f'parents: {self.parents_percent} | mutation percent: {self.population_mutation_percent} | mutated thesis: {self.thesis_mutation_percent}')
-        plt.xlabel('Iteration')
-        plt.ylabel('Score')
-        plt.legend(loc="upper left")
-        plt.show()
+        # x = range(self.iteration_count)
+        # plt.plot(x, mean_population_score, '-b', label='mean population score')
+        # plt.plot(x, best_population_score, '-r', label='best population score')
+        # plt.title(f'Population score for {self.assembler_name} with {self.time_elapsed}m execution time\n'
+        #           f'parents: {self.parents_percent} | mutation percent: {self.population_mutation_percent} | mutated thesis: {self.thesis_mutation_percent}')
+        # plt.xlabel('Iteration')
+        # plt.ylabel('Score')
+        # plt.legend(loc="upper left")
+        # plt.show()
 
     def create_thesis(self, thesis, employees):
         head_of_committee_list = []

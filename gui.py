@@ -2,6 +2,9 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
+from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 from assemblers.assembler import Assembler
 from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
 from xlsx_reader import EmployeesReader, ThesisReader
@@ -254,8 +257,27 @@ class Window:
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
         for assembler in assemblers:
             xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
+            self.plot_results(return_dict[assembler.assembler_name])
 
         self.assemble_button['state'] = 'normal'
+
+    @staticmethod
+    def plot_results(assembler):
+        new_window = tk.Toplevel()
+        fig = plt.Figure()
+        canvas = FigureCanvasTkAgg(fig, master=new_window)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1.0)
+        ax = fig.add_subplot(111)
+
+        x = range(assembler.iteration_count)
+        ax.plot(x, assembler.mean_population_score, '-b', label='mean population score')
+        ax.plot(x, assembler.best_population_score, '-r', label='best population score')
+        ax.set_title(f'Population score for {assembler.assembler_name} with {assembler.time_elapsed}m execution time\n'
+                  f'parents: {assembler.parents_percent} | mutation percent: {assembler.population_mutation_percent} | mutated thesis: {assembler.thesis_mutation_percent}')
+        fig.text(0.5, 0.04, 'common X', ha='center')
+        fig.text(0.04, 0.5, 'common Y', va='center', rotation='vertical')
+        ax.legend(loc='upper left')
+        canvas.draw()
 
     def validate(self):
         try:
@@ -327,6 +349,6 @@ class Window:
 if __name__ == '__main__':
     Window().run()
 
-# todo - popups with plots
 # todo - radiobutton for bools
 # todo - styles
+# todo - store last results, allow manual write
