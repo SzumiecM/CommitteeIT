@@ -319,5 +319,9 @@ class Window:
 
 
 if __name__ == '__main__':
-    # todo create two processes, one for gui, one for assembling
     Window().run()
+
+
+# todo - popups with plots
+# todo - radiobutton for bools
+# todo - styles
