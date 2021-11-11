@@ -16,6 +16,11 @@ from config import *
 from styles import *
 
 
+def assemble_in_process(assembler: Assembler, return_dict):
+    assembler.assemble()
+    return_dict[assembler.assembler_name] = assembler
+
+
 class ValidationError(Exception):
     def __init__(self, msg):
         super().__init__()
@@ -236,18 +241,19 @@ class Window:
         if 'genetic' in self.algorithms:
             assemblers.append(GeneticOnlyAssembler(**assembler_params, **genetic_params))
 
-        threads = []
+        return_dict = Manager().dict()
+        processes = []
         for assembler in assemblers:
-            t = Thread(target=assembler.assemble)
-            t.start()
-            threads.append(t)
+            p = Process(target=assemble_in_process, args=(assembler, return_dict))
+            p.start()
+            processes.append(p)
 
-        for t in threads:
-            t.join()
+        for p in processes:
+            p.join()
 
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
         for assembler in assemblers:
-            xlsx_writer.write(assembler.populations[0])
+            xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
 
         self.assemble_button['state'] = 'normal'
 
@@ -320,7 +326,6 @@ class Window:
 
 if __name__ == '__main__':
     Window().run()
-
 
 # todo - popups with plots
 # todo - radiobutton for bools

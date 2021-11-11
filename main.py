@@ -14,8 +14,8 @@ def assemble_in_process(assembler: Assembler, return_dict):
 
 
 if __name__ == '__main__':
-    employee_reader = EmployeesReader('pracownicy.xlsx')
-    thesis_reader = ThesisReader('prace.xlsx')
+    employee_reader = EmployeesReader('files\\pracownicy.xlsx')
+    thesis_reader = ThesisReader('files\\prace.xlsx')
 
     thesis_reader.map_employees(employee_reader.employees)
 
@@ -23,16 +23,16 @@ if __name__ == '__main__':
         'thesis': thesis_reader.thesis,
         'employees': employee_reader.employees,
         'employees_per_slot': 3,
-        'population_count': 30,
+        'population_count': 20,
         'max_slots_per_employee': True,
         'max_thesis_per_slot': 5
     }
 
     genetic_params = {
-        'iteration_count': 60,
-        'parents_percent': 0.5,
-        'population_mutation_percent': 0.4,
-        'thesis_mutation_percent': 0.3
+        'iteration_count': 30,
+        'parents_percent': 0.6,
+        'population_mutation_percent': 0.8,
+        'thesis_mutation_percent': 0.2
     }
 
     assemblers = [
@@ -59,6 +59,6 @@ if __name__ == '__main__':
     for p in processes:
         p.join()
 
-    xlsx_writer = XlsxWriter('prace.xlsx')
+    xlsx_writer = XlsxWriter('files\\prace.xlsx')
     xlsx_writer.write(return_dict['genetic'].populations[0])
     xlsx_writer.write(return_dict['hybrid'].populations[0])
