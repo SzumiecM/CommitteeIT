@@ -210,9 +210,9 @@ class Window:
                     return
 
     def validate_paths(self):
-        if not os.path.isfile(self.employees_entry.get()):
+        if not os.path.isfile(self.employees_entry.get()) or not self.employees_entry.get().endswith('.xlsx'):
             raise ValidationError('Wrong employees file chosen.')
-        elif not os.path.isfile(self.thesis_entry.get()):
+        elif not os.path.isfile(self.thesis_entry.get()) or not self.thesis_entry.get().endswith('.xlsx'):
             raise ValidationError('Wrong thesis file chosen.')
 
     @staticmethod
