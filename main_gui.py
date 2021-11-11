@@ -93,6 +93,8 @@ class Window:
 
         self.assembler_params_entries = {}
         for entry in ASSEMBLER_PARAMS.keys():
+            entry_box = tk.Entry()
+            entry_box.insert(0, ASSEMBLER_PARAMS[entry]['default'])
             self.assembler_params_entries[entry] = (
                 tk.Frame(
                     self.assembler_params_frame,
@@ -102,11 +104,13 @@ class Window:
                     text=' '.join(entry.split('_')).title(),
                     **BLACK_AND_WHITE
                 ),
-                tk.Entry()
+                entry_box
             )
 
         self.genetic_params_entries = {}
         for entry in GENETIC_PARAMS.keys():
+            entry_box = tk.Entry()
+            entry_box.insert(0, GENETIC_PARAMS[entry]['default'])
             self.genetic_params_entries[entry] = (
                 tk.Frame(
                     self.genetic_params_frame,
@@ -116,7 +120,7 @@ class Window:
                     text=' '.join(entry.split('_')).title(),
                     **BLACK_AND_WHITE
                 ),
-                tk.Entry()
+                entry_box
             )
 
         self.assemble_button = tk.Button(
@@ -297,4 +301,5 @@ class Window:
 
 
 if __name__ == '__main__':
+    # todo create two processes, one for gui, one for assembling
     Window().run()
