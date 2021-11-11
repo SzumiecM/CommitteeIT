@@ -15,6 +15,13 @@ from config import *
 from styles import *
 
 
+def assemble_in_process(assembler: Assembler, return_dict):
+    print('starting')
+    assembler.assemble()
+    return_dict[assembler.assembler_name] = assembler
+    print('finished')
+
+
 class ValidationError(Exception):
     def __init__(self, msg):
         super().__init__()
@@ -184,30 +191,71 @@ class Window:
         self.genetic_params_visible = False
 
     def assemble(self):
-        self.validate()
+        validated_data = self.validate()
+
+        if not validated_data:
+            return
+
+        employee_reader = EmployeesReader(self.employees_entry.get())
+        thesis_reader = ThesisReader(self.thesis_entry.get())
+
+        thesis_reader.map_employees(employee_reader.employees)
+
+        assembler_params, genetic_params = validated_data
+
+        assembler_params['thesis'] = thesis_reader.thesis
+        assembler_params['employees'] = employee_reader.employees
+
+        assemblers = []
+        if 'heuristic' in self.algorithms:
+            assemblers.append(HeuristicAssembler(**assembler_params))
+        if 'hybrid' in self.algorithms:
+            assemblers.append(GeneticHybridAssembler(**assembler_params, **genetic_params))
+        if 'genetic' in self.algorithms:
+            assemblers.append(GeneticOnlyAssembler(**assembler_params, **genetic_params))
+
+        # todo processes dont start as intended to
+        return_dict = Manager().dict()
+        processes = []
+        for assembler in assemblers:
+            p = Process(target=assemble_in_process, args=(assembler, return_dict))
+            p.start()
+            processes.append(p)
+
+        for p in processes:
+            p.join()
+
+        xlsx_writer = XlsxWriter(self.thesis_entry.get())
+        for name in self.algorithms:
+            xlsx_writer.write(return_dict[name].populations[0])
 
     def validate(self):
         try:
             self.validate_paths()
         except ValidationError:
-            return
+            return False
+
+        assembler_params = {}
+        genetic_params = {}
 
         for name, (_, _, entry) in self.assembler_params_entries.items():
             value = entry.get()
             validator = ASSEMBLER_PARAMS[name]
             try:
-                self.validate_param(name, value, validator)
+                assembler_params[name] = self.validate_param(name, value, validator)
             except ValidationError:
-                return
+                return False
 
         if self.genetic_params_visible:
             for name, (_, _, entry) in self.genetic_params_entries.items():
                 value = entry.get()
                 validator = GENETIC_PARAMS[name]
                 try:
-                    self.validate_param(name, value, validator)
+                    genetic_params[name] = self.validate_param(name, value, validator)
                 except ValidationError:
-                    return
+                    return False
+
+        return assembler_params, genetic_params
 
     def validate_paths(self):
         if not os.path.isfile(self.employees_entry.get()) or not self.employees_entry.get().endswith('.xlsx'):
@@ -217,22 +265,30 @@ class Window:
 
     @staticmethod
     def validate_param(name, value, validator):
+        if validator['type'] == bool:
+            if not value.isdigit() or not int(value) in (1, 0):
+                raise ValidationError(f'{name} should be set to either 0 or 1')
+            value = bool(int(value))
         if validator['type'] == int:
             if not value.isdigit():
                 raise ValidationError(f'{name} must be int')
+            value = int(value)
         elif validator['type'] == float:
             try:
                 float(value)
             except ValueError:
                 raise ValidationError(f'{name} must be float')
+            value = float(value)
 
         if validator.get('min'):
-            if float(value) < validator['min']:
+            if value < validator['min']:
                 raise ValidationError(f'Min value of {name} is {validator["min"]}')
 
         if validator.get('max'):
-            if float(value) > validator['max']:
+            if value > validator['max']:
                 raise ValidationError(f'Max value of {name} is {validator["max"]}')
+
+        return value
 
     @staticmethod
     def assemble_in_process(assembler: Assembler, return_dict):

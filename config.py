@@ -11,8 +11,7 @@ ASSEMBLER_PARAMS = {
         'min': 1
     },
     'max_slots_per_employee': {
-        'type': int,
-        'min': 1
+        'type': bool
     },
     'max_thesis_per_slot': {
         'type': int,

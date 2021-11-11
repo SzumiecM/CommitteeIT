@@ -3,7 +3,7 @@ from openpyxl import load_workbook
 
 class XlsxWriter:
     def __init__(self, file):
-        self.filename = f'files/{file}'
+        self.filename = file
         self.workbook = load_workbook(filename=self.filename)
         self.population = None
 
@@ -32,7 +32,8 @@ class XlsxWriter:
                                                                                                       in
                                                                                                       thesis.committee_members]
             self.worksheet.cell(row, column + 3).value = thesis.slot.day
-            self.worksheet.cell(row, column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.start.minute} - {thesis.slot.end.hour}:{thesis.slot.end.minute}'
+            self.worksheet.cell(row,
+                                column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.start.minute} - {thesis.slot.end.hour}:{thesis.slot.end.minute}'
 
             row += 1
             if not thesis.individual:

@@ -6,7 +6,7 @@ from models import Student, Thesis, Employee, Slot
 
 class XlsxReader:
     def __init__(self, file):
-        self.workbook = load_workbook(filename=f'files/{file}')
+        self.workbook = load_workbook(filename=file)
         self.worksheet = self.workbook.active
 
         self.objects_to_read = {}
