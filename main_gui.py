@@ -1,10 +1,16 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from xlsx_reader import ThesisReader, EmployeesReader
 
 from config import *
 from styles import *
+
+
+class ValidationError(Exception):
+    def __init__(self, msg):
+        super().__init__()
+        messagebox.showerror('ValidationError', msg)
 
 
 class Window:
@@ -172,7 +178,44 @@ class Window:
         self.genetic_params_visible = False
 
     def assemble(self):
-        pass
+        self.validate()
+
+    def validate(self):
+        for name, (_, _, entry) in self.assembler_params_entries.items():
+            value = entry.get()
+            validator = ASSEMBLER_PARAMS[name]
+            try:
+                self.validate_param(name, value, validator)
+            except ValidationError:
+                return
+
+        if self.genetic_params_visible:
+            for name, (_, _, entry) in self.genetic_params_entries.items():
+                value = entry.get()
+                validator = GENETIC_PARAMS[name]
+                try:
+                    self.validate_param(name, value, validator)
+                except ValidationError:
+                    return
+
+    @staticmethod
+    def validate_param(name, value, validator):
+        if validator['type'] == int:
+            if not value.isdigit():
+                raise ValidationError(f'{name} must be int')
+        elif validator['type'] == float:
+            try:
+                float(value)
+            except ValueError:
+                raise ValidationError(f'{name} must be float')
+
+        if validator.get('min'):
+            if float(value) < validator['min']:
+                raise ValidationError(f'Min value of {name} is {validator["min"]}')
+
+        if validator.get('max'):
+            if float(value) > validator['max']:
+                raise ValidationError(f'Max value of {name} is {validator["max"]}')
 
 
 if __name__ == '__main__':
