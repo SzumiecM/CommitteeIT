@@ -1,7 +1,15 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from xlsx_reader import ThesisReader, EmployeesReader
+
+from assemblers.assembler import Assembler
+from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
+from xlsx_reader import EmployeesReader, ThesisReader
+from assemblers.genetic_only_assembler import GeneticOnlyAssembler
+from assemblers.heuristic_assembler import HeuristicAssembler
+from multiprocessing import Process, Manager
+
+from xlsx_writer import XlsxWriter
 
 from config import *
 from styles import *
@@ -45,14 +53,12 @@ class Window:
             text=self.employees_file,
             **ENTRY_PARAMS
         )
-        self.employees_entry.insert(0, 'pracownicy.xlsx')
 
         self.thesis_entry = tk.Entry(
             self.thesis_frame,
             text=self.thesis_file,
             **ENTRY_PARAMS
         )
-        self.thesis_entry.insert(0, 'prace.xlsx')
 
         self.employees_button = tk.Button(
             self.employees_frame,
@@ -181,6 +187,11 @@ class Window:
         self.validate()
 
     def validate(self):
+        try:
+            self.validate_paths()
+        except ValidationError:
+            return
+
         for name, (_, _, entry) in self.assembler_params_entries.items():
             value = entry.get()
             validator = ASSEMBLER_PARAMS[name]
@@ -197,6 +208,12 @@ class Window:
                     self.validate_param(name, value, validator)
                 except ValidationError:
                     return
+
+    def validate_paths(self):
+        if not os.path.isfile(self.employees_entry.get()):
+            raise ValidationError('Wrong employees file chosen.')
+        elif not os.path.isfile(self.thesis_entry.get()):
+            raise ValidationError('Wrong thesis file chosen.')
 
     @staticmethod
     def validate_param(name, value, validator):
@@ -216,6 +233,11 @@ class Window:
         if validator.get('max'):
             if float(value) > validator['max']:
                 raise ValidationError(f'Max value of {name} is {validator["max"]}')
+
+    @staticmethod
+    def assemble_in_process(assembler: Assembler, return_dict):
+        assembler.assemble()
+        return_dict[assembler.assembler_name] = assembler
 
 
 if __name__ == '__main__':
