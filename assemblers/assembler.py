@@ -242,7 +242,7 @@ class GeneticAssembler(Assembler):
                 population.fitness = self.calculate_population_fitness(population)
 
         populations_to_replace.sort(reverse=True)
-        populations_to_replace = populations_to_replace[:child_count]  # todo is it necessary, take only better ones
+        populations_to_replace = populations_to_replace[:child_count]
         self.populations.extend(populations_to_replace)
 
     def mutate(self):
