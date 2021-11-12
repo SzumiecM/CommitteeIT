@@ -179,6 +179,8 @@ class GeneticAssembler(Assembler):
     def crossover(self):
         self.populations.sort(reverse=True)
         child_count = int(len(self.parents) / 2)
+        if child_count == 0:
+            return
         populations_to_replace = self.populations[-child_count:]
         self.populations = self.populations[:-child_count]
 
@@ -289,8 +291,11 @@ class GeneticAssembler(Assembler):
         global_start = time.time()
         self.create_initial_population()
 
-        # todo add mutation mode that turns on when all populations have the same fitness
-        # todo - no crossovers, more mutations until better population is created
+        parents_percent = self.parents_percent
+        population_mutation_percent = self.population_mutation_percent
+        thesis_mutation_percent = self.thesis_mutation_percent
+        extreme_mutation_mode = False
+
         for i in range(self.iteration_count):
             start = time.time()
             previous_fitness = [p.fitness for p in self.populations]
@@ -304,6 +309,20 @@ class GeneticAssembler(Assembler):
             self.mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
             self.best_population_score.append(self.populations[0].fitness)
 
+            fitness = [p.fitness for p in self.populations]
+            if len(set(fitness)) == 1 and not extreme_mutation_mode:
+                print('entering extreme mutation mode')
+                self.parents_percent = 0
+                self.population_mutation_percent = 1
+                self.thesis_mutation_percent = 0.8
+                extreme_mutation_mode = True
+            elif len(set(fitness)) != 1 and extreme_mutation_mode:
+                print('leaving extreme mutation mode')
+                self.parents_percent = parents_percent
+                self.population_mutation_percent = population_mutation_percent
+                self.thesis_mutation_percent = thesis_mutation_percent
+                extreme_mutation_mode = False
+
             mean_population_diff = statistics.mean(
                 [x - y for (x, y) in zip([p.fitness for p in self.populations], previous_fitness)])
 
@@ -312,16 +331,6 @@ class GeneticAssembler(Assembler):
 
         self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.save_results()
-
-        # x = range(self.iteration_count)
-        # plt.plot(x, mean_population_score, '-b', label='mean population score')
-        # plt.plot(x, best_population_score, '-r', label='best population score')
-        # plt.title(f'Population score for {self.assembler_name} with {self.time_elapsed}m execution time\n'
-        #           f'parents: {self.parents_percent} | mutation percent: {self.population_mutation_percent} | mutated thesis: {self.thesis_mutation_percent}')
-        # plt.xlabel('Iteration')
-        # plt.ylabel('Score')
-        # plt.legend(loc="upper left")
-        # plt.show()
 
     def create_thesis(self, thesis, employees):
         head_of_committee_list = []

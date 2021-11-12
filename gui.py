@@ -273,7 +273,7 @@ class Window:
         ax.plot(x, assembler.mean_population_score, '-b', label='mean population score')
         ax.plot(x, assembler.best_population_score, '-r', label='best population score')
         ax.set_title(f'Population score for {assembler.assembler_name} with {assembler.time_elapsed}m execution time\n'
-                  f'parents: {assembler.parents_percent} | mutation percent: {assembler.population_mutation_percent} | mutated thesis: {assembler.thesis_mutation_percent}')
+                     f'parents: {assembler.parents_percent} | mutation percent: {assembler.population_mutation_percent} | mutated thesis: {assembler.thesis_mutation_percent}')
         fig.text(0.5, 0.04, 'common X', ha='center')
         fig.text(0.04, 0.5, 'common Y', va='center', rotation='vertical')
         ax.legend(loc='upper left')
@@ -349,6 +349,13 @@ class Window:
 if __name__ == '__main__':
     Window().run()
 
-# todo - radiobutton for bools
+# radiobutton for bools - considered, might not be that good of an idea after all
 # todo - styles
 # todo - store last results, allow manual write
+
+# todo - add stop option with last best results save
+# https://stackoverflow.com/questions/32930120/retrieve-a-value-from-subprocess-after-kill
+
+# todo - configure weights
+# todo - get_by_repr -> get_by_id (might cause little speedup)
+# todo - terminate processes on windows close

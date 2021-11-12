@@ -12,7 +12,7 @@ ASSEMBLER_PARAMS = {
     },
     'population_count': {
         'type': int,
-        'min': 1,
+        'min': 3,
         'default': 20
     },
     'max_slots_per_employee': {
