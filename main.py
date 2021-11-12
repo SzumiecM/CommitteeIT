@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     genetic_params = {
         'iteration_count': 30,
-        'parents_percent': 0.6,
+        'parents_percent': 1,
         'population_mutation_percent': 0.8,
         'thesis_mutation_percent': 0.2
     }

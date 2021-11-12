@@ -1,4 +1,5 @@
 import os
+import time
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
@@ -10,7 +11,7 @@ from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
 from xlsx_reader import EmployeesReader, ThesisReader
 from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, Queue
 
 from xlsx_writer import XlsxWriter
 from threading import Thread
@@ -36,6 +37,12 @@ class Window:
         self.master.title('CommitteeIT')
         self.master.geometry('800x400')
         self.master.option_add('*Font', 'HoboStd 12')
+
+        self.killed = False
+        self.cache = {}
+        m = Manager()
+        self.queue = m.Queue()
+        Thread(target=self.queue_listener).start()
 
         self.thesis_file = None
         self.employees_file = None
@@ -136,6 +143,19 @@ class Window:
             **BUTTON_PARAMS
         )
 
+        self.assemble_stop_button = tk.Button(
+            self.master,
+            text='STOP ASSEMBLING',
+            command=self.assemble_stop,
+            **BUTTON_PARAMS
+        )
+        self.assemble_stop_button['state'] = 'disabled'
+
+        self.progress = tk.Label(
+            self.master,
+            **BLACK_AND_WHITE
+        )
+
         self.banner.pack(side='top', anchor='center', fill='both')
 
         self.files_frame.pack(side='top', fill='x')
@@ -158,6 +178,8 @@ class Window:
             entry.pack(side='left', in_=frame)
 
         self.assemble_button.pack(side='bottom', fill='x')
+        self.assemble_stop_button.pack(side='bottom', fill='x')
+        self.progress.pack(side='bottom', fill='x')
 
     def run(self):
         self.master.mainloop()
@@ -214,11 +236,25 @@ class Window:
 
         self.genetic_params_visible = False
 
+    def queue_listener(self):
+        while True:
+            msg = self.queue.get()
+            self.cache[msg['assembler_name']] = {**msg}
+            self.progress.configure(text=' | '.join(f'{name}: {self.cache[name]["iteration_count"]}' for name in self.cache.keys()))
+
     def assemble(self):
         t = Thread(target=self.assemble_in_thread)
         t.start()
 
         self.assemble_button['state'] = 'disabled'
+        self.assemble_stop_button['state'] = 'normal'
+
+    def assemble_stop(self):
+        self.killed = True
+        for p in self.processes:
+            p.kill()
+            self.processes.remove(p)
+        print(self.processes)
 
     def assemble_in_thread(self):
         validated_data = self.validate()
@@ -235,6 +271,7 @@ class Window:
 
         assembler_params['thesis'] = thesis_reader.thesis
         assembler_params['employees'] = employee_reader.employees
+        assembler_params['window_queue'] = self.queue
 
         assemblers = []
         if 'heuristic' in self.algorithms:
@@ -245,35 +282,58 @@ class Window:
             assemblers.append(GeneticOnlyAssembler(**assembler_params, **genetic_params))
 
         return_dict = Manager().dict()
-        processes = []
+        self.processes = []
         for assembler in assemblers:
             p = Process(target=assemble_in_process, args=(assembler, return_dict))
             p.start()
-            processes.append(p)
+            self.processes.append(p)
 
-        for p in processes:
+        for p in self.processes:
             p.join()
 
+        if not self.killed:
+            self.processes = []
+
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
-        for assembler in assemblers:
-            xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
-            self.plot_results(return_dict[assembler.assembler_name])
+
+        if not self.killed:
+            for assembler in assemblers:
+                xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
+                self.plot_results(return_dict[assembler.assembler_name])
+        else:
+            for assembler in assemblers:
+                xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'])
+                self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
 
         self.assemble_button['state'] = 'normal'
+        self.assemble_stop_button['state'] = 'disabled'
 
     @staticmethod
-    def plot_results(assembler):
+    def plot_results(assembler, cached=False, **kwargs):
+        assembler_name = assembler.assembler_name if not cached else assembler['assembler_name']
+        if assembler_name not in GENETIC:
+            return
+
+        mean_population_score = assembler.mean_population_score if not cached else assembler['mean_population_score']
+        best_population_score = assembler.best_population_score if not cached else assembler['best_population_score']
+        time_elapsed = assembler.time_elapsed if not cached else assembler['time_elapsed']
+        parents_percent = assembler.parents_percent if not cached else kwargs['parents_percent']
+        population_mutation_percent = assembler.population_mutation_percent if not cached else kwargs['population_mutation_percent']
+        thesis_mutation_percent = assembler.thesis_mutation_percent if not cached else kwargs[
+            'thesis_mutation_percent']
+        iteration_count = assembler.iteration_count if not cached else int(assembler['iteration_count'].split('/')[0])
+
         new_window = tk.Toplevel()
         fig = plt.Figure()
         canvas = FigureCanvasTkAgg(fig, master=new_window)
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1.0)
         ax = fig.add_subplot(111)
 
-        x = range(assembler.iteration_count)
-        ax.plot(x, assembler.mean_population_score, '-b', label='mean population score')
-        ax.plot(x, assembler.best_population_score, '-r', label='best population score')
-        ax.set_title(f'Population score for {assembler.assembler_name} with {assembler.time_elapsed}m execution time\n'
-                     f'parents: {assembler.parents_percent} | mutation percent: {assembler.population_mutation_percent} | mutated thesis: {assembler.thesis_mutation_percent}')
+        x = range(iteration_count)
+        ax.plot(x, mean_population_score, '-b', label='mean population score')
+        ax.plot(x, best_population_score, '-r', label='best population score')
+        ax.set_title(f'Population score for {assembler_name} with {time_elapsed}m execution time\n'
+                     f'parents: {parents_percent} | mutation percent: {population_mutation_percent} | mutated thesis: {thesis_mutation_percent}')
         fig.text(0.5, 0.04, 'common X', ha='center')
         fig.text(0.04, 0.5, 'common Y', va='center', rotation='vertical')
         ax.legend(loc='upper left')
@@ -339,11 +399,6 @@ class Window:
                 raise ValidationError(f'Max value of {name} is {validator["max"]}')
 
         return value
-
-    @staticmethod
-    def assemble_in_process(assembler: Assembler, return_dict):
-        assembler.assemble()
-        return_dict[assembler.assembler_name] = assembler
 
 
 if __name__ == '__main__':

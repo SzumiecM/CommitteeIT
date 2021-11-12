@@ -12,7 +12,7 @@ from utils import assign_to_thesis_heuristically, get_by_repr, get_by_id, assign
 
 class Assembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
-                 population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int):
+                 population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int, window_queue=None):
 
         self.thesis = copy.deepcopy(thesis)
         self.employees = copy.deepcopy(employees)
@@ -22,6 +22,8 @@ class Assembler:
 
         self.max_slots_per_employee = self.mean_slots_per_employee + 6 if max_slots_per_employee else 9999
         self.max_thesis_per_slot = max_thesis_per_slot
+
+        self.window_queue = window_queue
 
         self.populations = []
         self.best_populations = []
@@ -90,11 +92,11 @@ class Assembler:
         print(
             f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
 
-        for i, population in enumerate(self.best_populations):
-            with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
-                lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
-                f.writelines(lines)
-                f.close()
+        # for i, population in enumerate(self.best_populations):
+        #     with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
+        #         lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
+        #         f.writelines(lines)
+        #         f.close()
 
     def create_initial_population_heuristically(self):
         while True:
@@ -149,14 +151,15 @@ class Assembler:
 class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
-                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float):
+                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float, window_queue=None):
         super().__init__(
             thesis=thesis,
             employees=employees,
             employees_per_slot=employees_per_slot,
             population_count=population_count,
             max_slots_per_employee=max_slots_per_employee,
-            max_thesis_per_slot=max_thesis_per_slot
+            max_thesis_per_slot=max_thesis_per_slot,
+            window_queue=window_queue
         )
 
         self.iteration_count = iteration_count
@@ -329,7 +332,17 @@ class GeneticAssembler(Assembler):
             print(
                 f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_score[-1]} | mean diff: {mean_population_diff}')
 
-        self.time_elapsed = round((time.time() - global_start) / 60, 2)
+            self.time_elapsed = round((time.time() - global_start) / 60, 2)
+
+            self.window_queue.put({
+                'assembler_name': self.assembler_name,
+                'iteration_count': f'{i + 1}/{self.iteration_count}',
+                'best_population': self.populations[0],
+                'best_population_score': self.best_population_score,
+                'mean_population_score': self.mean_population_score,
+                'time_elapsed': self.time_elapsed
+            })
+
         self.save_results()
 
     def create_thesis(self, thesis, employees):
