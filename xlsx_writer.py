@@ -1,4 +1,5 @@
 from openpyxl import load_workbook
+from openpyxl.styles import Alignment
 
 
 class XlsxWriter:
@@ -22,31 +23,40 @@ class XlsxWriter:
 
     def write_thesis(self):
         head_of_committee_title = 'przewodniczący komisji egzaminu dyplomowego:'
-        # committee_member_title = 'członek komisji egzaminu dyplomowego:'
-        # date_title = 'data'
-        # hour_title = 'godzina'
 
         row, column = self.find_starting_row_and_column(head_of_committee_title)
 
+        self.worksheet.cell(row - 1, column + 7).value = 'klucz sortowania'
+        self.worksheet.cell(row - 1, column + 8).value = 'komentarz'
+
         for thesis in self.population.thesis:
-            self.worksheet.cell(row, column).value = thesis.head_of_committee.__repr__()
-            self.worksheet.cell(row, column + 1).value, self.worksheet.cell(row, column + 2).value = [x.__repr__() for x
-                                                                                                      in
-                                                                                                      thesis.committee_members]
-            self.worksheet.cell(row, column + 3).value = thesis.slot.day
-            self.worksheet.cell(row,
-                                column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.start.minute} - {thesis.slot.end.hour}:{thesis.slot.end.minute}'
+            self.write_population(thesis, row, column)
+
+            notes = []
+            if thesis.head_of_committee.notes:
+                notes.append(
+                    f'{thesis.head_of_committee.name} {thesis.head_of_committee.surname}: {thesis.head_of_committee.notes}')
+            for member in thesis.committee_members:
+                if member.notes:
+                    notes.append(f'{member.name} {member.surname}: {member.notes}')
+
+            self.worksheet.cell(row, column + 8).alignment = Alignment(wrapText=True)
+            self.worksheet.cell(row, column + 8).value = '\n'.join(notes) if notes else ''
 
             row += 1
             if not thesis.individual:
-                self.worksheet.cell(row, column).value = thesis.head_of_committee.__repr__()
-                self.worksheet.cell(row, column + 1).value, self.worksheet.cell(row, column + 2).value = [x.__repr__()
-                                                                                                          for x in
-                                                                                                          thesis.committee_members]
-                self.worksheet.cell(row, column + 3).value = thesis.slot.day
-                self.worksheet.cell(row,
-                                    column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.start.minute} - {thesis.slot.end.hour}:{thesis.slot.end.minute}'
+                self.write_population(thesis, row, column)
                 row += 1
+
+    def write_population(self, thesis, row, column):
+        self.worksheet.cell(row, column).value = thesis.head_of_committee.__repr__()
+        self.worksheet.cell(row, column + 1).value, self.worksheet.cell(row, column + 2).value = [x.__repr__() for x
+                                                                                                  in
+                                                                                                  thesis.committee_members]
+        self.worksheet.cell(row, column + 3).value = thesis.slot.day
+        self.worksheet.cell(row,
+                            column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.start.minute} - {thesis.slot.end.hour}:{thesis.slot.end.minute}'
+        self.worksheet.cell(row, column + 7).value = thesis.slot.id
 
     def save(self):
         self.workbook.save(filename=self.filename)
