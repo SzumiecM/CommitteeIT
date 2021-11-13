@@ -40,6 +40,7 @@ class Window:
 
         self.killed = False
         self.cache = {}
+        self.processes = []
         m = Manager()
         self.queue = m.Queue()
         Thread(target=self.queue_listener).start()
@@ -253,13 +254,14 @@ class Window:
         self.killed = True
         for p in self.processes:
             p.kill()
-            self.processes.remove(p)
-        print(self.processes)
+        self.processes = []
 
     def assemble_in_thread(self):
         validated_data = self.validate()
 
         if not validated_data:
+            self.assemble_button['state'] = 'normal'
+            self.assemble_stop_button['state'] = 'disabled'
             return
 
         employee_reader = EmployeesReader(self.employees_entry.get())
@@ -408,9 +410,6 @@ if __name__ == '__main__':
 # todo - styles
 # todo - store last results, allow manual write
 
-# todo - add stop option with last best results save
-# https://stackoverflow.com/questions/32930120/retrieve-a-value-from-subprocess-after-kill
-
 # todo - configure weights
 # todo - get_by_repr -> get_by_id (might cause little speedup)
-# todo - terminate processes on windows close
+# todo - terminate processes on windows close AND ALL THREADS
