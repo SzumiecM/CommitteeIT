@@ -7,7 +7,7 @@ import copy
 from matplotlib import pyplot as plt
 
 from models import Thesis, Employee, Population
-from utils import assign_to_thesis_heuristically, get_by_repr, get_by_id, assign_employees
+from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 
 
 class Assembler:
