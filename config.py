@@ -11,6 +11,11 @@ with open('config.json') as f:
 
 
 def replace_types(dict_):
+    try:
+        dict_.keys()
+    except AttributeError:
+        return dict_
+
     if 'type' in dict_.keys():
         type_ = dict_['type']
         if type_ == 'int':
@@ -33,3 +38,4 @@ file_json = replace_types(file_json)
 READER_PARAMS = file_json['READER_PARAMS']
 ASSEMBLER_PARAMS = file_json['ASSEMBLER_PARAMS']
 GENETIC_PARAMS = file_json['GENETIC_PARAMS']
+FITNESS_WEIGHTS = file_json['FITNESS_WEIGHTS']

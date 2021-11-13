@@ -61,5 +61,13 @@
       "max": 1.0,
       "default": 0.2
     }
+  },
+  "FITNESS_WEIGHTS": {
+    "no_break": 50,
+    "break_time_break": 10,
+    "longer_break": -50,
+    "max_slots_per_employee_exceeded": -20,
+    "supervisor_present": 100,
+    "reviewer_present": 70
   }
 }

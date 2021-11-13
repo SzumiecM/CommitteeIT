@@ -6,6 +6,7 @@ import copy
 
 from matplotlib import pyplot as plt
 
+from config import FITNESS_WEIGHTS
 from models import Thesis, Employee, Population
 from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 
@@ -57,25 +58,25 @@ class Assembler:
 
             breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
 
-            fitness += breaks.count(0) * 50
-            fitness += breaks.count(self.break_time) * 10
+            fitness += breaks.count(0) * FITNESS_WEIGHTS['no_break']
+            fitness += breaks.count(self.break_time) * FITNESS_WEIGHTS['break_time_break']
 
             # todo reward same committee squads
 
             double_thesis = len([x for x in thesis if not x.individual])
-            fitness -= double_thesis * 50  # to not count them as breaks
+            fitness -= double_thesis * FITNESS_WEIGHTS['no_break']  # to not count them as breaks
 
-            fitness -= len([x for x in breaks if 30 < x < 60 * 13]) * 50
-            fitness -= (len(employee.assigned_slots) - self.max_slots_per_employee) * 20 if len(
-                employee.assigned_slots) > self.max_slots_per_employee else 0
+            fitness += len([x for x in breaks if 30 < x < 60 * 13]) * FITNESS_WEIGHTS['longer_break']
+            fitness += (len(employee.assigned_slots) - self.max_slots_per_employee) * FITNESS_WEIGHTS[
+                'max_slots_per_employee_exceeded'] if len(employee.assigned_slots) > self.max_slots_per_employee else 0
 
         for thesis in thesis:
             if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
                     or thesis.supervisor.__repr__() is thesis.head_of_committee.__repr__():
-                fitness += 100
+                fitness += FITNESS_WEIGHTS['supervisor_present']
             if thesis.reviewer.__repr__() in thesis.committee_members.__repr__() \
                     or thesis.reviewer.__repr__() is thesis.head_of_committee.__repr__():
-                fitness += 70
+                fitness += FITNESS_WEIGHTS['reviewer_present']
 
         return fitness
 
