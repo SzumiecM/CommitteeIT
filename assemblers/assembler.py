@@ -220,7 +220,7 @@ class GeneticAssembler(Assembler):
                         thesis, child_employees = assign_employees(thesis, child_employees, self.max_slots_per_employee)
                     except:
                         try:
-                            parent = parents[0 if parents.index(get_by_repr(parents, parent)) == 1 else 1]
+                            parent = parents[0 if parents.index(get_by_id(parents, parent.id)) == 1 else 1]
                             thesis = parent.thesis[j]
                             thesis, child_employees = assign_employees(thesis, child_employees,
                                                                        self.max_slots_per_employee)
@@ -269,13 +269,13 @@ class GeneticAssembler(Assembler):
             for thesis in mutated_thesis:
                 if thesis.individual:
                     try:
-                        head = get_by_repr(mutant_head_of_committee_list, thesis.head_of_committee)
+                        head = get_by_id(mutant_head_of_committee_list, thesis.head_of_committee.id)
                         thesis.head_of_committee = head
-                        thesis.head_of_committee.assigned_slots.remove(get_by_repr(head.assigned_slots, thesis.slot))
+                        thesis.head_of_committee.assigned_slots.remove(get_by_id(head.assigned_slots, thesis.slot.id))
                         thesis.head_of_committee.available_slots.append(thesis.slot)
                         for member in thesis.committee_members:
-                            member = get_by_repr(mutant_committee_member_list, member)
-                            member.assigned_slots.remove(get_by_repr(member.assigned_slots, thesis.slot))
+                            member = get_by_id(mutant_committee_member_list, member.id)
+                            member.assigned_slots.remove(get_by_id(member.assigned_slots, thesis.slot.id))
                             member.available_slots.append(thesis.slot)
                         self.create_thesis(
                             thesis=thesis,
@@ -408,8 +408,8 @@ class GeneticAssembler(Assembler):
 
             for member in thesis.committee_members:
                 member.assigned_slots.append(slot)
-                member.available_slots.remove(get_by_repr(member.available_slots, slot))
+                member.available_slots.remove(get_by_id(member.available_slots, slot.id))
                 if not thesis.individual:
                     member.assigned_slots.append(slot_2)
-                    member.available_slots.remove(get_by_repr(member.available_slots, slot_2))
+                    member.available_slots.remove(get_by_id(member.available_slots, slot_2.id))
             break
