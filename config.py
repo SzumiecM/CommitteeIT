@@ -4,6 +4,24 @@ DEFAULT_THESIS_FILE = 'prace.xlsx'
 ALGORITHMS = ('heuristic', 'hybrid', 'genetic')
 GENETIC = ('hybrid', 'genetic')
 
+READER_PARAMS = {
+    'slot_size': {
+        'type': int,
+        'min': 10,
+        'default': 30
+    },
+    'break_time': {
+        'type': int,
+        'min': 1,
+        'default': 15
+    },
+    'slot_block': {
+        'type': int,
+        'min': 1,
+        'default': 5
+    }
+}
+
 ASSEMBLER_PARAMS = {
     'employees_per_slot': {
         'type': int,
@@ -23,6 +41,11 @@ ASSEMBLER_PARAMS = {
         'type': int,
         'min': 1,
         'default': 5
+    },
+    'break_time': {
+        'type': int,
+        'min': 1,
+        'default': 15
     }
 }
 

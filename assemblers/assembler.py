@@ -12,7 +12,8 @@ from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 
 class Assembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
-                 population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int, window_queue=None):
+                 population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
+                 break_time: int, window_queue=None):
 
         self.thesis = copy.deepcopy(thesis)
         self.employees = copy.deepcopy(employees)
@@ -22,6 +23,7 @@ class Assembler:
 
         self.max_slots_per_employee = self.mean_slots_per_employee + 6 if max_slots_per_employee else 9999
         self.max_thesis_per_slot = max_thesis_per_slot
+        self.break_time = break_time
 
         self.window_queue = window_queue
 
@@ -53,10 +55,10 @@ class Assembler:
 
             employee.assigned_slots.sort()
 
-            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:]) if b - a != 15]
+            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:]) if b - a != self.break_time]
 
             fitness += breaks.count(0) * 50
-            fitness += breaks.count(15) * 10
+            fitness += breaks.count(self.break_time) * 10
 
             # todo reward same committee squads
 
@@ -91,12 +93,6 @@ class Assembler:
 
         print(
             f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
-
-        # for i, population in enumerate(self.best_populations):
-        #     with open(f'results/{i + 1} {self.assembler_name} population.txt', 'w') as f:
-        #         lines = [f'{x} - {x.head_of_committee} | {x.committee_members}\n' for x in population.thesis]
-        #         f.writelines(lines)
-        #         f.close()
 
     def create_initial_population_heuristically(self):
         while True:
@@ -145,13 +141,12 @@ class Assembler:
         print([max(slot.assigned_thesis for slot in [thesis.slot for thesis in population.thesis]) for population in
                self.populations])
 
-    # todo break assemble on ctrl+c while still saving results
-
 
 class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
-                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float, window_queue=None):
+                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float,
+                 break_time: int, window_queue=None):
         super().__init__(
             thesis=thesis,
             employees=employees,
@@ -159,6 +154,7 @@ class GeneticAssembler(Assembler):
             population_count=population_count,
             max_slots_per_employee=max_slots_per_employee,
             max_thesis_per_slot=max_thesis_per_slot,
+            break_time=break_time,
             window_queue=window_queue
         )
 

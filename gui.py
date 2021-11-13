@@ -35,11 +35,12 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('800x400')
+        self.master.geometry('800x800')
         self.master.option_add('*Font', 'HoboStd 12')
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.assembler_killed = False
+        self.assembling = False
         self.window_closed = False
         self.cache = {}
         self.processes = []
@@ -59,6 +60,7 @@ class Window:
         self.employees_frame = tk.Frame(self.files_frame)
         self.thesis_frame = tk.Frame(self.files_frame)
         self.checkbox_frame = tk.Frame(self.files_frame, bg='black')
+        self.reader_params_frame = tk.Frame(self.master)
         self.assembler_params_frame = tk.Frame(self.master, bg='orange')
         self.genetic_params_frame = tk.Frame(self.master, bg='cyan')
 
@@ -109,6 +111,34 @@ class Window:
                 )
             )
 
+        self.reader_params_label = tk.Label(
+            self.reader_params_frame,
+            text='Reader Params',
+            **BLACK_AND_WHITE
+        )
+
+        self.reader_params_entries = {}
+        for entry in READER_PARAMS.keys():
+            entry_box = tk.Entry()
+            entry_box.insert(0, READER_PARAMS[entry]['default'])
+            self.reader_params_entries[entry] = (
+                tk.Frame(
+                    self.reader_params_frame,
+                    bg='black'
+                ),
+                tk.Label(
+                    text=' '.join(entry.split('_')).title(),
+                    **BLACK_AND_WHITE
+                ),
+                entry_box
+            )
+
+        self.assembler_params_label = tk.Label(
+            self.assembler_params_frame,
+            text='Assembler Params',
+            **BLACK_AND_WHITE
+        )
+
         self.assembler_params_entries = {}
         for entry in ASSEMBLER_PARAMS.keys():
             entry_box = tk.Entry()
@@ -124,6 +154,12 @@ class Window:
                 ),
                 entry_box
             )
+
+        self.genetic_params_label = tk.Label(
+            self.genetic_params_frame,
+            text='Genetic Params',
+            **BLACK_AND_WHITE
+        )
 
         self.genetic_params_entries = {}
         for entry in GENETIC_PARAMS.keys():
@@ -176,7 +212,15 @@ class Window:
         for checkbox in self.algorithm_checkboxes:
             checkbox.pack(side='top', anchor='w')
 
+        self.reader_params_frame.pack(side='top', fill='x')
+        self.reader_params_label.pack(side='top', fill='x')
+        for frame, label, entry in self.reader_params_entries.values():
+            frame.pack(side='top', fill='x')
+            label.pack(side='left', in_=frame)
+            entry.pack(side='left', in_=frame)
+
         self.assembler_params_frame.pack(side='top', fill='x')
+        self.assembler_params_label.pack(side='top', fill='x')
         for frame, label, entry in self.assembler_params_entries.values():
             frame.pack(side='top', fill='x')
             label.pack(side='left', in_=frame)
@@ -191,13 +235,14 @@ class Window:
 
     def on_close(self):
         self.queue.put('DONE')
-        self.assembler_killed = True
-        self.window_closed = True
-        for p in self.processes:
-            p.kill()
-        self.processes = []
+        if self.assembling:
+            self.assembler_killed = True
+            self.window_closed = True
+            for p in self.processes:
+                p.kill()
+            self.processes = []
+            self.assemble_thread.join()
 
-        self.assemble_thread.join()
         self.master.destroy()
 
     @staticmethod
@@ -236,6 +281,7 @@ class Window:
 
     def show_genetic_params(self):
         self.genetic_params_frame.pack(side='top', fill='x')
+        self.genetic_params_label.pack(side='top', fill='x')
         for frame, label, entry in self.genetic_params_entries.values():
             frame.pack(side='top', fill='x')
             label.pack(side='left', in_=frame)
@@ -245,6 +291,7 @@ class Window:
 
     def hide_genetic_params(self):
         self.genetic_params_frame.pack_forget()
+        self.genetic_params_label.pack_forget()
         for frame, label, entry in self.genetic_params_entries.values():
             frame.pack_forget()
             label.pack_forget()
@@ -263,6 +310,7 @@ class Window:
     def assemble(self):
         self.assemble_thread = Thread(target=self.assemble_in_thread)
         self.assemble_thread.start()
+        self.assembling = True
 
         self.assemble_button['state'] = 'disabled'
         self.assemble_stop_button['state'] = 'normal'
@@ -281,12 +329,12 @@ class Window:
             self.assemble_stop_button['state'] = 'disabled'
             return
 
-        employee_reader = EmployeesReader(self.employees_entry.get())
+        reader_params, assembler_params, genetic_params = validated_data
+
+        employee_reader = EmployeesReader(self.employees_entry.get(), **reader_params)
         thesis_reader = ThesisReader(self.thesis_entry.get())
 
         thesis_reader.map_employees(employee_reader.employees)
-
-        assembler_params, genetic_params = validated_data
 
         assembler_params['thesis'] = thesis_reader.thesis
         assembler_params['employees'] = employee_reader.employees
@@ -329,6 +377,7 @@ class Window:
                 self.plot_results(return_dict[assembler.assembler_name])
 
         self.assembler_killed = False
+        self.assembling = False
         self.cache = {}
         self.assemble_button['state'] = 'normal'
         self.assemble_stop_button['state'] = 'disabled'
@@ -370,8 +419,17 @@ class Window:
         except ValidationError:
             return False
 
+        reader_params = {}
         assembler_params = {}
         genetic_params = {}
+
+        for name, (_, _, entry) in self.reader_params_entries.items():
+            value = entry.get()
+            validator = READER_PARAMS[name]
+            try:
+                reader_params[name] = self.validate_param(name, value, validator)
+            except ValidationError:
+                return False
 
         for name, (_, _, entry) in self.assembler_params_entries.items():
             value = entry.get()
@@ -390,7 +448,7 @@ class Window:
                 except ValidationError:
                     return False
 
-        return assembler_params, genetic_params
+        return reader_params, assembler_params, genetic_params
 
     def validate_paths(self):
         if not os.path.isfile(self.employees_entry.get()) or not self.employees_entry.get().endswith('.xlsx'):

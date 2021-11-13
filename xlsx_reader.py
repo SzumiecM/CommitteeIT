@@ -72,9 +72,6 @@ class ThesisReader(XlsxReader):
                 'faculty': 'Katedra - promotor',
                 'supervisor': 'Dyplom, promotor',
                 'reviewer': 'Dyplom, recenzent'
-                # todo operate on list of slots' ids instead of whole objects
-                # todo maybe simplify every object on assembler level
-                # todo and write some translator functions
             },
             Student: {
                 'name': 'Imię',
@@ -91,14 +88,7 @@ class ThesisReader(XlsxReader):
         self.assign_thesis()
         self.check_needed_slots()
 
-        # print(f'number of thesis: {len(self.thesis)}')
-        # print(f'number of students: {len(self.students)}')
-        # print(self.needed_slots)
-
     def assign_thesis(self):
-        # for student, thesis in zip(self.students, self.thesis):
-        #     student.thesis = thesis
-
         for student in self.students:
             for i, thesis in enumerate(self.thesis):
                 if thesis.topic.strip() == self.thesis[i - 1].topic.strip():
@@ -131,7 +121,7 @@ class ThesisReader(XlsxReader):
 
 
 class EmployeesReader(XlsxReader):
-    def __init__(self, file, slot_size=30, break_=15, slot_block=5):
+    def __init__(self, file, slot_size=30, break_time=15, slot_block=5):
         super().__init__(file)
         self.objects_to_read = {
             Employee: {
@@ -151,12 +141,10 @@ class EmployeesReader(XlsxReader):
         self.read_objects()
         self.read_assign_availabilities()
         self.find_day_start_end()
-        self.create_slots(slot_size=slot_size, break_=break_, slot_block=slot_block)
+        self.create_slots(slot_size=slot_size, break_=break_time, slot_block=slot_block)
 
         for employee in self.employees:
             self.assign_slots(employee)
-
-        # print(f'number of slots: {sum(len(day) for day in self.calendar.values())}')
 
     def assign_slots(self, employee):
         for day, slots in self.slots.items():
@@ -219,7 +207,6 @@ class EmployeesReader(XlsxReader):
             current_slot_in_block = 1
             current_end = start + timedelta(minutes=slot_size)
             while True:
-                # todo simplify
                 slots.append(Slot(day=day, start=start, end=current_end, id_=id_counter))
                 start = current_end + timedelta(minutes=break_ if current_slot_in_block == slot_block else 0)
                 current_end += timedelta(
