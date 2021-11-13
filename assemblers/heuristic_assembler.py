@@ -33,6 +33,6 @@ class HeuristicAssembler(Assembler):
         self.window_queue.put({
             'assembler_name': self.assembler_name,
             'best_population': self.populations[0],
-            'iteration_count': '1/1'
+            'progress_msg': f'heuristic 1/1 ({self.populations[0].fitness})'
         })
         self.save_results()

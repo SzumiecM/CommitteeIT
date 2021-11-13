@@ -258,7 +258,7 @@ class Window:
             if msg == 'DONE':
                 break
             self.cache[msg['assembler_name']] = {**msg}
-            self.progress.configure(text=' | '.join(f'{name}: {self.cache[name]["iteration_count"]}' for name in self.cache.keys()))
+            self.progress.configure(text=' | '.join(self.cache[name]['progress_msg'] for name in self.cache.keys()))
 
     def assemble(self):
         self.assemble_thread = Thread(target=self.assemble_in_thread)
@@ -346,7 +346,7 @@ class Window:
         population_mutation_percent = assembler.population_mutation_percent if not cached else kwargs['population_mutation_percent']
         thesis_mutation_percent = assembler.thesis_mutation_percent if not cached else kwargs[
             'thesis_mutation_percent']
-        iteration_count = assembler.iteration_count if not cached else int(assembler['iteration_count'].split('/')[0])
+        iteration_count = assembler.iteration_count if not cached else assembler['iteration']
 
         new_window = tk.Toplevel()
         fig = plt.Figure()
@@ -430,7 +430,8 @@ if __name__ == '__main__':
     Window().run()
 
 # todo - styles
-# todo - validate if all assemblers have cached value on write, if not pass
+# todo - check if able to open file
+# todo - update sheet name to include algorithm
 
 # todo - configure weights
 # todo - get_by_repr -> get_by_id (might cause little speedup)

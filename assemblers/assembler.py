@@ -317,7 +317,7 @@ class GeneticAssembler(Assembler):
                 print('entering extreme mutation mode')
                 self.parents_percent = 0
                 self.population_mutation_percent = 1
-                self.thesis_mutation_percent = 0.8
+                self.thesis_mutation_percent = 0.2
                 extreme_mutation_mode = True
             elif len(set(fitness)) != 1 and extreme_mutation_mode:
                 print('leaving extreme mutation mode')
@@ -336,7 +336,8 @@ class GeneticAssembler(Assembler):
 
             self.window_queue.put({
                 'assembler_name': self.assembler_name,
-                'iteration_count': f'{i + 1}/{self.iteration_count}',
+                'progress_msg': f'{self.assembler_name} {i + 1}/{self.iteration_count} ({self.populations[0].fitness})',
+                'iteration': i + 1,
                 'best_population': self.populations[0],
                 'best_population_score': self.best_population_score,
                 'mean_population_score': self.mean_population_score,
