@@ -37,13 +37,17 @@ class Window:
         self.master.title('CommitteeIT')
         self.master.geometry('800x400')
         self.master.option_add('*Font', 'HoboStd 12')
+        self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        self.killed = False
+        self.assembler_killed = False
+        self.window_closed = False
         self.cache = {}
         self.processes = []
         m = Manager()
         self.queue = m.Queue()
-        Thread(target=self.queue_listener).start()
+        self.listener_thread = Thread(target=self.queue_listener)
+        self.listener_thread.start()
+        self.assemble_thread = None
 
         self.thesis_file = None
         self.employees_file = None
@@ -185,6 +189,17 @@ class Window:
     def run(self):
         self.master.mainloop()
 
+    def on_close(self):
+        self.queue.put('DONE')
+        self.assembler_killed = True
+        self.window_closed = True
+        for p in self.processes:
+            p.kill()
+        self.processes = []
+
+        self.assemble_thread.join()
+        self.master.destroy()
+
     @staticmethod
     def check_default_files():
         current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -240,18 +255,20 @@ class Window:
     def queue_listener(self):
         while True:
             msg = self.queue.get()
+            if msg == 'DONE':
+                break
             self.cache[msg['assembler_name']] = {**msg}
             self.progress.configure(text=' | '.join(f'{name}: {self.cache[name]["iteration_count"]}' for name in self.cache.keys()))
 
     def assemble(self):
-        t = Thread(target=self.assemble_in_thread)
-        t.start()
+        self.assemble_thread = Thread(target=self.assemble_in_thread)
+        self.assemble_thread.start()
 
         self.assemble_button['state'] = 'disabled'
         self.assemble_stop_button['state'] = 'normal'
 
     def assemble_stop(self):
-        self.killed = True
+        self.assembler_killed = True
         for p in self.processes:
             p.kill()
         self.processes = []
@@ -293,12 +310,15 @@ class Window:
         for p in self.processes:
             p.join()
 
-        if not self.killed:
+        if not self.assembler_killed:
             self.processes = []
+
+        if self.window_closed:
+            return
 
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
 
-        if not self.killed:
+        if not self.assembler_killed:
             for assembler in assemblers:
                 xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
                 self.plot_results(return_dict[assembler.assembler_name])
@@ -307,6 +327,7 @@ class Window:
                 xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'])
                 self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
 
+        self.assembler_killed = False
         self.assemble_button['state'] = 'normal'
         self.assemble_stop_button['state'] = 'disabled'
 
@@ -409,6 +430,7 @@ if __name__ == '__main__':
 # radiobutton for bools - considered, might not be that good of an idea after all
 # todo - styles
 # todo - store last results, allow manual write
+# todo - validate if all assemblers have cached value on write, if not pass
 
 # todo - configure weights
 # todo - get_by_repr -> get_by_id (might cause little speedup)
