@@ -61,8 +61,6 @@ class Assembler:
             fitness += breaks.count(0) * FITNESS_WEIGHTS['no_break']
             fitness += breaks.count(self.break_time) * FITNESS_WEIGHTS['break_time_break']
 
-            # todo reward same committee squads
-
             double_thesis = len([x for x in thesis if not x.individual])
             fitness -= double_thesis * FITNESS_WEIGHTS['no_break']  # to not count them as breaks
 

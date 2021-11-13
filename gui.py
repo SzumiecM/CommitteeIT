@@ -490,3 +490,5 @@ if __name__ == '__main__':
 
 # todo - styles
 # todo - check if able to open file
+
+# todo reward same committee squads
