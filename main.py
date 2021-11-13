@@ -1,11 +1,11 @@
 from assemblers.assembler import Assembler
 from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
-from xlsx_reader import EmployeesReader, ThesisReader
+from xlsx_components.xlsx_reader import EmployeesReader, ThesisReader
 from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
 from multiprocessing import Process, Manager
 
-from xlsx_writer import XlsxWriter
+from xlsx_components.xlsx_writer import XlsxWriter
 
 
 def assemble_in_process(assembler: Assembler, return_dict):

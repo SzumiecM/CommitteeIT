@@ -1,5 +1,4 @@
 import os
-import time
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
@@ -8,12 +7,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from assemblers.assembler import Assembler
 from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
-from xlsx_reader import EmployeesReader, ThesisReader
+from xlsx_components.xlsx_reader import EmployeesReader, ThesisReader
 from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
-from multiprocessing import Process, Manager, Queue
+from multiprocessing import Process, Manager
 
-from xlsx_writer import XlsxWriter
+from xlsx_components.xlsx_writer import XlsxWriter
 from threading import Thread
 
 from config import *
