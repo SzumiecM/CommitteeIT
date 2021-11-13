@@ -88,7 +88,7 @@ class Assembler:
 
         print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
                self.best_populations[0].employees])
-        # print(sum([len(e.assigned_slots) for e in self.best_populations[0].employees]) / self.employees_per_slot)
+
         print(
             f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
 
@@ -331,7 +331,7 @@ class GeneticAssembler(Assembler):
 
             print(
                 f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_score[-1]} | mean diff: {mean_population_diff}')
-
+            # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / self.employees_per_slot)
             self.time_elapsed = round((time.time() - global_start) / 60, 2)
 
             self.window_queue.put({
