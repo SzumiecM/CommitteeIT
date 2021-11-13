@@ -55,7 +55,7 @@ class Assembler:
 
             employee.assigned_slots.sort()
 
-            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:]) if b - a != self.break_time]
+            breaks = [b - a for a, b in zip(employee.assigned_slots[:-1], employee.assigned_slots[1:])]
 
             fitness += breaks.count(0) * 50
             fitness += breaks.count(self.break_time) * 10

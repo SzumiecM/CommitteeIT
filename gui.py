@@ -141,8 +141,6 @@ class Window:
 
         self.assembler_params_entries = {}
         for entry in ASSEMBLER_PARAMS.keys():
-            if entry == 'break_time':
-                continue
             entry_box = tk.Entry()
             entry_box.insert(0, ASSEMBLER_PARAMS[entry]['default'])
             self.assembler_params_entries[entry] = (
