@@ -37,7 +37,7 @@ def assign_employees(thesis, employees, max_slots_per_employee):
     return thesis, employees
 
 
-def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_member_list, block,
+def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_member_list, block, break_time,
                                    slots_to_assign, max_slots_per_employee, max_thesis_per_slot):
     for i in range(0, len(thesis), block):
         start = time.time()
@@ -75,8 +75,7 @@ def assign_to_thesis_heuristically(thesis, head_of_committee_list, committee_mem
             if any(slot.assigned_thesis == max_thesis_per_slot for slot in slots):
                 continue
 
-            if len(set([b - a for a, b in zip(slots[:-1], slots[1:]) if b - a != 15])) != 1:
-                # todo dynamically read break
+            if len(set([b - a for a, b in zip(slots[:-1], slots[1:]) if b - a != break_time])) != 1:
                 slot_counter += 1
                 continue
 

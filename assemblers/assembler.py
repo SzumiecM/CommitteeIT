@@ -4,8 +4,6 @@ import time
 from typing import List
 import copy
 
-from matplotlib import pyplot as plt
-
 from config import FITNESS_WEIGHTS
 from models import Thesis, Employee, Population
 from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
@@ -118,10 +116,26 @@ class Assembler:
                     else:
                         double_thesis.append(single_thesis)
 
-                assign_to_thesis_heuristically(double_thesis, head_of_committee_list, committee_member_list, 1, 2,
-                                               self.max_slots_per_employee, self.max_thesis_per_slot)
-                assign_to_thesis_heuristically(individual_thesis, head_of_committee_list, committee_member_list, block,
-                                               1, self.max_slots_per_employee, self.max_thesis_per_slot)
+                kwargs = {
+                    'head_of_committee_list': head_of_committee_list,
+                    'committee_member_list': committee_member_list,
+                    'break_time': self.break_time,
+                    'max_slots_per_employee': self.max_slots_per_employee,
+                    'max_thesis_per_slot': self.max_thesis_per_slot
+                }
+
+                assign_to_thesis_heuristically(
+                    thesis=double_thesis,
+                    block=1,
+                    slots_to_assign=2,
+                    **kwargs
+                )
+                assign_to_thesis_heuristically(
+                    thesis=individual_thesis,
+                    block=block,
+                    slots_to_assign=1,
+                    **kwargs
+                )
 
                 self.populations.append(Population(thesis, employees))
 
