@@ -432,7 +432,4 @@ if __name__ == '__main__':
 # todo - styles
 # todo - check if able to open file
 
-# todo - sort excel by date
-
 # todo - configure weights
-# todo - get_by_repr -> get_by_id (might cause little speedup)
