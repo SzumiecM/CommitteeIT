@@ -318,16 +318,18 @@ class Window:
 
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
 
-        if not self.assembler_killed:
+        if self.assembler_killed:
+            for assembler in assemblers:
+                if assembler.assembler_name in self.cache.keys():
+                    xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'])
+                    self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
+        else:
             for assembler in assemblers:
                 xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
                 self.plot_results(return_dict[assembler.assembler_name])
-        else:
-            for assembler in assemblers:
-                xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'])
-                self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
 
         self.assembler_killed = False
+        self.cache = {}
         self.assemble_button['state'] = 'normal'
         self.assemble_stop_button['state'] = 'disabled'
 
@@ -427,11 +429,8 @@ class Window:
 if __name__ == '__main__':
     Window().run()
 
-# radiobutton for bools - considered, might not be that good of an idea after all
 # todo - styles
-# todo - store last results, allow manual write
 # todo - validate if all assemblers have cached value on write, if not pass
 
 # todo - configure weights
 # todo - get_by_repr -> get_by_id (might cause little speedup)
-# todo - terminate processes on windows close AND ALL THREADS
