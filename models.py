@@ -38,7 +38,7 @@ class Employee(Person):
         self.check_tenure()
 
     def __repr__(self):
-        return f'{self.name}|{self.surname}|{self.tenure}'
+        return f'{self.name} {self.surname}'
 
     def __lt__(self, other):
         if self.available_slots and other.available_slots:

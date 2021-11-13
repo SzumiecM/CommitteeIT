@@ -321,11 +321,11 @@ class Window:
         if self.assembler_killed:
             for assembler in assemblers:
                 if assembler.assembler_name in self.cache.keys():
-                    xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'])
+                    xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'], assembler.assembler_name)
                     self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
         else:
             for assembler in assemblers:
-                xlsx_writer.write(return_dict[assembler.assembler_name].populations[0])
+                xlsx_writer.write(return_dict[assembler.assembler_name].populations[0], assembler.assembler_name)
                 self.plot_results(return_dict[assembler.assembler_name])
 
         self.assembler_killed = False
@@ -431,7 +431,8 @@ if __name__ == '__main__':
 
 # todo - styles
 # todo - check if able to open file
-# todo - update sheet name to include algorithm
+
+# todo - sort excel by date
 
 # todo - configure weights
 # todo - get_by_repr -> get_by_id (might cause little speedup)

@@ -6,15 +6,17 @@ class XlsxWriter:
         self.filename = file
         self.workbook = load_workbook(filename=self.filename)
         self.population = None
+        self.algorithm_name = None
 
-    def write(self, population):
+    def write(self, population, algorithm_name):
         self.population = population
+        self.algorithm_name = algorithm_name
         self.copy_worksheet()
         self.write_thesis()
         self.save()
 
     def copy_worksheet(self):
-        work_sheet_name = f'population {self.population.fitness}'
+        work_sheet_name = f'{self.population.fitness} {self.algorithm_name}'
         self.worksheet = self.workbook.copy_worksheet(self.workbook.worksheets[0])
         self.worksheet.title = work_sheet_name
 
@@ -47,7 +49,6 @@ class XlsxWriter:
                 row += 1
 
     def save(self):
-        # todo replace later with same file name
         self.workbook.save(filename=self.filename)
 
     def find_starting_row_and_column(self, title):
