@@ -3,13 +3,8 @@ import random
 import time
 
 
-def get_by_repr(list_, y):
-    return [x for x in list_ if x.__repr__() == y.__repr__()].pop()
-
-
 def get_by_id(list_, id_):
-    # todo maybe replace with some clever lambda
-    return [x for x in list_ if x.id == id_].pop()
+    return next(x for x in list_ if x.id == id_)
 
 
 def assign_employees(thesis, employees, max_slots_per_employee):
