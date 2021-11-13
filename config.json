@@ -35,6 +35,11 @@
       "type": "int",
       "min": 1,
       "default": 5
+    },
+    "slot_block": {
+      "type": "int",
+      "min": 1,
+      "default": 3
     }
   },
   "GENETIC_PARAMS": {

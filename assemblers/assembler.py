@@ -12,7 +12,7 @@ from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 class Assembler:
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
-                 break_time: int, window_queue=None):
+                 break_time: int, slot_block: int, window_queue=None):
 
         self.thesis = copy.deepcopy(thesis)
         self.employees = copy.deepcopy(employees)
@@ -23,6 +23,7 @@ class Assembler:
         self.max_slots_per_employee = self.mean_slots_per_employee + 6 if max_slots_per_employee else 9999
         self.max_thesis_per_slot = max_thesis_per_slot
         self.break_time = break_time
+        self.slot_block = slot_block
 
         self.window_queue = window_queue
 
@@ -105,8 +106,6 @@ class Assembler:
                     else:
                         committee_member_list.append(employee)
 
-                block = 3
-
                 individual_thesis = []
                 double_thesis = []
 
@@ -132,7 +131,7 @@ class Assembler:
                 )
                 assign_to_thesis_heuristically(
                     thesis=individual_thesis,
-                    block=block,
+                    block=self.slot_block,
                     slots_to_assign=1,
                     **kwargs
                 )
@@ -159,7 +158,7 @@ class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
                  parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float,
-                 break_time: int, window_queue=None):
+                 break_time: int, slot_block: int, window_queue=None):
         super().__init__(
             thesis=thesis,
             employees=employees,
@@ -168,6 +167,7 @@ class GeneticAssembler(Assembler):
             max_slots_per_employee=max_slots_per_employee,
             max_thesis_per_slot=max_thesis_per_slot,
             break_time=break_time,
+            slot_block=slot_block,
             window_queue=window_queue
         )
 
