@@ -49,7 +49,7 @@ class Assembler:
         fitness = 0
 
         for employee in employees:
-            if len(employee.assigned_slots) == 0:
+            if len(employee.assigned_slots) == 0 and FITNESS_WEIGHTS['slot_for_everyone']:
                 fitness = -999
                 break
 
@@ -67,6 +67,8 @@ class Assembler:
             fitness += (len(employee.assigned_slots) - self.max_slots_per_employee) * FITNESS_WEIGHTS[
                 'max_slots_per_employee_exceeded'] if len(employee.assigned_slots) > self.max_slots_per_employee else 0
 
+        squads = []
+
         for thesis in thesis:
             if thesis.supervisor.id in [x.id for x in thesis.committee_members] \
                     or thesis.supervisor.id == thesis.head_of_committee.id:
@@ -74,6 +76,10 @@ class Assembler:
             if thesis.reviewer.id in [x.id for x in thesis.committee_members] \
                     or thesis.reviewer.id == thesis.head_of_committee.id:
                 fitness += FITNESS_WEIGHTS['reviewer_present']
+
+            squads.append({thesis.head_of_committee.id, thesis.committee_members[0].id, thesis.committee_members[1].id})
+
+        fitness += (len(squads)-len(set(frozenset(x) for x in squads)))*FITNESS_WEIGHTS['same_squad']
 
         return fitness
 

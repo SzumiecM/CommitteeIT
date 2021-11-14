@@ -78,6 +78,8 @@
     "longer_break": -50,
     "max_slots_per_employee_exceeded": -20,
     "supervisor_present": 100,
-    "reviewer_present": 70
+    "reviewer_present": 70,
+    "slot_for_everyone": true,
+    "same_squad": 10
   }
 }
