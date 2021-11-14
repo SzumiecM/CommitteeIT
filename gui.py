@@ -489,6 +489,5 @@ if __name__ == '__main__':
     Window().run()
 
 # todo - styles
-# todo - check if able to open file
 
 # todo reward same committee squads

@@ -1,3 +1,5 @@
+import time
+
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
 
@@ -59,7 +61,13 @@ class XlsxWriter:
         self.worksheet.cell(row, column + 7).value = thesis.slot.id
 
     def save(self):
-        self.workbook.save(filename=self.filename)
+        while True:
+            try:
+                self.workbook.save(filename=self.filename)
+                break
+            except PermissionError:
+                print('Could not save file')
+                time.sleep(5)
 
     def find_starting_row_and_column(self, title):
         for row in self.worksheet.iter_rows(max_row=10):
