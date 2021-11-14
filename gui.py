@@ -34,7 +34,7 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('800x714')
+        self.master.geometry('900x714')
         self.master.minsize(750, 714)
         self.master.maxsize(1000, 714)
         self.master.option_add('*Font', 'HoboStd 12')
