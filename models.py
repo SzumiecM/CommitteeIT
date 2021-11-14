@@ -56,6 +56,8 @@ class Employee(Person):
         if len(self.name.split(' ')) > 1 and len(self.surname.split(' ')) > 1:
             self.surname, self.name = [x.capitalize() for x in self.name.split(' ') if x != '']
 
+        self.surname = '-'.join(x.capitalize() for x in self.surname.split('-'))
+
     def check_tenure(self):
         self.tenure = True if self.tenure else False
 

@@ -68,11 +68,11 @@ class Assembler:
                 'max_slots_per_employee_exceeded'] if len(employee.assigned_slots) > self.max_slots_per_employee else 0
 
         for thesis in thesis:
-            if thesis.supervisor.__repr__() in thesis.committee_members.__repr__() \
-                    or thesis.supervisor.__repr__() is thesis.head_of_committee.__repr__():
+            if thesis.supervisor.id in [x.id for x in thesis.committee_members] \
+                    or thesis.supervisor.id == thesis.head_of_committee.id:
                 fitness += FITNESS_WEIGHTS['supervisor_present']
-            if thesis.reviewer.__repr__() in thesis.committee_members.__repr__() \
-                    or thesis.reviewer.__repr__() is thesis.head_of_committee.__repr__():
+            if thesis.reviewer.id in [x.id for x in thesis.committee_members] \
+                    or thesis.reviewer.id == thesis.head_of_committee.id:
                 fitness += FITNESS_WEIGHTS['reviewer_present']
 
         return fitness
