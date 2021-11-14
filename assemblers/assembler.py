@@ -389,13 +389,13 @@ class GeneticAssembler(Assembler):
                 continue
 
             compatible_committee_members = [committee_member for committee_member in committee_member_list
-                                            if slot.__repr__() in committee_member.available_slots.__repr__() and len(
+                                            if slot.id in [s.id for s in committee_member.available_slots] and len(
                     committee_member.assigned_slots) < self.max_slots_per_employee]
 
             if not thesis.individual:
                 compatible_committee_members = [committee_member for committee_member in compatible_committee_members
                                                 if
-                                                slot_2.__repr__() in committee_member.available_slots.__repr__() and len(
+                                                slot_2.id in [s.id for s in committee_member.available_slots] and len(
                                                     committee_member.assigned_slots) < self.max_slots_per_employee + 1]
 
             if len(compatible_committee_members) < 2:
