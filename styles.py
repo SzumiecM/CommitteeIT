@@ -4,7 +4,7 @@ ENTRY_PARAMS = {
 BUTTON_PARAMS = {
     'width': 25,
     'height': 2,
-    'bg': 'purple'
+    'bg': 'gray'
 }
 BLACK_AND_WHITE = {
     'bg': 'black',

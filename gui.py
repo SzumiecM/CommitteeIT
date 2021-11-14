@@ -34,8 +34,9 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('800x800')
+        self.master.geometry('800x650')
         self.master.option_add('*Font', 'HoboStd 12')
+        self.master.configure(bg='black')
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.assembler_killed = False
@@ -55,13 +56,13 @@ class Window:
 
         self.genetic_params_visible = False
 
-        self.files_frame = tk.Frame(self.master, bg='yellow')
+        self.files_frame = tk.Frame(self.master)
         self.employees_frame = tk.Frame(self.files_frame)
         self.thesis_frame = tk.Frame(self.files_frame)
-        self.checkbox_frame = tk.Frame(self.files_frame, bg='black')
+        self.checkbox_frame = tk.Frame(self.files_frame)
         self.reader_params_frame = tk.Frame(self.master)
-        self.assembler_params_frame = tk.Frame(self.master, bg='orange')
-        self.genetic_params_frame = tk.Frame(self.master, bg='cyan')
+        self.assembler_params_frame = tk.Frame(self.master)
+        self.genetic_params_frame = tk.Frame(self.master)
 
         self.banner = tk.Label(
             self.master,
@@ -113,7 +114,7 @@ class Window:
         self.reader_params_label = tk.Label(
             self.reader_params_frame,
             text='Reader Params',
-            **BLACK_AND_WHITE
+            bg='gray'
         )
 
         self.reader_params_entries = {}
@@ -135,7 +136,7 @@ class Window:
         self.assembler_params_label = tk.Label(
             self.assembler_params_frame,
             text='Assembler Params',
-            **BLACK_AND_WHITE
+            bg='gray'
         )
 
         self.assembler_params_entries = {}
@@ -157,7 +158,7 @@ class Window:
         self.genetic_params_label = tk.Label(
             self.genetic_params_frame,
             text='Genetic Params',
-            **BLACK_AND_WHITE
+            bg='gray'
         )
 
         self.genetic_params_entries = {}
