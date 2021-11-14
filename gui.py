@@ -10,7 +10,7 @@ from assemblers.genetic_hybrid_assembler import GeneticHybridAssembler
 from xlsx_components.xlsx_reader import EmployeesReader, ThesisReader
 from assemblers.genetic_only_assembler import GeneticOnlyAssembler
 from assemblers.heuristic_assembler import HeuristicAssembler
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, freeze_support
 
 from xlsx_components.xlsx_writer import XlsxWriter
 from threading import Thread
@@ -487,6 +487,7 @@ class Window:
 
 
 if __name__ == '__main__':
+    freeze_support()
     Window().run()
 
 # todo - styles
