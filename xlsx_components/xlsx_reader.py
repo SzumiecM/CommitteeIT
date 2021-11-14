@@ -25,7 +25,7 @@ class XlsxReader:
                                 return row + 1, cell.column
                             else:
                                 pass
-        raise Exception
+        raise ValueError('Invalid file chosen.')
 
     def read_objects(self):
         for object_class, kwargs in self.objects_to_read.items():

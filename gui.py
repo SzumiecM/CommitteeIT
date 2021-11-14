@@ -331,10 +331,16 @@ class Window:
 
         reader_params, assembler_params, genetic_params = validated_data
 
-        employee_reader = EmployeesReader(self.employees_entry.get(), **reader_params)
-        thesis_reader = ThesisReader(self.thesis_entry.get())
+        try:
+            employee_reader = EmployeesReader(self.employees_entry.get(), **reader_params)
+            thesis_reader = ThesisReader(self.thesis_entry.get())
 
-        thesis_reader.map_employees(employee_reader.employees)
+            thesis_reader.map_employees(employee_reader.employees)
+        except ValueError as e:
+            self.progress.configure(text=e)
+            self.assemble_button['state'] = 'normal'
+            self.assemble_stop_button['state'] = 'disabled'
+            return
 
         assembler_params['thesis'] = thesis_reader.thesis
         assembler_params['employees'] = employee_reader.employees
@@ -366,15 +372,18 @@ class Window:
 
         xlsx_writer = XlsxWriter(self.thesis_entry.get())
 
-        if self.assembler_killed:
-            for assembler in assemblers:
-                if assembler.assembler_name in self.cache.keys():
-                    xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'], assembler.assembler_name)
-                    self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
-        else:
-            for assembler in assemblers:
-                xlsx_writer.write(return_dict[assembler.assembler_name].populations[0], assembler.assembler_name)
-                self.plot_results(return_dict[assembler.assembler_name])
+        try:
+            if self.assembler_killed:
+                for assembler in assemblers:
+                    if assembler.assembler_name in self.cache.keys():
+                        xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'], assembler.assembler_name)
+                        self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
+            else:
+                for assembler in assemblers:
+                    xlsx_writer.write(return_dict[assembler.assembler_name].populations[0], assembler.assembler_name)
+                    self.plot_results(return_dict[assembler.assembler_name])
+        except ValueError as e:
+            self.progress.configure(text=e)
 
         self.assembler_killed = False
         self.assembling = False

@@ -75,4 +75,4 @@ class XlsxWriter:
                 if cell.value == title:
                     if self.worksheet.cell(row=cell.row + 1, column=cell.column).value is None:
                         return cell.row + 1, cell.column
-        raise Exception
+        raise ValueError('Invalid file chosen.')
