@@ -34,9 +34,11 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('800x650')
+        self.master.geometry('800x714')
+        self.master.minsize(750, 714)
+        self.master.maxsize(1000, 714)
         self.master.option_add('*Font', 'HoboStd 12')
-        self.master.configure(bg='black')
+        self.master.configure(**MASTER_PARAMS)
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.assembler_killed = False
@@ -44,8 +46,7 @@ class Window:
         self.window_closed = False
         self.cache = {}
         self.processes = []
-        m = Manager()
-        self.queue = m.Queue()
+        self.queue = Manager().Queue()
         self.listener_thread = Thread(target=self.queue_listener)
         self.listener_thread.start()
         self.assemble_thread = None
@@ -56,31 +57,31 @@ class Window:
 
         self.genetic_params_visible = False
 
-        self.files_frame = tk.Frame(self.master)
-        self.employees_frame = tk.Frame(self.files_frame)
-        self.thesis_frame = tk.Frame(self.files_frame)
-        self.checkbox_frame = tk.Frame(self.files_frame)
-        self.reader_params_frame = tk.Frame(self.master)
-        self.assembler_params_frame = tk.Frame(self.master)
-        self.genetic_params_frame = tk.Frame(self.master)
+        self.files_frame = tk.Frame(self.master, **MASTER_PARAMS)
+        self.employees_frame = tk.Frame(self.files_frame, **MASTER_PARAMS)
+        self.thesis_frame = tk.Frame(self.files_frame, **MASTER_PARAMS)
+        self.checkbox_frame = tk.Frame(self.files_frame, **MASTER_PARAMS)
+        self.reader_params_frame = tk.Frame(self.master, **MASTER_PARAMS)
+        self.assembler_params_frame = tk.Frame(self.master, **MASTER_PARAMS)
+        self.genetic_params_frame = tk.Frame(self.master, **MASTER_PARAMS)
 
         self.banner = tk.Label(
             self.master,
             text='CommitteeIT',
             font=('HoboStd', 45),
-            **BLACK_AND_WHITE
+            **MASTER_PARAMS
         )
 
         self.employees_entry = tk.Entry(
             self.employees_frame,
             text=self.employees_file,
-            **ENTRY_PARAMS
+            **PARAM_PARAMS
         )
 
         self.thesis_entry = tk.Entry(
             self.thesis_frame,
             text=self.thesis_file,
-            **ENTRY_PARAMS
+            **PARAM_PARAMS
         )
 
         employees_file, thesis_file = self.check_default_files()
@@ -107,14 +108,15 @@ class Window:
                 tk.Checkbutton(
                     self.checkbox_frame,
                     text=f'{name.capitalize()} Algorithm',
-                    command=lambda x=name: self.check_changed(x)
+                    command=lambda x=name: self.check_changed(x),
+                    **MASTER_PARAMS
                 )
             )
 
         self.reader_params_label = tk.Label(
             self.reader_params_frame,
             text='Reader Params',
-            bg='gray'
+            **TITLE_PARAMS
         )
 
         self.reader_params_entries = {}
@@ -124,11 +126,11 @@ class Window:
             self.reader_params_entries[entry] = (
                 tk.Frame(
                     self.reader_params_frame,
-                    bg='black'
+                    **PARAM_PARAMS
                 ),
                 tk.Label(
                     text=' '.join(entry.split('_')).title(),
-                    **BLACK_AND_WHITE
+                    **PARAM_PARAMS
                 ),
                 entry_box
             )
@@ -136,7 +138,7 @@ class Window:
         self.assembler_params_label = tk.Label(
             self.assembler_params_frame,
             text='Assembler Params',
-            bg='gray'
+            **TITLE_PARAMS
         )
 
         self.assembler_params_entries = {}
@@ -146,11 +148,11 @@ class Window:
             self.assembler_params_entries[entry] = (
                 tk.Frame(
                     self.assembler_params_frame,
-                    bg='black'
+                    **PARAM_PARAMS
                 ),
                 tk.Label(
                     text=' '.join(entry.split('_')).title(),
-                    **BLACK_AND_WHITE
+                    **PARAM_PARAMS
                 ),
                 entry_box
             )
@@ -158,7 +160,7 @@ class Window:
         self.genetic_params_label = tk.Label(
             self.genetic_params_frame,
             text='Genetic Params',
-            bg='gray'
+            **TITLE_PARAMS
         )
 
         self.genetic_params_entries = {}
@@ -168,11 +170,11 @@ class Window:
             self.genetic_params_entries[entry] = (
                 tk.Frame(
                     self.genetic_params_frame,
-                    bg='black'
+                    **PARAM_PARAMS
                 ),
                 tk.Label(
                     text=' '.join(entry.split('_')).title(),
-                    **BLACK_AND_WHITE
+                    **PARAM_PARAMS
                 ),
                 entry_box
             )
@@ -194,7 +196,7 @@ class Window:
 
         self.progress = tk.Label(
             self.master,
-            **BLACK_AND_WHITE
+            **TITLE_PARAMS
         )
 
         self.banner.pack(side='top', anchor='center', fill='both')

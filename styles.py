@@ -1,12 +1,16 @@
-ENTRY_PARAMS = {
-    'bg': 'pink'
-}
 BUTTON_PARAMS = {
     'width': 25,
     'height': 2,
-    'bg': 'gray'
+    'bg': 'snow4',
+    'font': ('HoboStd', 14)
 }
-BLACK_AND_WHITE = {
-    'bg': 'black',
-    'fg': 'white'
+PARAM_PARAMS = {
+    'bg': 'light gray'
+}
+MASTER_PARAMS = {
+    'bg': 'white smoke'
+}
+TITLE_PARAMS = {
+    'bg': 'snow4',
+    'font': ('HoboStd', 16)
 }
