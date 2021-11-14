@@ -158,7 +158,7 @@ class GeneticAssembler(Assembler):
     def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
                  population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
                  parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float,
-                 break_time: int, slot_block: int, window_queue=None):
+                 break_time: int, slot_block: int, timeout: int, window_queue=None):
         super().__init__(
             thesis=thesis,
             employees=employees,
@@ -175,6 +175,7 @@ class GeneticAssembler(Assembler):
         self.parents_percent = parents_percent
         self.population_mutation_percent = population_mutation_percent
         self.thesis_mutation_percent = thesis_mutation_percent
+        self.timeout = timeout
         self.parents = []
 
         self.mean_population_score = []
@@ -366,7 +367,7 @@ class GeneticAssembler(Assembler):
 
         start = time.time()
         while True:
-            if time.time() - start > 20:
+            if time.time() - start > self.timeout:
                 raise TimeoutError
 
             head_of_committee = head_of_committee_list[random.randrange(len(head_of_committee_list))]
