@@ -34,10 +34,9 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('900x714')
-        self.master.minsize(750, 714)
-        self.master.maxsize(1000, 714)
-        self.master.option_add('*Font', 'HoboStd 12')
+        self.master.geometry('800x650')
+        self.master.resizable(False, False)
+        self.master.option_add('*Font', 'HoboStd 10')
         self.master.configure(**MASTER_PARAMS)
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -500,5 +499,3 @@ class Window:
 if __name__ == '__main__':
     freeze_support()
     Window().run()
-
-# todo add resizing for smaller screens
