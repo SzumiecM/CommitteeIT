@@ -472,7 +472,7 @@ class Window:
     def validate_param(name, value, validator):
         if validator['type'] == bool:
             if not value.isdigit() or not int(value) in (1, 0):
-                raise ValidationError(f'{name} should be set to either 0 or 1')
+                raise ValidationError(f'{name} should be set to either 0 (FALSE) or 1 (TRUE)')
             value = bool(int(value))
         if validator['type'] == int:
             if not value.isdigit():
