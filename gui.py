@@ -501,4 +501,4 @@ if __name__ == '__main__':
     freeze_support()
     Window().run()
 
-# todo reward same committee squads
+# todo add resizing for smaller screens
