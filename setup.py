@@ -1,10 +1,13 @@
+import sys
 from cx_Freeze import setup, Executable
 
 base = None
+if (sys.platform == "win32"):
+    base = "Win32GUI"
 
-executables = [Executable("gui.py", base=base)]
+executables = [Executable("CommitteeIT.pyw", base=base)]
 
-packages = ["idna", "tkinter", "matplotlib", "os"]
+packages = ["idna", "tkinter", "matplotlib"]
 options = {
     'build_exe': {
         'packages': packages,
@@ -12,9 +15,9 @@ options = {
 }
 
 setup(
-    name="<any name>",
+    name="CommitteeIT",
     options=options,
-    version="<any number>",
-    description='<any description>',
+    version="1.0",
+    description='Committees assembling app.',
     executables=executables
 )
