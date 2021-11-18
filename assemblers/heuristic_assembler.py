@@ -1,5 +1,6 @@
 import time
 
+from config import TRANSLATE, TRANSLATIONS
 from .assembler import Assembler
 
 
@@ -22,6 +23,6 @@ class HeuristicAssembler(Assembler):
         self.window_queue.put({
             'assembler_name': self.assembler_name,
             'best_population': self.populations[0],
-            'progress_msg': f'heuristic 1/1 ({self.populations[0].fitness})'
+            'progress_msg': f'{TRANSLATIONS["ALGORITHMS"]["heuristic"] if TRANSLATE else "heuristic"} 1/1 ({self.populations[0].fitness})'
         })
         self.save_results()

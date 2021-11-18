@@ -4,7 +4,7 @@ import time
 from typing import List
 import copy
 
-from config import FITNESS_WEIGHTS
+from config import FITNESS_WEIGHTS, TRANSLATIONS, TRANSLATE
 from models import Thesis, Employee, Population
 from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 
@@ -79,7 +79,7 @@ class Assembler:
 
             squads.append({thesis.head_of_committee.id, thesis.committee_members[0].id, thesis.committee_members[1].id})
 
-        fitness += (len(squads)-len(set(frozenset(x) for x in squads)))*FITNESS_WEIGHTS['same_squad']
+        fitness += (len(squads) - len(set(frozenset(x) for x in squads))) * FITNESS_WEIGHTS['same_squad']
 
         return fitness
 
@@ -352,7 +352,7 @@ class GeneticAssembler(Assembler):
 
             self.window_queue.put({
                 'assembler_name': self.assembler_name,
-                'progress_msg': f'{self.assembler_name} {i + 1}/{self.iteration_count} ({self.populations[0].fitness})',
+                'progress_msg': f'{TRANSLATIONS["ALGORITHMS"][self.assembler_name] if TRANSLATE else self.assembler_name} {i + 1}/{self.iteration_count} ({self.populations[0].fitness})',
                 'iteration': i + 1,
                 'best_population': self.populations[0],
                 'best_population_score': self.best_population_score,

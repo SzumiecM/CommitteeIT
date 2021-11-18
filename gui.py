@@ -36,9 +36,11 @@ class Window:
         self.master.title('CommitteeIT')
         self.master.geometry('800x650')
         self.master.minsize(800, 650)
-        self.master.option_add('*Font', 'HoboStd 10')
+        self.master.option_add('*Font', 'Arial 10')
         self.master.configure(**MASTER_PARAMS)
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        translate = TRANSLATE
 
         self.assembler_killed = False
         self.assembling = False
@@ -89,14 +91,14 @@ class Window:
 
         self.employees_button = tk.Button(
             self.employees_frame,
-            text='Choose employees file',
+            text='Wybierz plik z pracownikami' if translate else 'Choose employees file',
             command=lambda: self.browse_files('employees'),
             **BUTTON_PARAMS
         )
 
         self.thesis_button = tk.Button(
             self.thesis_frame,
-            text='Choose thesis file',
+            text='Wybierz plik z pracami' if translate else 'Choose thesis file',
             command=lambda: self.browse_files('thesis'),
             **BUTTON_PARAMS
         )
@@ -106,7 +108,7 @@ class Window:
             self.algorithm_checkboxes.append(
                 tk.Checkbutton(
                     self.checkbox_frame,
-                    text=f'{name.capitalize()} Algorithm',
+                    text=f'Algorytm {TRANSLATIONS["ALGORITHMS"][name].capitalize()}' if translate else f'{name.capitalize()} Algorithm',
                     command=lambda x=name: self.check_changed(x),
                     **MASTER_PARAMS
                 )
@@ -114,7 +116,7 @@ class Window:
 
         self.reader_params_label = tk.Label(
             self.reader_params_frame,
-            text='Reader Params',
+            text='Parametry czytnika' if translate else 'Reader Params',
             **TITLE_PARAMS
         )
 
@@ -128,7 +130,7 @@ class Window:
                     **PARAM_PARAMS
                 ),
                 tk.Label(
-                    text=' '.join(entry.split('_')).title(),
+                    text=TRANSLATIONS['READER'][entry] if translate else ' '.join(entry.split('_')).title(),
                     **PARAM_PARAMS
                 ),
                 entry_box
@@ -136,7 +138,7 @@ class Window:
 
         self.assembler_params_label = tk.Label(
             self.assembler_params_frame,
-            text='Assembler Params',
+            text='Parametry do składania obron' if translate else 'Assembler Params',
             **TITLE_PARAMS
         )
 
@@ -150,7 +152,7 @@ class Window:
                     **PARAM_PARAMS
                 ),
                 tk.Label(
-                    text=' '.join(entry.split('_')).title(),
+                    text=TRANSLATIONS['ASSEMBLER'][entry] if translate else ' '.join(entry.split('_')).title(),
                     **PARAM_PARAMS
                 ),
                 entry_box
@@ -158,7 +160,7 @@ class Window:
 
         self.genetic_params_label = tk.Label(
             self.genetic_params_frame,
-            text='Genetic Params',
+            text='Parametry genetyczne' if translate else 'Genetic Params',
             **TITLE_PARAMS
         )
 
@@ -172,7 +174,7 @@ class Window:
                     **PARAM_PARAMS
                 ),
                 tk.Label(
-                    text=' '.join(entry.split('_')).title(),
+                    text=TRANSLATIONS['GENETIC'][entry] if translate else ' '.join(entry.split('_')).title(),
                     **PARAM_PARAMS
                 ),
                 entry_box
@@ -180,14 +182,14 @@ class Window:
 
         self.assemble_button = tk.Button(
             self.master,
-            text='ASSEMBLE',
+            text='START' if translate else 'ASSEMBLE',
             command=self.assemble,
             **BUTTON_PARAMS
         )
 
         self.assemble_stop_button = tk.Button(
             self.master,
-            text='STOP ASSEMBLING',
+            text='STOP' if translate else 'STOP ASSEMBLING',
             command=self.assemble_stop,
             **BUTTON_PARAMS
         )
@@ -377,7 +379,8 @@ class Window:
             if self.assembler_killed:
                 for assembler in assemblers:
                     if assembler.assembler_name in self.cache.keys():
-                        xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'], assembler.assembler_name)
+                        xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'],
+                                          assembler.assembler_name)
                         self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
             else:
                 for assembler in assemblers:
@@ -402,7 +405,8 @@ class Window:
         best_population_score = assembler.best_population_score if not cached else assembler['best_population_score']
         time_elapsed = assembler.time_elapsed if not cached else assembler['time_elapsed']
         parents_percent = assembler.parents_percent if not cached else kwargs['parents_percent']
-        population_mutation_percent = assembler.population_mutation_percent if not cached else kwargs['population_mutation_percent']
+        population_mutation_percent = assembler.population_mutation_percent if not cached else kwargs[
+            'population_mutation_percent']
         thesis_mutation_percent = assembler.thesis_mutation_percent if not cached else kwargs[
             'thesis_mutation_percent']
         iteration_count = assembler.iteration_count if not cached else assembler['iteration']

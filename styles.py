@@ -2,7 +2,7 @@ BUTTON_PARAMS = {
     'width': 25,
     'height': 2,
     'bg': 'snow4',
-    'font': ('HoboStd', 12)
+    'font': ('Arial', 12)
 }
 PARAM_PARAMS = {
     'bg': 'light gray'
@@ -12,5 +12,5 @@ MASTER_PARAMS = {
 }
 TITLE_PARAMS = {
     'bg': 'snow4',
-    'font': ('HoboStd', 14)
+    'font': ('Arial', 14)
 }
