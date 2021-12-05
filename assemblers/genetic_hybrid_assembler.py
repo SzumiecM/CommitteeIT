@@ -9,4 +9,4 @@ class GeneticHybridAssembler(GeneticAssembler):
 
     def create_initial_population(self):
         for i in range(self.population_count):
-            self.create_initial_population_heuristically()
+            self.create_initial_individual_heuristically()

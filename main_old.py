@@ -60,5 +60,5 @@ if __name__ == '__main__':
         p.join()
 
     xlsx_writer = XlsxWriter('files\\prace.xlsx')
-    xlsx_writer.write(return_dict['genetic'].populations[0])
-    xlsx_writer.write(return_dict['hybrid'].populations[0])
+    xlsx_writer.write(return_dict['genetic'].population[0])
+    xlsx_writer.write(return_dict['hybrid'].population[0])

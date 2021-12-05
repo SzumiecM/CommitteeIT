@@ -12,7 +12,7 @@ class HeuristicAssembler(Assembler):
 
     def create_initial_population(self):
         for i in range(self.population_count):
-            self.create_initial_population_heuristically()
+            self.create_initial_individual_heuristically()
 
     def assemble(self):
         global_start = time.time()
@@ -22,7 +22,7 @@ class HeuristicAssembler(Assembler):
         self.time_elapsed = round((time.time() - global_start) / 60, 2)
         self.window_queue.put({
             'assembler_name': self.assembler_name,
-            'best_population': self.populations[0],
-            'progress_msg': f'{TRANSLATIONS["ALGORITHMS"]["heuristic"] if TRANSLATE else "heuristic"} 1/1 ({self.populations[0].fitness})'
+            'best_population': self.population[0],
+            'progress_msg': f'{TRANSLATIONS["ALGORITHMS"]["heuristic"] if TRANSLATE else "heuristic"} 1/1 ({self.population[0].fitness})'
         })
         self.save_results()

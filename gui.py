@@ -377,12 +377,12 @@ class Window:
             if self.assembler_killed:
                 for assembler in assemblers:
                     if assembler.assembler_name in self.cache.keys():
-                        xlsx_writer.write(self.cache[assembler.assembler_name]['best_population'],
+                        xlsx_writer.write(self.cache[assembler.assembler_name]['best_individual'],
                                           assembler.assembler_name)
                         self.plot_results(self.cache[assembler.assembler_name], cached=True, **genetic_params)
             else:
                 for assembler in assemblers:
-                    xlsx_writer.write(return_dict[assembler.assembler_name].populations[0], assembler.assembler_name)
+                    xlsx_writer.write(return_dict[assembler.assembler_name].population[0], assembler.assembler_name)
                     self.plot_results(return_dict[assembler.assembler_name])
         except ValueError as e:
             self.progress.configure(text=e)
@@ -400,7 +400,7 @@ class Window:
             return
 
         mean_population_score = assembler.mean_population_score if not cached else assembler['mean_population_score']
-        best_population_score = assembler.best_population_score if not cached else assembler['best_population_score']
+        best_individual_score = assembler.best_individual_score if not cached else assembler['best_individual_score']
         time_elapsed = assembler.time_elapsed if not cached else assembler['time_elapsed']
         parents_percent = assembler.parents_percent if not cached else kwargs['parents_percent']
         population_mutation_percent = assembler.population_mutation_percent if not cached else kwargs[
@@ -418,8 +418,8 @@ class Window:
         x = range(iteration_count)
         ax.plot(x, mean_population_score, '-b',
                 label='średni wynik przystosowania osobników' if TRANSLATE else 'mean population score')
-        ax.plot(x, best_population_score, '-r',
-                label='wynik najlepszego osobnika' if TRANSLATE else 'best population score')
+        ax.plot(x, best_individual_score, '-r',
+                label='wynik najlepszego osobnika' if TRANSLATE else 'best individual score')
         ax.set_title(
             f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][assembler_name]}, z czasem wykonywania: {time_elapsed}m' if TRANSLATE else f'Population score for {assembler_name} with {time_elapsed}m execution time\n'
                                                                                                                                  f'parents: {parents_percent} | mutation percent: {population_mutation_percent} | mutated thesis: {thesis_mutation_percent}')

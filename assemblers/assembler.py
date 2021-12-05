@@ -5,7 +5,7 @@ from typing import List
 import copy
 
 from config import FITNESS_WEIGHTS, TRANSLATIONS, TRANSLATE
-from models import Thesis, Employee, Population
+from models import Thesis, Employee, Individual
 from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 
 
@@ -27,8 +27,8 @@ class Assembler:
 
         self.window_queue = window_queue
 
-        self.populations = []
-        self.best_populations = []
+        self.population = []
+        self.best_individuals = []
         self.assembler_name = ''
         self.time_elapsed = 0
 
@@ -39,13 +39,13 @@ class Assembler:
         raise NotImplementedError
 
     def calculate_fitness(self):
-        for population in self.populations:
-            population.fitness = self.calculate_population_fitness(population)
+        for individual in self.population:
+            individual.fitness = self.calculate_individual_fitness(individual)
 
-        self.populations.sort(reverse=True)
+        self.population.sort(reverse=True)
 
-    def calculate_population_fitness(self, population):
-        thesis, employees = population.thesis, population.employees
+    def calculate_individual_fitness(self, individual):
+        thesis, employees = individual.thesis, individual.employees
         fitness = 0
 
         for employee in employees:
@@ -84,21 +84,21 @@ class Assembler:
         return fitness
 
     def save_results(self):
-        self.populations.sort(reverse=True)
+        self.population.sort(reverse=True)
 
         self.check_if_slots_duplicates()
         self.check_max_thesis_per_slot()
 
-        if len(self.populations) >= 3:
-            self.best_populations = self.populations[:3]
+        if len(self.population) >= 3:
+            self.best_individuals = self.population[:3]
 
         print([f'{e.surname} | {len(e.assigned_slots)} | {len(e.available_slots)}' for e in
-               self.best_populations[0].employees])
+               self.best_individuals[0].employees])
 
         print(
-            f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.populations])}')
+            f'{self.time_elapsed}m | {self.assembler_name} | {" | ".join([str(p.fitness) for p in self.population])}')
 
-    def create_initial_population_heuristically(self):
+    def create_initial_individual_heuristically(self):
         while True:
             try:
                 thesis = copy.deepcopy(self.thesis)
@@ -142,22 +142,22 @@ class Assembler:
                     **kwargs
                 )
 
-                self.populations.append(Population(thesis, employees))
+                self.population.append(Individual(thesis, employees))
 
                 break
             except TimeoutError:
                 continue
 
     def check_if_slots_duplicates(self):
-        for population in self.populations:
-            for employee in population.employees:
+        for individual in self.population:
+            for employee in individual.employees:
                 slots = [slot.id for slot in employee.assigned_slots]
                 if len(set(slots)) != len(slots):
                     raise Exception
 
     def check_max_thesis_per_slot(self):
-        print([max(slot.assigned_thesis for slot in [thesis.slot for thesis in population.thesis]) for population in
-               self.populations])
+        print([max(slot.assigned_thesis for slot in [thesis.slot for thesis in individual.thesis]) for individual in
+               self.population])
 
 
 class GeneticAssembler(Assembler):
@@ -185,23 +185,23 @@ class GeneticAssembler(Assembler):
         self.parents = []
 
         self.mean_population_score = []
-        self.best_population_score = []
+        self.best_individual_score = []
 
     def create_initial_population(self):
         raise NotImplementedError
 
     def select_parents(self):
         best_population_count = int(self.population_count * self.parents_percent)
-        self.parents = self.populations[
+        self.parents = self.population[
                        :best_population_count if best_population_count % 2 == 0 else best_population_count + 1]
 
     def crossover(self):
-        self.populations.sort(reverse=True)
+        self.population.sort(reverse=True)
         child_count = int(len(self.parents) / 2)
         if child_count == 0:
             return
-        populations_to_replace = self.populations[-child_count:]
-        self.populations = self.populations[:-child_count]
+        individuals_to_replace = self.population[-child_count:]
+        self.population = self.population[:-child_count]
 
         random.shuffle(self.parents)
 
@@ -254,21 +254,21 @@ class GeneticAssembler(Assembler):
 
             child_thesis = sorted(child_thesis, key=lambda x: x.id)
 
-            populations_to_replace.append(Population(child_thesis, child_employees))
+            individuals_to_replace.append(Individual(child_thesis, child_employees))
 
-        for population in populations_to_replace:
-            if not population.fitness:
-                population.fitness = self.calculate_population_fitness(population)
+        for individual in individuals_to_replace:
+            if not individual.fitness:
+                individual.fitness = self.calculate_individual_fitness(individual)
 
-        populations_to_replace.sort(reverse=True)
-        populations_to_replace = populations_to_replace[:child_count]
-        self.populations.extend(populations_to_replace)
+        individuals_to_replace.sort(reverse=True)
+        individuals_to_replace = individuals_to_replace[:child_count]
+        self.population.extend(individuals_to_replace)
 
     def mutate(self):
         mutate_population_count = int(self.population_count * self.population_mutation_percent)
         mutate_thesis_count = int(len(self.thesis) * self.thesis_mutation_percent)
 
-        origins = random.sample(self.populations, mutate_population_count)
+        origins = random.sample(self.population, mutate_population_count)
         for origin in origins:
             mutant = copy.deepcopy(origin)
             mutant_head_of_committee_list = []
@@ -301,10 +301,10 @@ class GeneticAssembler(Assembler):
                         print('Mutation not successful')
                         return
 
-            mutant.fitness = self.calculate_population_fitness(mutant)
+            mutant.fitness = self.calculate_individual_fitness(mutant)
             if mutant.fitness > origin.fitness:
-                self.populations.remove(origin)
-                self.populations.append(mutant)
+                self.population.remove(origin)
+                self.population.append(mutant)
 
     def assemble(self):
         global_start = time.time()
@@ -317,18 +317,18 @@ class GeneticAssembler(Assembler):
 
         for i in range(self.iteration_count):
             start = time.time()
-            previous_fitness = [p.fitness for p in self.populations]
+            previous_fitness = [p.fitness for p in self.population]
             self.calculate_fitness()
             self.select_parents()
             self.crossover()
             self.mutate()
 
-            self.populations.sort(reverse=True)
+            self.population.sort(reverse=True)
 
-            self.mean_population_score.append(round(statistics.mean([p.fitness for p in self.populations])))
-            self.best_population_score.append(self.populations[0].fitness)
+            self.mean_population_score.append(round(statistics.mean([p.fitness for p in self.population])))
+            self.best_individual_score.append(self.population[0].fitness)
 
-            fitness = [p.fitness for p in self.populations]
+            fitness = [individual.fitness for individual in self.population]
             if len(set(fitness)) == 1 and not extreme_mutation_mode:
                 print('entering extreme mutation mode')
                 self.parents_percent = 0
@@ -343,19 +343,19 @@ class GeneticAssembler(Assembler):
                 extreme_mutation_mode = False
 
             mean_population_diff = statistics.mean(
-                [x - y for (x, y) in zip([p.fitness for p in self.populations], previous_fitness)])
+                [x - y for (x, y) in zip([p.fitness for p in self.population], previous_fitness)])
 
             print(
-                f'{i + 1}/{self.iteration_count} |{self.populations[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_score[-1]} | mean diff: {mean_population_diff}')
+                f'{i + 1}/{self.iteration_count} |{self.population[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_score[-1]} | mean diff: {mean_population_diff}')
             # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / self.employees_per_slot)
             self.time_elapsed = round((time.time() - global_start) / 60, 2)
 
             self.window_queue.put({
                 'assembler_name': self.assembler_name,
-                'progress_msg': f'{TRANSLATIONS["ALGORITHMS"][self.assembler_name] if TRANSLATE else self.assembler_name} {i + 1}/{self.iteration_count} ({self.populations[0].fitness})',
+                'progress_msg': f'{TRANSLATIONS["ALGORITHMS"][self.assembler_name] if TRANSLATE else self.assembler_name} {i + 1}/{self.iteration_count} ({self.population[0].fitness})',
                 'iteration': i + 1,
-                'best_population': self.populations[0],
-                'best_population_score': self.best_population_score,
+                'best_individual': self.population[0],
+                'best_individual_score': self.best_individual_score,
                 'mean_population_score': self.mean_population_score,
                 'time_elapsed': self.time_elapsed
             })

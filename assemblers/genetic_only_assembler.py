@@ -1,7 +1,7 @@
 import copy
 
 from .assembler import GeneticAssembler
-from models import Population
+from models import Individual
 
 
 class GeneticOnlyAssembler(GeneticAssembler):
@@ -22,4 +22,4 @@ class GeneticOnlyAssembler(GeneticAssembler):
                     employees=employees,
                 )
 
-            self.populations.append(Population(thesis, employees))
+            self.population.append(Individual(thesis, employees))

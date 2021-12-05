@@ -17,21 +17,12 @@ class Employee(Person):
     def __init__(self, kwargs):
         super().__init__(kwargs['name'], kwargs['surname'], kwargs['id'])
         self.tenure = kwargs['tenure']
-        self.online_slots = kwargs['online_slots']
-        self.stationary_slots = kwargs['stationary_slots']
         self.notes = kwargs.get('notes')
 
         self.availability = None
-        self.online_slot_single = None
-        self.online_slot_multiple = None
-        self.stationary_slot_single = None
-        self.stationary_slot_multiple = None
 
         self.available_slots = []
         self.assigned_slots = []
-
-        if self.online_slots and self.stationary_slots:
-            self.check_slots(self.online_slots, self.stationary_slots)
 
         self.check_fix_names()
         self.check_tenure()
@@ -46,10 +37,6 @@ class Employee(Person):
             return False
         else:
             return True
-
-    def check_slots(self, online_slots, stationary_slots):
-        self.online_slot_single, self.online_slot_multiple = online_slots.split('; ')
-        self.stationary_slot_single, self.stationary_slot_multiple = stationary_slots.split('; ')
 
     def check_fix_names(self):
         if len(self.name.split(' ')) > 1 and len(self.surname.split(' ')) > 1:
@@ -90,7 +77,6 @@ class Thesis:
         self.supervisor = kwargs['supervisor']
         self.reviewer = kwargs['reviewer']
 
-        self.id = None
         self.slot = None
         self.head_of_committee = None
         self.committee_members = []
@@ -119,7 +105,7 @@ class Student(Person):
         self.thesis = thesis
 
 
-class Population:
+class Individual:
     def __init__(self, thesis: List[Thesis], employees: List[Employee]):
         self.thesis = thesis
         self.employees = employees
