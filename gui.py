@@ -40,8 +40,6 @@ class Window:
         self.master.configure(**MASTER_PARAMS)
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        translate = TRANSLATE
-
         self.assembler_killed = False
         self.assembling = False
         self.window_closed = False
@@ -91,14 +89,14 @@ class Window:
 
         self.employees_button = tk.Button(
             self.employees_frame,
-            text='Wybierz plik z pracownikami' if translate else 'Choose employees file',
+            text='Wybierz plik z pracownikami' if TRANSLATE else 'Choose employees file',
             command=lambda: self.browse_files('employees'),
             **BUTTON_PARAMS
         )
 
         self.thesis_button = tk.Button(
             self.thesis_frame,
-            text='Wybierz plik z pracami' if translate else 'Choose thesis file',
+            text='Wybierz plik z pracami' if TRANSLATE else 'Choose thesis file',
             command=lambda: self.browse_files('thesis'),
             **BUTTON_PARAMS
         )
@@ -108,7 +106,7 @@ class Window:
             self.algorithm_checkboxes.append(
                 tk.Checkbutton(
                     self.checkbox_frame,
-                    text=f'Algorytm {TRANSLATIONS["ALGORITHMS"][name].capitalize()}' if translate else f'{name.capitalize()} Algorithm',
+                    text=f'Algorytm {TRANSLATIONS["ALGORITHMS"][name].capitalize()}' if TRANSLATE else f'{name.capitalize()} Algorithm',
                     command=lambda x=name: self.check_changed(x),
                     **MASTER_PARAMS
                 )
@@ -116,7 +114,7 @@ class Window:
 
         self.reader_params_label = tk.Label(
             self.reader_params_frame,
-            text='Parametry czytnika' if translate else 'Reader Params',
+            text='Parametry czytnika' if TRANSLATE else 'Reader Params',
             **TITLE_PARAMS
         )
 
@@ -130,7 +128,7 @@ class Window:
                     **PARAM_PARAMS
                 ),
                 tk.Label(
-                    text=TRANSLATIONS['READER'][entry] if translate else ' '.join(entry.split('_')).title(),
+                    text=TRANSLATIONS['READER'][entry] if TRANSLATE else ' '.join(entry.split('_')).title(),
                     **PARAM_PARAMS
                 ),
                 entry_box
@@ -138,7 +136,7 @@ class Window:
 
         self.assembler_params_label = tk.Label(
             self.assembler_params_frame,
-            text='Parametry do składania obron' if translate else 'Assembler Params',
+            text='Parametry do składania obron' if TRANSLATE else 'Assembler Params',
             **TITLE_PARAMS
         )
 
@@ -152,7 +150,7 @@ class Window:
                     **PARAM_PARAMS
                 ),
                 tk.Label(
-                    text=TRANSLATIONS['ASSEMBLER'][entry] if translate else ' '.join(entry.split('_')).title(),
+                    text=TRANSLATIONS['ASSEMBLER'][entry] if TRANSLATE else ' '.join(entry.split('_')).title(),
                     **PARAM_PARAMS
                 ),
                 entry_box
@@ -160,7 +158,7 @@ class Window:
 
         self.genetic_params_label = tk.Label(
             self.genetic_params_frame,
-            text='Parametry genetyczne' if translate else 'Genetic Params',
+            text='Parametry genetyczne' if TRANSLATE else 'Genetic Params',
             **TITLE_PARAMS
         )
 
@@ -174,7 +172,7 @@ class Window:
                     **PARAM_PARAMS
                 ),
                 tk.Label(
-                    text=TRANSLATIONS['GENETIC'][entry] if translate else ' '.join(entry.split('_')).title(),
+                    text=TRANSLATIONS['GENETIC'][entry] if TRANSLATE else ' '.join(entry.split('_')).title(),
                     **PARAM_PARAMS
                 ),
                 entry_box
@@ -182,14 +180,14 @@ class Window:
 
         self.assemble_button = tk.Button(
             self.master,
-            text='START' if translate else 'ASSEMBLE',
+            text='START' if TRANSLATE else 'ASSEMBLE',
             command=self.assemble,
             **BUTTON_PARAMS
         )
 
         self.assemble_stop_button = tk.Button(
             self.master,
-            text='STOP' if translate else 'STOP ASSEMBLING',
+            text='STOP' if TRANSLATE else 'STOP ASSEMBLING',
             command=self.assemble_stop,
             **BUTTON_PARAMS
         )
@@ -441,7 +439,7 @@ class Window:
             value = entry.get()
             validator = READER_PARAMS[name]
             try:
-                reader_params[name] = self.validate_param(name, value, validator)
+                reader_params[name] = self.validate_param(name, value, validator, 'READER')
                 if name == 'break_time':
                     assembler_params[name] = reader_params[name]
             except ValidationError:
@@ -451,7 +449,7 @@ class Window:
             value = entry.get()
             validator = ASSEMBLER_PARAMS[name]
             try:
-                assembler_params[name] = self.validate_param(name, value, validator)
+                assembler_params[name] = self.validate_param(name, value, validator, 'ASSEMBLER')
             except ValidationError:
                 return False
 
@@ -460,7 +458,7 @@ class Window:
                 value = entry.get()
                 validator = GENETIC_PARAMS[name]
                 try:
-                    genetic_params[name] = self.validate_param(name, value, validator)
+                    genetic_params[name] = self.validate_param(name, value, validator, 'GENETIC')
                 except ValidationError:
                     return False
 
@@ -473,29 +471,32 @@ class Window:
             raise ValidationError('Wrong thesis file chosen.')
 
     @staticmethod
-    def validate_param(name, value, validator):
+    def validate_param(name, value, validator, namespace):
+        if TRANSLATE:
+            name = TRANSLATIONS[namespace][name]
+
         if validator['type'] == bool:
             if not value.isdigit() or not int(value) in (1, 0):
-                raise ValidationError(f'{name} should be set to either 0 (FALSE) or 1 (TRUE)')
+                raise ValidationError(f'{name} powinno przyjmować wartości 0 (NIE) lub 1 (TAK)' if TRANSLATE else f'{name} should be set to either 0 (FALSE) or 1 (TRUE)')
             value = bool(int(value))
         if validator['type'] == int:
             if not value.isdigit():
-                raise ValidationError(f'{name} must be int')
+                raise ValidationError(f'{name} musi być liczbą' if TRANSLATE else f'{name} must be int')
             value = int(value)
         elif validator['type'] == float:
             try:
                 float(value)
             except ValueError:
-                raise ValidationError(f'{name} must be float')
+                raise ValidationError(f'{name} musi być liczbą zmienno przecinkową' if TRANSLATE else f'{name} must be float')
             value = float(value)
 
         if validator.get('min'):
             if value < validator['min']:
-                raise ValidationError(f'Min value of {name} is {validator["min"]}')
+                raise ValidationError(f'{name} nie może być mniejsze niż {validator["min"]}' if TRANSLATE else f'Min value of {name} is {validator["min"]}')
 
         if validator.get('max'):
             if value > validator['max']:
-                raise ValidationError(f'Max value of {name} is {validator["max"]}')
+                raise ValidationError(f'{name} nie może być większe niż {validator["max"]}' if TRANSLATE else f'Max value of {name} is {validator["max"]}')
 
         return value
 
