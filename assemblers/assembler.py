@@ -187,9 +187,6 @@ class GeneticAssembler(Assembler):
         self.mean_population_score = []
         self.best_individual_score = []
 
-    def create_initial_population(self):
-        raise NotImplementedError
-
     def select_parents(self):
         best_population_count = int(self.population_count * self.parents_percent)
         self.parents = self.population[
