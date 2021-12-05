@@ -47,22 +47,22 @@ TRANSLATIONS = {
         "genetic": "genetyczny"
     },
     "READER": {
-        "slot_size": "Długość obrony (w minutach)",
+        "slot_size": "Długość egzaminu (w minutach)",
         "break_time": "Długość przerwy (w minutach)",
-        "slot_block": "Długość bloku obron"
+        "slot_block": "Długość bloku egzaminów"
     },
     "ASSEMBLER": {
         "employees_per_slot": "Wielkość komisji (liczba pracowników)",
         "population_count": "Wielkość populacji (liczba zestawionych składów)",
-        "max_slots_per_employee": "Maksymalna ilość obron dla pracownika (1-Tak, 0-Nie)",
-        "max_thesis_per_slot": "Maksymalna ilość obron na jeden slot",
+        "max_slots_per_employee": "Maksymalna ilość egzaminów dla pracownika (1-Tak, 0-Nie)",
+        "max_thesis_per_slot": "Maksymalna ilość egzaminów na jeden slot",
         "slot_block": "Długość bloku obron dla tego samego składu"
     },
     "GENETIC": {
         "iteration_count": "Liczba iteracji",
         "parents_percent": "Ułamek rodziców w populacji",
         "population_mutation_percent": "Ułamek populacji do mutacji",
-        "thesis_mutation_percent": "Ułamek obron do mutacji",
+        "thesis_mutation_percent": "Ułamek egzaminów do mutacji",
         "timeout": "Limit czasu przeprowadzania modyfikacji"
     }
 }

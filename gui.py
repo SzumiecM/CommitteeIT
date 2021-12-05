@@ -416,12 +416,15 @@ class Window:
         ax = fig.add_subplot(111)
 
         x = range(iteration_count)
-        ax.plot(x, mean_population_score, '-b', label='mean population score')
-        ax.plot(x, best_population_score, '-r', label='best population score')
-        ax.set_title(f'Population score for {assembler_name} with {time_elapsed}m execution time\n'
-                     f'parents: {parents_percent} | mutation percent: {population_mutation_percent} | mutated thesis: {thesis_mutation_percent}')
-        fig.text(0.5, 0.04, 'common X', ha='center')
-        fig.text(0.04, 0.5, 'common Y', va='center', rotation='vertical')
+        ax.plot(x, mean_population_score, '-b',
+                label='średni wynik przystosowania osobników' if TRANSLATE else 'mean population score')
+        ax.plot(x, best_population_score, '-r',
+                label='wynik najlepszego osobnika' if TRANSLATE else 'best population score')
+        ax.set_title(
+            f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][assembler_name]}, z czasem wykonywania: {time_elapsed}m' if TRANSLATE else f'Population score for {assembler_name} with {time_elapsed}m execution time\n'
+                                                                                                                                 f'parents: {parents_percent} | mutation percent: {population_mutation_percent} | mutated thesis: {thesis_mutation_percent}')
+        fig.text(0.5, 0.04, 'iteracje' if TRANSLATE else 'iterations', ha='center')
+        fig.text(0.04, 0.5, 'współczynnik dopasowania' if TRANSLATE else 'fitness', va='center', rotation='vertical')
         ax.legend(loc='upper left')
         canvas.draw()
 
@@ -466,7 +469,8 @@ class Window:
 
     def validate_paths(self):
         if not os.path.isfile(self.employees_entry.get()) or not self.employees_entry.get().endswith('.xlsx'):
-            raise ValidationError('Wybrano nieodpowiedni plik z pracownikami' if TRANSLATE else 'Wrong employees file chosen.')
+            raise ValidationError(
+                'Wybrano nieodpowiedni plik z pracownikami' if TRANSLATE else 'Wrong employees file chosen.')
         elif not os.path.isfile(self.thesis_entry.get()) or not self.thesis_entry.get().endswith('.xlsx'):
             raise ValidationError('Wybrano nieodpowiedni plik z pracami' if TRANSLATE else 'Wrong thesis file chosen.')
 
@@ -477,7 +481,8 @@ class Window:
 
         if validator['type'] == bool:
             if not value.isdigit() or not int(value) in (1, 0):
-                raise ValidationError(f'{name} powinno przyjmować wartości 0 (NIE) lub 1 (TAK)' if TRANSLATE else f'{name} should be set to either 0 (FALSE) or 1 (TRUE)')
+                raise ValidationError(
+                    f'{name} powinno przyjmować wartości 0 (NIE) lub 1 (TAK)' if TRANSLATE else f'{name} should be set to either 0 (FALSE) or 1 (TRUE)')
             value = bool(int(value))
         if validator['type'] == int:
             if not value.isdigit():
@@ -487,16 +492,19 @@ class Window:
             try:
                 float(value)
             except ValueError:
-                raise ValidationError(f'{name} musi być liczbą zmienno przecinkową' if TRANSLATE else f'{name} must be float')
+                raise ValidationError(
+                    f'{name} musi być liczbą zmienno przecinkową' if TRANSLATE else f'{name} must be float')
             value = float(value)
 
         if validator.get('min'):
             if value < validator['min']:
-                raise ValidationError(f'{name} nie może być mniejsze niż {validator["min"]}' if TRANSLATE else f'Min value of {name} is {validator["min"]}')
+                raise ValidationError(
+                    f'{name} nie może być mniejsze niż {validator["min"]}' if TRANSLATE else f'Min value of {name} is {validator["min"]}')
 
         if validator.get('max'):
             if value > validator['max']:
-                raise ValidationError(f'{name} nie może być większe niż {validator["max"]}' if TRANSLATE else f'Max value of {name} is {validator["max"]}')
+                raise ValidationError(
+                    f'{name} nie może być większe niż {validator["max"]}' if TRANSLATE else f'Max value of {name} is {validator["max"]}')
 
         return value
 
