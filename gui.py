@@ -466,9 +466,9 @@ class Window:
 
     def validate_paths(self):
         if not os.path.isfile(self.employees_entry.get()) or not self.employees_entry.get().endswith('.xlsx'):
-            raise ValidationError('Wrong employees file chosen.')
+            raise ValidationError('Wybrano nieodpowiedni plik z pracownikami' if TRANSLATE else 'Wrong employees file chosen.')
         elif not os.path.isfile(self.thesis_entry.get()) or not self.thesis_entry.get().endswith('.xlsx'):
-            raise ValidationError('Wrong thesis file chosen.')
+            raise ValidationError('Wybrano nieodpowiedni plik z pracami' if TRANSLATE else 'Wrong thesis file chosen.')
 
     @staticmethod
     def validate_param(name, value, validator, namespace):
