@@ -10,15 +10,14 @@ from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
 
 
 class Assembler:
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
-                 population_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
-                 break_time: int, slot_block: int, window_queue=None):
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], population_count: int,
+                 max_slots_per_employee: bool, max_thesis_per_slot: int, break_time: int, slot_block: int,
+                 window_queue=None):
 
         self.thesis = copy.deepcopy(thesis)
         self.employees = copy.deepcopy(employees)
         self.population_count = population_count
-        self.employees_per_slot = employees_per_slot
-        self.mean_slots_per_employee = int(len(self.thesis) * self.employees_per_slot / len(self.employees))
+        self.mean_slots_per_employee = int(len(self.thesis) * 3 / len(self.employees))
 
         self.max_slots_per_employee = self.mean_slots_per_employee + 6 if max_slots_per_employee else 9999
         self.max_thesis_per_slot = max_thesis_per_slot
@@ -161,14 +160,13 @@ class Assembler:
 
 
 class GeneticAssembler(Assembler):
-    def __init__(self, thesis: List[Thesis], employees: List[Employee], employees_per_slot: int,
-                 population_count: int, iteration_count: int, max_slots_per_employee: bool, max_thesis_per_slot: int,
-                 parents_percent: float, population_mutation_percent: float, thesis_mutation_percent: float,
-                 break_time: int, slot_block: int, timeout: int, window_queue=None):
+    def __init__(self, thesis: List[Thesis], employees: List[Employee], population_count: int, iteration_count: int,
+                 max_slots_per_employee: bool, max_thesis_per_slot: int, parents_percent: float,
+                 population_mutation_percent: float, thesis_mutation_percent: float, break_time: int, slot_block: int,
+                 timeout: int, window_queue=None):
         super().__init__(
             thesis=thesis,
             employees=employees,
-            employees_per_slot=employees_per_slot,
             population_count=population_count,
             max_slots_per_employee=max_slots_per_employee,
             max_thesis_per_slot=max_thesis_per_slot,

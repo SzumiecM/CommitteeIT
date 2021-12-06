@@ -34,8 +34,8 @@ class Window:
     def __init__(self):
         self.master = tk.Tk()
         self.master.title('CommitteeIT')
-        self.master.geometry('800x650')
-        self.master.minsize(800, 650)
+        self.master.geometry('800x625')
+        self.master.minsize(800, 625)
         self.master.option_add('*Font', 'Arial 10')
         self.master.configure(**MASTER_PARAMS)
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)

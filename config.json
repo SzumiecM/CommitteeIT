@@ -17,11 +17,6 @@
     }
   },
   "ASSEMBLER_PARAMS": {
-    "employees_per_slot": {
-      "type": "int",
-      "min": 1,
-      "default": 3
-    },
     "population_count": {
       "type": "int",
       "min": 3,
