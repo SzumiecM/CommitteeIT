@@ -399,8 +399,8 @@ class Window:
         if assembler_name not in GENETIC:
             return
 
-        mean_population_score = assembler.mean_population_score if not cached else assembler['mean_population_score']
-        best_individual_score = assembler.best_individual_score if not cached else assembler['best_individual_score']
+        mean_population_scores = assembler.mean_population_scores if not cached else assembler['mean_population_scores']
+        best_individual_scores = assembler.best_individual_scores if not cached else assembler['best_individual_scores']
         time_elapsed = assembler.time_elapsed if not cached else assembler['time_elapsed']
         parents_percent = assembler.parents_percent if not cached else kwargs['parents_percent']
         population_mutation_percent = assembler.population_mutation_percent if not cached else kwargs[
@@ -416,9 +416,9 @@ class Window:
         ax = fig.add_subplot(111)
 
         x = range(iteration_count)
-        ax.plot(x, mean_population_score, '-b',
+        ax.plot(x, mean_population_scores, '-b',
                 label='średni wynik przystosowania osobników' if TRANSLATE else 'mean population score')
-        ax.plot(x, best_individual_score, '-r',
+        ax.plot(x, best_individual_scores, '-r',
                 label='wynik najlepszego osobnika' if TRANSLATE else 'best individual score')
         ax.set_title(
             f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][assembler_name]}, z czasem wykonywania: {time_elapsed}m' if TRANSLATE else f'Population score for {assembler_name} with {time_elapsed}m execution time\n'

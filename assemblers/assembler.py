@@ -182,8 +182,8 @@ class GeneticAssembler(Assembler):
         self.timeout = timeout
         self.parents = []
 
-        self.mean_population_score = []
-        self.best_individual_score = []
+        self.mean_population_scores = []
+        self.best_individual_scores = []
 
     def select_parents(self):
         best_population_count = int(self.population_count * self.parents_percent)
@@ -320,8 +320,8 @@ class GeneticAssembler(Assembler):
 
             self.population.sort(reverse=True)
 
-            self.mean_population_score.append(round(statistics.mean([p.fitness for p in self.population])))
-            self.best_individual_score.append(self.population[0].fitness)
+            self.mean_population_scores.append(round(statistics.mean([p.fitness for p in self.population])))
+            self.best_individual_scores.append(self.population[0].fitness)
 
             fitness = [individual.fitness for individual in self.population]
             if len(set(fitness)) == 1 and not extreme_mutation_mode:
@@ -341,7 +341,7 @@ class GeneticAssembler(Assembler):
                 [x - y for (x, y) in zip([p.fitness for p in self.population], previous_fitness)])
 
             print(
-                f'{i + 1}/{self.iteration_count} |{self.population[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_score[-1]} | mean diff: {mean_population_diff}')
+                f'{i + 1}/{self.iteration_count} |{self.population[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_scores[-1]} | mean diff: {mean_population_diff}')
             # print(sum([len(e.assigned_slots) for e in self.populations[0].employees]) / self.employees_per_slot)
             self.time_elapsed = round((time.time() - global_start) / 60, 2)
 
@@ -350,8 +350,8 @@ class GeneticAssembler(Assembler):
                 'progress_msg': f'{TRANSLATIONS["ALGORITHMS"][self.assembler_name] if TRANSLATE else self.assembler_name} {i + 1}/{self.iteration_count} ({self.population[0].fitness})',
                 'iteration': i + 1,
                 'best_individual': self.population[0],
-                'best_individual_score': self.best_individual_score,
-                'mean_population_score': self.mean_population_score,
+                'best_individual_scores': self.best_individual_scores,
+                'mean_population_scores': self.mean_population_scores,
                 'time_elapsed': self.time_elapsed
             })
 
