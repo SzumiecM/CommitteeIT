@@ -15,7 +15,7 @@ class XlsxWriter:
         self.population = population
         self.algorithm_name = algorithm_name
         self.copy_worksheet()
-        self.write_thesis()
+        self.write_individual()
         self.save()
 
     def copy_worksheet(self):
@@ -23,7 +23,7 @@ class XlsxWriter:
         self.worksheet = self.workbook.copy_worksheet(self.workbook.worksheets[0])
         self.worksheet.title = work_sheet_name
 
-    def write_thesis(self):
+    def write_individual(self):
         head_of_committee_title = 'przewodniczący komisji egzaminu dyplomowego:'
 
         row, column = self.find_starting_row_and_column(head_of_committee_title)
@@ -32,7 +32,7 @@ class XlsxWriter:
         self.worksheet.cell(row - 1, column + 8).value = 'komentarz'
 
         for thesis in self.population.thesis:
-            self.write_population(thesis, row, column)
+            self.write_thesis(thesis, row, column)
 
             notes = []
             if thesis.head_of_committee.notes:
@@ -47,10 +47,10 @@ class XlsxWriter:
 
             row += 1
             if not thesis.individual:
-                self.write_population(thesis, row, column)
+                self.write_thesis(thesis, row, column)
                 row += 1
 
-    def write_population(self, thesis, row, column):
+    def write_thesis(self, thesis, row, column):
         self.worksheet.cell(row, column).value = thesis.head_of_committee.__repr__()
         self.worksheet.cell(row, column + 1).value, self.worksheet.cell(row, column + 2).value = [x.__repr__() for x
                                                                                                   in

@@ -82,11 +82,9 @@ class ThesisReader(XlsxReader):
 
         self.thesis = []
         self.students = []
-        self.needed_slots = {'single': 0, 'double': 0}
 
         self.read_objects()
         self.assign_thesis()
-        self.check_needed_slots()
 
     def assign_thesis(self):
         for student in self.students:
@@ -99,15 +97,6 @@ class ThesisReader(XlsxReader):
 
         for i, thesis in enumerate(self.thesis):
             thesis.id = i + 1
-
-    def check_needed_slots(self):
-        for thesis in self.thesis:
-            if thesis.individual:
-                self.needed_slots['single'] += 1
-            else:
-                self.needed_slots['double'] += 1
-
-        self.needed_slots['double'] = int(self.needed_slots['double'] / 2)
 
     def map_employees(self, employees):
         for thesis in self.thesis:
