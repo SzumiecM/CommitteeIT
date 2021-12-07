@@ -424,7 +424,7 @@ class Window:
             f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][assembler_name]}, z czasem wykonywania: {time_elapsed}m' if TRANSLATE else f'Population score for {assembler_name} with {time_elapsed}m execution time\n'
                                                                                                                                  f'parents: {parents_percent} | mutation percent: {population_mutation_percent} | mutated thesis: {thesis_mutation_percent}')
         fig.text(0.5, 0.04, 'iteracje' if TRANSLATE else 'iterations', ha='center')
-        fig.text(0.04, 0.5, 'współczynnik dopasowania' if TRANSLATE else 'fitness', va='center', rotation='vertical')
+        fig.text(0.04, 0.5, 'współczynnik przystosowania' if TRANSLATE else 'fitness', va='center', rotation='vertical')
         ax.legend(loc='upper left')
         canvas.draw()
 
