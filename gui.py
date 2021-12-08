@@ -236,6 +236,7 @@ class Window:
 
     def on_close(self):
         self.queue.put('DONE')
+        self.listener_thread.join()
         if self.assembling:
             self.assembler_killed = True
             self.window_closed = True
