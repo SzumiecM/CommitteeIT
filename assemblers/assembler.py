@@ -278,23 +278,34 @@ class GeneticAssembler(Assembler):
             mutated_thesis = random.sample(mutant.thesis, mutate_thesis_count)
 
             for thesis in mutated_thesis:
-                if thesis.individual:
-                    try:
-                        head = get_by_id(mutant_head_of_committee_list, thesis.head_of_committee.id)
-                        thesis.head_of_committee = head
-                        thesis.head_of_committee.assigned_slots.remove(get_by_id(head.assigned_slots, thesis.slot.id))
-                        thesis.head_of_committee.available_slots.append(thesis.slot)
-                        for member in thesis.committee_members:
-                            member = get_by_id(mutant_committee_member_list, member.id)
-                            member.assigned_slots.remove(get_by_id(member.assigned_slots, thesis.slot.id))
-                            member.available_slots.append(thesis.slot)
-                        self.create_thesis(
-                            thesis=thesis,
-                            employees=mutant.employees
-                        )
-                    except TimeoutError:
-                        print('Mutation not successful')
-                        return
+                try:
+                    head = get_by_id(mutant_head_of_committee_list, thesis.head_of_committee.id)
+                    thesis.head_of_committee = head
+                    thesis.head_of_committee.assigned_slots.remove(get_by_id(head.assigned_slots, thesis.slot.id))
+                    thesis.head_of_committee.available_slots.append(thesis.slot)
+
+                    if not thesis.individual:
+                        slot_2 = get_by_id(head.assigned_slots, thesis.slot.id+1)
+                        thesis.head_of_committee.assigned_slots.remove(slot_2)
+                        thesis.head_of_committee.available_slots.append(slot_2)
+
+                    for member in thesis.committee_members:
+                        member = get_by_id(mutant_committee_member_list, member.id)
+                        member.assigned_slots.remove(get_by_id(member.assigned_slots, thesis.slot.id))
+                        member.available_slots.append(thesis.slot)
+
+                        if not thesis.individual:
+                            slot_2 = get_by_id(member.assigned_slots, thesis.slot.id+1)
+                            member.assigned_slots.remove(slot_2)
+                            member.available_slots.append(slot_2)
+
+                    self.create_thesis(
+                        thesis=thesis,
+                        employees=mutant.employees
+                    )
+                except TimeoutError:
+                    print('Mutation not successful')
+                    return
 
             mutant.fitness = self.calculate_individual_fitness(mutant)
             if mutant.fitness > origin.fitness:
