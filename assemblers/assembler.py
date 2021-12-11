@@ -4,6 +4,8 @@ import time
 from typing import List
 import copy
 
+from matplotlib import pyplot as plt
+
 from config import FITNESS_WEIGHTS, TRANSLATIONS, TRANSLATE
 from models import Thesis, Employee, Individual
 from utils import assign_to_thesis_heuristically, get_by_id, assign_employees
@@ -184,6 +186,8 @@ class GeneticAssembler(Assembler):
 
         self.mean_population_scores = []
         self.best_individual_scores = []
+        self.mean_diffs = []
+        self.elapsed_times = []
 
     def select_parents(self):
         best_population_count = int(self.population_count * self.parents_percent)
@@ -285,7 +289,7 @@ class GeneticAssembler(Assembler):
                     thesis.head_of_committee.available_slots.append(thesis.slot)
 
                     if not thesis.individual:
-                        slot_2 = get_by_id(head.assigned_slots, thesis.slot.id+1)
+                        slot_2 = get_by_id(head.assigned_slots, thesis.slot.id + 1)
                         thesis.head_of_committee.assigned_slots.remove(slot_2)
                         thesis.head_of_committee.available_slots.append(slot_2)
 
@@ -295,7 +299,7 @@ class GeneticAssembler(Assembler):
                         member.available_slots.append(thesis.slot)
 
                         if not thesis.individual:
-                            slot_2 = get_by_id(member.assigned_slots, thesis.slot.id+1)
+                            slot_2 = get_by_id(member.assigned_slots, thesis.slot.id + 1)
                             member.assigned_slots.remove(slot_2)
                             member.available_slots.append(slot_2)
 
@@ -348,8 +352,11 @@ class GeneticAssembler(Assembler):
                 self.thesis_mutation_percent = thesis_mutation_percent
                 extreme_mutation_mode = False
 
-            mean_population_diff = statistics.mean(
-                [x - y for (x, y) in zip([p.fitness for p in self.population], previous_fitness)])
+            mean_population_diff = abs(statistics.mean(
+                [x - y for (x, y) in zip([p.fitness for p in self.population], previous_fitness)]))
+
+            self.mean_diffs.append(mean_population_diff)
+            self.elapsed_times.append(round(time.time() - start, 2))
 
             print(
                 f'{i + 1}/{self.iteration_count} |{self.population[0].fitness}| {self.assembler_name} ({round(time.time() - start, 2)}) -> mean score: {self.mean_population_scores[-1]} | mean diff: {mean_population_diff}')
@@ -367,6 +374,48 @@ class GeneticAssembler(Assembler):
             })
 
         self.save_results()
+
+        x = range(self.iteration_count)
+
+        plt.plot(x, self.mean_diffs, '-b', label='średnia różnica wyników przystosowania osobnikówi')
+        plt.title(
+            f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
+        plt.xlabel('iteracje')
+        plt.ylabel('różnica przystosowania')
+        plt.legend(loc="upper left")
+        plt.show()
+
+        plt.plot(x, self.elapsed_times, '-g', label='czas wykonywania iteracji')
+        plt.title(
+            f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
+        plt.xlabel('iteracje')
+        plt.ylabel('czas wykonywania')
+        plt.legend(loc="upper left")
+        plt.show()
+
+        plt.plot(x, self.mean_population_scores, '-b',
+                 label='średni wynik przystosowania osobników' if TRANSLATE else 'mean population score')
+        plt.plot(x, self.best_individual_scores, '-r',
+                 label='wynik najlepszego osobnika' if TRANSLATE else 'best individual score')
+        plt.title(
+            f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
+        plt.xlabel('iteracje')
+        plt.ylabel('współczynnik przystosowania')
+        plt.legend(loc='upper left')
+        plt.show()
+
+        print(f'mean mean score: {statistics.mean(self.mean_population_scores)}')
+        print(f'stdev mean scores: {statistics.stdev(self.mean_population_scores)}')
+        print(f'mean mean score 10+: {statistics.mean(self.mean_population_scores[10:])}')
+        print(f'stdev mean scores 10+: {statistics.stdev(self.mean_population_scores[10:])}')
+
+        print(f'mean mean diffs: {statistics.mean(self.mean_diffs)}')
+        print(f'stdev mean diffs: {statistics.stdev(self.mean_diffs)}')
+        print(f'mean mean diffs 10+: {statistics.mean(self.mean_diffs[10:])}')
+        print(f'stdev mean diffs 10+: {statistics.stdev(self.mean_diffs[10:])}')
+
+        print(f'mean time: {statistics.mean(self.elapsed_times)}')
+        print(f'stdev time: {statistics.stdev(self.elapsed_times)}')
 
     def create_thesis(self, thesis, employees):
         head_of_committee_list = []
