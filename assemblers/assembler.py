@@ -385,37 +385,56 @@ class GeneticAssembler(Assembler):
         plt.legend(loc="upper left")
         plt.show()
 
-        plt.plot(x, self.elapsed_times, '-g', label='czas wykonywania iteracji')
-        plt.title(
-            f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
-        plt.xlabel('iteracje')
-        plt.ylabel('czas wykonywania')
-        plt.legend(loc="upper left")
-        plt.show()
+        # plt.plot(x, self.elapsed_times, '-g', label='czas wykonywania iteracji')
+        # plt.title(
+        #     f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
+        # plt.xlabel('iteracje')
+        # plt.ylabel('czas wykonywania')
+        # plt.legend(loc="upper left")
+        # plt.show()
+        #
+        # plt.plot(x, self.mean_population_scores, '-b',
+        #          label='średni wynik przystosowania osobników' if TRANSLATE else 'mean population score')
+        # plt.plot(x, self.best_individual_scores, '-r',
+        #          label='wynik najlepszego osobnika' if TRANSLATE else 'best individual score')
+        # plt.title(
+        #     f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
+        # plt.xlabel('iteracje')
+        # plt.ylabel('współczynnik przystosowania')
+        # plt.legend(loc='upper left')
+        # plt.show()
 
-        plt.plot(x, self.mean_population_scores, '-b',
-                 label='średni wynik przystosowania osobników' if TRANSLATE else 'mean population score')
-        plt.plot(x, self.best_individual_scores, '-r',
-                 label='wynik najlepszego osobnika' if TRANSLATE else 'best individual score')
-        plt.title(
-            f'Wyniki dla: {TRANSLATIONS["ALGORITHMS"][self.assembler_name]}, z czasem wykonywania: {self.time_elapsed}m')
-        plt.xlabel('iteracje')
-        plt.ylabel('współczynnik przystosowania')
-        plt.legend(loc='upper left')
-        plt.show()
+        results = f"""
+        ///////////////////////////////////
+        
+        assembler: {self.assembler_name}
+        iterations: {self.iteration_count}
+        population count: {self.population_count}
+        parents percent: {self.parents_percent}
+        population mutation percent: {self.population_mutation_percent}
+        thesis mutation percent: {self.thesis_mutation_percent}
+        
+        mean mean score: {statistics.mean(self.mean_population_scores)}
+        stdev mean scores: {statistics.stdev(self.mean_population_scores)}
+        mean mean score 10+: {statistics.mean(self.mean_population_scores[10:])}
+        stdev mean scores 10+: {statistics.stdev(self.mean_population_scores[10:])}
+        
+        best score: {self.best_individual_scores[-1]}
+        
+        mean mean diffs: {statistics.mean(self.mean_diffs)}
+        stdev mean diffs: {statistics.stdev(self.mean_diffs)}
+        mean mean diffs 10+: {statistics.mean(self.mean_diffs[10:])}
+        stdev mean diffs 10+: {statistics.stdev(self.mean_diffs[10:])}
+        
+        mean time: {statistics.mean(self.elapsed_times)}s
+        stdev time: {statistics.stdev(self.elapsed_times)}s
+        
+        total time: {self.time_elapsed}m
+        
+        """
 
-        print(f'mean mean score: {statistics.mean(self.mean_population_scores)}')
-        print(f'stdev mean scores: {statistics.stdev(self.mean_population_scores)}')
-        print(f'mean mean score 10+: {statistics.mean(self.mean_population_scores[10:])}')
-        print(f'stdev mean scores 10+: {statistics.stdev(self.mean_population_scores[10:])}')
-
-        print(f'mean mean diffs: {statistics.mean(self.mean_diffs)}')
-        print(f'stdev mean diffs: {statistics.stdev(self.mean_diffs)}')
-        print(f'mean mean diffs 10+: {statistics.mean(self.mean_diffs[10:])}')
-        print(f'stdev mean diffs 10+: {statistics.stdev(self.mean_diffs[10:])}')
-
-        print(f'mean time: {statistics.mean(self.elapsed_times)}')
-        print(f'stdev time: {statistics.stdev(self.elapsed_times)}')
+        with open("files\\results_new.txt", "a") as myfile:
+            myfile.write(results)
 
     def create_thesis(self, thesis, employees):
         head_of_committee_list = []
