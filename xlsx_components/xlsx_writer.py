@@ -57,7 +57,7 @@ class XlsxWriter:
                                                                                                   thesis.committee_members]
         self.worksheet.cell(row, column + 3).value = thesis.slot.day
         self.worksheet.cell(row,
-                            column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.start.minute} - {thesis.slot.end.hour}:{thesis.slot.end.minute}'
+                            column + 4).value = f'{thesis.slot.start.hour}:{thesis.slot.end.minute if len(str(thesis.slot.end.minute))==2 else "00"} - {thesis.slot.end.hour}:{thesis.slot.end.minute if len(str(thesis.slot.end.minute))==2 else "00"}'
         self.worksheet.cell(row, column + 7).value = thesis.slot.id
 
     def save(self):
